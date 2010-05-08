@@ -158,6 +158,7 @@ class OpenGateway
 			}	
 				
 			$xml = $this->toArray($data);
+			
 		    return $xml;
 		}
 	}
