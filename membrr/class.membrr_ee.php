@@ -223,12 +223,35 @@ class Membrr_EE {
 							'charge_id' => $charge_id,
 							'recurring_id' => $subscription_id,
 							'amount' => $amount,
-							'date' => date('Y-m-d H:i:s')
+							'date' => date('Y-m-d H:i:s'),
+							'refunded' => '0'
 						);
 						
 		$this->EE->db->insert('exp_membrr_payments',$insert_array);
 		
 		return TRUE;
+	}
+	
+	function Refund ($charge_id) {
+		global $DB;
+		
+		$config = $this->GetConfig();
+		$connect_url = $config['api_url'] . '/api';
+		require_once(PATH_MOD . 'membrr/opengateway.php');
+		
+		$opengateway = new OpenGateway;
+		$opengateway->Authenticate($config['api_id'], $config['secret_key'], $connect_url);
+		$opengateway->SetMethod('Refund');
+		$opengateway->Param('charge_id', $charge_id);
+		$response = $opengateway->Process();
+		
+		if ($response['response_code'] == '50') {
+			$this->EE->db->update('exp_membrr_payments',array('refunded' => '1'),array('charge_id' => $charge_id));
+			return array('success' => TRUE);
+		}
+		else {
+			return array('success' => FALSE, 'error' => $response['response_text']);
+		}
 	}
 	
 	/*
@@ -457,6 +480,7 @@ class Membrr_EE {
 							'plan_id' => $row['plan_id'],
 							'plan_description' => $row['plan_description'],
 							'date' => date('M j, Y @ h:i a',strtotime($row['date'])),
+							'refunded' => $row['refunded'],
 							'entry_id' => (empty($row['entry_id'])) ? FALSE : $row['entry_id'],
 							'channel' => (empty($row['entry_id'])) ? FALSE : $row['channel_name']
 						);

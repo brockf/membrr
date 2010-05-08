@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.0.4';
+	var $version = '1.0.5';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -40,6 +40,10 @@ class Membrr_upd {
 		
 		if ($current < '1.0.3') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` MODIFY COLUMN `end_date` DATETIME');
+        }
+        
+        if ($current < '1.0.5') {
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_payments` ADD COLUMN `refunded` TINYINT NOT NULL AFTER `date`');
         }
 	
 		return TRUE;
@@ -105,7 +109,8 @@ class Membrr_upd {
 				 `charge_id` INT NOT NULL ,
 				 `recurring_id` INT NOT NULL ,
 				 `amount` float NOT NULL ,
-				 `date` DATETIME NOT NULL 
+				 `date` DATETIME NOT NULL,
+				 `refunded` TINYINT NOT NULL,
 				 ) ENGINE = MYISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1000 ;";
 				 
 		$sql[] = "CREATE TABLE IF NOT EXISTS `exp_membrr_address_book` (

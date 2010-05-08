@@ -128,6 +128,7 @@ class Membrr_mcp {
 		if (is_array($payments)) {
 			foreach ($payments as $key => $payment) {
 				$payments[$key]['sub_link'] = '<a href="' . $this->cp_url('subscription',array('id' => $payment['recurring_id'])) . '">' . $payment['recurring_id'] . '</a>';
+				$payments[$key]['refund_text'] = ($payment['refunded'] == '0') ? '<a href="' . $this->cp_url('refund',array('id' => $payment['id'], 'return' => urlencode(base64_encode(htmlspecialchars_decode($this->cp_url('index')))))) . '">' . $this->EE->lang->line('membrr_refund') . '</a>' : 'refunded';
 			}
 			reset($payments);
 		}
