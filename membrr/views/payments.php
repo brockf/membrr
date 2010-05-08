@@ -8,13 +8,14 @@ $this->table->set_heading(
     array('data' => lang('membrr_subscription'), 'style' => 'width: 15%;'),
     array('data' => lang('membrr_plan_name'), 'style' => 'width: 20%;'),
     array('data' => lang('membrr_date'), 'style' => 'width: 20%;'),
-    array('data' => lang('membrr_amount'), 'style' => 'width: 15%;')
+    array('data' => lang('membrr_amount'), 'style' => 'width: 15%;'),
+    array('data' => '', 'style' => 'width: 10%;')
 );
 
 if (!$payments) {
 	$this->table->add_row(array(
 							'data' => lang('membrr_no_payments_dataset'),
-							'colspan' => '6'
+							'colspan' => '7'
 						));
 }
 else {
@@ -24,7 +25,8 @@ else {
 						$payment['sub_link'],
 						$payment['plan_name'],
 						$payment['date'],
-						$config['currency_symbol'] . $payment['amount']
+						$config['currency_symbol'] . $payment['amount'],
+						$payment['refund_text']
 					);
 	}
 }

@@ -233,11 +233,9 @@ class Membrr_EE {
 	}
 	
 	function Refund ($charge_id) {
-		global $DB;
-		
 		$config = $this->GetConfig();
 		$connect_url = $config['api_url'] . '/api';
-		require_once(PATH_MOD . 'membrr/opengateway.php');
+		require_once(dirname(__FILE__) . '/opengateway.php');
 		
 		$opengateway = new OpenGateway;
 		$opengateway->Authenticate($config['api_id'], $config['secret_key'], $connect_url);

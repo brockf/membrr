@@ -83,8 +83,10 @@ if (empty($payments)) {
 }
 else {
 	foreach ($payments as $payment) {
+		$payment['refund_text'] = (empty($payment['refund_text'])) ? '' : ' (' . $payment['refund_text'] . ')';
+		
 		$this->table->add_row(
-				array('data' => $config['currency_symbol'] . $payment['amount'] . ' ' . lang('membrr_received_on') . ' ' . $payment['date'], 'colspan' => '2', 'style' => 'width:30%')
+				array('data' => $config['currency_symbol'] . $payment['amount'] . ' ' . lang('membrr_received_on') . ' ' . $payment['date'] . $payment['refund_text'], 'colspan' => '2', 'style' => 'width:30%')
 			);
 	}	
 }

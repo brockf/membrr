@@ -128,7 +128,12 @@ class Membrr_mcp {
 		if (is_array($payments)) {
 			foreach ($payments as $key => $payment) {
 				$payments[$key]['sub_link'] = '<a href="' . $this->cp_url('subscription',array('id' => $payment['recurring_id'])) . '">' . $payment['recurring_id'] . '</a>';
-				$payments[$key]['refund_text'] = ($payment['refunded'] == '0') ? '<a href="' . $this->cp_url('refund',array('id' => $payment['id'], 'return' => urlencode(base64_encode(htmlspecialchars_decode($this->cp_url('index')))))) . '">' . $this->EE->lang->line('membrr_refund') . '</a>' : 'refunded';
+				if ($payment['amount'] != '0.00') {
+					$payments[$key]['refund_text'] = ($payment['refunded'] == '0') ? '<a href="' . $this->cp_url('refund',array('id' => $payment['id'], 'return' => urlencode(base64_encode(htmlspecialchars_decode($this->cp_url('index')))))) . '">' . $this->EE->lang->line('membrr_refund') . '</a>' : 'refunded';
+				}
+				else {
+					$payments[$key]['refund_text'] = '';
+				}
 			}
 			reset($payments);
 		}
@@ -546,6 +551,12 @@ class Membrr_mcp {
 		if (is_array($payments)) {
 			foreach ($payments as $key => $payment) {
 				$payments[$key]['sub_link'] = '<a href="' . $this->cp_url('subscription',array('id' => $payment['recurring_id'])) . '">' . $payment['recurring_id'] . '</a>';
+				if ($payment['amount'] != '0.00') {
+					$payments[$key]['refund_text'] = ($payment['refunded'] == '0') ? '<a href="' . $this->cp_url('refund',array('id' => $payment['id'], 'return' => urlencode(base64_encode(htmlspecialchars_decode($this->cp_url('payments')))))) . '">' . $this->EE->lang->line('membrr_refund') . '</a>' : 'refunded';
+				}
+				else {
+					$payments[$key]['refund_text'] = '';
+				}
 			}
 			reset($payments);
 		}
@@ -565,6 +576,19 @@ class Membrr_mcp {
 		$vars['pagination'] = $this->EE->pagination->create_links();
 		
 		return $this->EE->load->view('payments',$vars, TRUE);
+	}
+	
+	function refund () {
+		$response = $this->membrr->Refund($this->EE->input->get('id'));
+		
+		if ($response['success'] != TRUE) {
+			return $this->EE->load->view('error',array('error' => $response['error']), TRUE);
+		}
+		else {
+			// it refunded
+			header('Location: ' . base64_decode(urldecode($this->EE->input->get('return'))));				
+			die();
+		}
 	}
 	
 	function subscriptions () {		
@@ -621,8 +645,14 @@ class Membrr_mcp {
 		// calculate total money received
 		$total_amount = 0;
 		if (is_array($payments)) {
-			foreach ($payments as $payment) {
+			foreach ($payments as $key => $payment) {
 				$total_amount = $total_amount + $payment['amount'];
+				if ($payment['amount'] != '0.00') {
+					$payments[$key]['refund_text'] = ($payment['refunded'] == '0') ? '<a href="' . $this->cp_url('refund',array('id' => $payment['id'], 'return' => urlencode(base64_encode(htmlspecialchars_decode($this->cp_url('subscription',array('id' => $this->EE->input->get('id')))))))) . '">' . $this->EE->lang->line('membrr_refund') . '</a>' : 'refunded';
+				}
+				else {
+					$payments[$key]['refund_text'] = '';
+				}
 			}
 			reset($payments);
 		}

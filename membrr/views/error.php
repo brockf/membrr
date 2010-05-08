@@ -1,0 +1,1 @@
+<div class="membrr_error"><p><?=$error;?></p><p><a href="javascript:history.go(-1)">&lt; Go back</a></p></div>
