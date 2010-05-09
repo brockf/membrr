@@ -120,13 +120,12 @@ class Membrr_ext
 	*/
     function saef_form_membrr ($return_form, $captcha, $channel_id) {
     	// are we protecting this?
-    	if ($channel = $this->membrr->GetChannel($channel_id, 'channel_id')) {    		
-    		if (!$this->EE->session->userdata('member_id')) {
-	    		return $return_form;
-	    	}
+    	if ($channel = $this->membrr->GetChannel($channel_id, 'exp_membrr_channels.channel_id')) {    		
+    		return $return_form;
     		
     		/**
     		* Removed because we don't want to redirect when people are editing
+    		* If this works for you, you can include it
     		
     		// yes we are, does this person have an active subscription?
     		if (!$this->membrr->GetSubscriptionForChannel($this->EE->session->userdata('member_id'),$channel['plans'],$channel['one_post'])) {
@@ -163,7 +162,7 @@ class Membrr_ext
     	$_POST['channel_id'] = mysql_real_escape_string($_POST['channel_id']);
     	
     	// are we protecting this?
-    	if ($channel = $this->membrr->GetChannel($_POST['channel_id'])) {
+    	if ($channel = $this->membrr->GetChannel($_POST['channel_id'],'exp_membrr_channels.channel_id')) {
     		// yes we are, does this person have an active subscription?
     		
     		// we may be passed a specific subscription ID
