@@ -119,24 +119,20 @@ class Membrr_ext
 	* @return string The entry form if they are OK.  Redirects to order form if not OK.
 	*/
     function saef_form_membrr ($return_form, $captcha, $channel_id) {
+    	/**
+		* Removed because we don't want to redirect when people are editing
+		* If this works for you, you can include it
     	// are we protecting this?
-    	if ($channel = $this->membrr->GetChannel($channel_id, 'exp_membrr_channels.channel_id')) {    		
-    		return $return_form;
-    		
-    		/**
-    		* Removed because we don't want to redirect when people are editing
-    		* If this works for you, you can include it
-    		
+    	if ($channel = $this->membrr->GetChannel($channel_id, 'exp_membrr_channels.channel_id')) {    		    		
     		// yes we are, does this person have an active subscription?
     		if (!$this->membrr->GetSubscriptionForChannel($this->EE->session->userdata('member_id'),$channel['plans'],$channel['one_post'])) {
     			// nope, redirect to order form
     			header('Location: ' . $channel['order_form']);
     			die();
     		}
-    		*/
-    	}
+    	} */
     	
-    	return $return_form;
+    	return TRUE;
     }
     
     /*
