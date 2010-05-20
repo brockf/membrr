@@ -27,6 +27,7 @@ $lang = array(
 	'membrr_refund' => 'refund',
 	"membrr_module_name" => "Membrr",
 	"membrr_module_description" => "Sell subscriptions on your site.",
+	"membrr_search_all_subscriptions" => "Search Subscriptions by ID, Customer Name, Plan Name, or Price",
 	"membrr_settings" => "Settings",
 	"membrr_plans" => 'Plans',
 	'membrr_dashboard' => 'Dashboard',

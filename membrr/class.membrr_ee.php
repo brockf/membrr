@@ -136,6 +136,17 @@ if (!class_exists('Membrr_EE')) {
 				$recur->Param('gateway_id',$config['gateway']);
 			}
 			
+			// add IP address to request
+			// get true IP
+			if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+				$current_ip = $_SERVER['HTTP_CLIENT_IP'];
+			} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+				$current_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+			} else {
+				$current_ip = $_SERVER['REMOTE_ADDR'];
+			}
+			$recur->Param('customer_ip_address',$current_ip);
+			
 			$response = $recur->Charge();
 			
 			if (isset($response['response_code']) and $response['response_code'] == '100') {
@@ -521,6 +532,14 @@ if (!class_exists('Membrr_EE')) {
 				}
 				if (isset($filters['plan_id'])) {
 					$this->EE->db->where('exp_membrr_subscriptions.plan_id',$filters['plan_id']);
+				}
+				if (isset($filters['search'])) {
+					$this->EE->db->like('exp_membrr_subscriptions.recurring_id',$filters['search']);
+					$this->EE->db->or_like('exp_membrr_plans.plan_name',$filters['search']);
+					$this->EE->db->or_like('exp_members.username',$filters['search']);
+					$this->EE->db->or_like('exp_members.screen_name',$filters['search']);
+					$this->EE->db->or_like('exp_members.email',$filters['search']);
+					$this->EE->db->or_like('exp_membrr_subscriptions.subscription_price',$filters['search']);
 				}
 			}	
 			

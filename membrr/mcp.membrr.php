@@ -591,15 +591,23 @@ class Membrr_mcp {
 		}
 	}
 	
-	function subscriptions () {		
+	function subscriptions () {	
 		// page title
 		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_subscriptions'));
 		
 		// get pagination
 		$offset = ($this->EE->input->get('rownum')) ? $this->EE->input->get('rownum') : 0;
 		
+		// is there a query
+		if ($this->EE->input->get('search')) {
+			$filters = array('search' => $this->EE->input->get('search'));
+		}
+		else {
+			$filters = array();
+		}
+		
 		// get latest payments
-		$subscriptions = $this->membrr->GetSubscriptions($offset,$this->per_page);
+		$subscriptions = $this->membrr->GetSubscriptions($offset,$this->per_page, $filters);
 		
 		if (is_array($subscriptions)) {
 			// append $options links
@@ -617,18 +625,27 @@ class Membrr_mcp {
 		}
 		
 		// pagination
-		$total = $this->EE->db->count_all('exp_membrr_subscriptions');
+		$total = count($this->membrr->GetSubscriptions(0,10000,$filters));
 	
 		// pass the relevant data to the paginate class so it can display the "next page" links
 		$this->EE->load->library('pagination');
 		$p_config = $this->pagination_config('subscriptions', $total);
 	
 		$this->EE->pagination->initialize($p_config);
+		
+		// get search fields
+		$url = htmlspecialchars_decode($this->cp_url('subscriptions'));
+		$url = explode('?',$url);
+		$params = array();
+		parse_str($url[1],$params);
 	
 		$vars = array();
 		$vars['subscriptions'] = $subscriptions;
 		$vars['pagination'] = $this->EE->pagination->create_links();
 		$vars['config'] = $this->config;
+		$vars['search_fields'] = $params;
+		$vars['search_query'] = $this->EE->input->get('search');
+		$vars['cp_url'] = $this->cp_url('subscriptions');
 		
 		return $this->EE->load->view('subscriptions',$vars, TRUE);
 	}
@@ -1301,10 +1318,10 @@ class Membrr_mcp {
 		return $this->EE->load->view('import_plan_2',$vars, TRUE);
 	}
 	
-	function pagination_config($method, $total_rows)
+	function pagination_config($method, $total_rows, $parameters = array())
 	{
 		// Pass the relevant data to the paginate class
-		$config['base_url'] = $this->cp_url($method);
+		$config['base_url'] = $this->cp_url($method, $parameters);
 		$config['total_rows'] = $total_rows;
 		$config['per_page'] = $this->per_page;
 		$config['page_query_string'] = TRUE;

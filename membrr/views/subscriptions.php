@@ -1,3 +1,12 @@
+<?php ?>
+<form method="get" action="index.php">
+<label><?=lang('membrr_search_all_subscriptions');?></label>
+<?=form_input('search', $search_query);?><br /><input type="submit" name="go" value="Search" />&nbsp;<a href="<?=$cp_url;?>">View All</a>
+<? foreach ($search_fields as $field => $value) { ?>
+<input type="hidden" name="<?=$field;?>" value="<?=$value;?>" />
+<? } ?>
+</form>
+<br />
 <?php
 
 $this->table->set_template($cp_pad_table_template); // $cp_table_template ?
