@@ -159,6 +159,12 @@ class OpenGateway
 				
 			$xml = $this->toArray($data);
 			
+			// automatically redirect if we received a <redirect> node
+			if (isset($xml['redirect']) and !empty($xml['redirect'])) {
+				header('Location: ' . $xml['redirect']);
+				die();
+			}
+			
 		    return $xml;
 		}
 	}

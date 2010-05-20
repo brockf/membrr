@@ -760,10 +760,6 @@ class Membrr_mcp {
 												
 			// if not free, we require CC info and billing address
 			if ($this->EE->input->post('free') != '1') {
-				$this->EE->form_validation->set_rules('cc_number','lang:membrr_order_form_cc_number','trim|required|numeric');
-				$this->EE->form_validation->set_rules('cc_name','lang:membrr_order_form_cc_name','trim|required');
-				$this->EE->form_validation->set_rules('cc_expiry_month','lang:membrr_order_form_cc_expiry_month','trim|required|numeric');
-				$this->EE->form_validation->set_rules('cc_expiry_year','lang:membrr_order_form_cc_expiry_year','trim|required|numeric');
 				$this->EE->form_validation->set_rules('first_name','lang:membrr_order_form_customer_first_name','trim|required');
 				$this->EE->form_validation->set_rules('last_name','lang:membrr_order_form_customer_last_name','trim|required');
 				$this->EE->form_validation->set_rules('address','lang:membrr_order_form_customer_address','trim|required');
@@ -1115,6 +1111,7 @@ class Membrr_mcp {
 		// check for a form submission
 		if ($_SERVER["REQUEST_METHOD"] == "POST") {			
 			$this->EE->form_validation->set_rules('plan_name','lang:membrr_display_name','trim|required');
+			$this->EE->form_validation->set_rules('initial_charge','lang:membrr_initial_charge','trim|required');
 			$this->EE->form_validation->set_rules('plan_description','lang:membrr_description','trim|required');
 			$this->EE->form_validation->set_rules('redirect_url','lang:membrr_redirect_url','trim|prep_url|empty');
 												
@@ -1122,6 +1119,7 @@ class Membrr_mcp {
 				$update_vars = array(
 									'plan_name' => $this->EE->input->post('plan_name'),
 									'plan_description' => $this->EE->input->post('plan_description'),
+									'plan_initial_charge' => $this->EE->input->post('initial_charge'),
 									'plan_redirect_url' => $this->EE->input->post('redirect_url'),
 									'plan_member_group' => $this->EE->input->post('member_group'),
 									'plan_member_group_expire' => $this->EE->input->post('member_group_expire'),
@@ -1152,6 +1150,7 @@ class Membrr_mcp {
         // default values
         $plan_name = ($this->EE->input->post('plan_name')) ? $this->EE->input->post('plan_name') : $plan['name']; 
 		$plan_description = ($this->EE->input->post('plan_description')) ? $this->EE->input->post('plan_description') : $plan['description'];
+		$plan_initial_charge = ($this->EE->input->post('initial_charge')) ? $this->EE->input->post('initial_charge') : $plan['initial_charge'];
 		$new_member_group = ($this->EE->input->post('new_member_group')) ? $this->EE->input->post('new_member_group') : $plan['member_group'];
 		$new_member_group_expire = ($this->EE->input->post('new_member_group_expire')) ? $this->EE->input->post('new_member_group_expire') : $plan['member_group_expire'];
 		$redirect_url = ($this->EE->input->post('redirect_url')) ? $this->EE->input->post('redirect_url') : $plan['redirect_url'];
@@ -1164,6 +1163,7 @@ class Membrr_mcp {
 		$vars['form_action'] = $this->form_url('edit_plan',array('id' => $plan['id']));
 		$vars['config'] = $this->config;
 		$vars['plan_name'] = $plan_name;
+		$vars['plan_initial_charge'] = $plan_initial_charge;
 		$vars['plan_description'] = $plan_description;
 		$vars['new_member_group'] = $new_member_group;
 		$vars['new_member_group_expire'] = $new_member_group_expire;
@@ -1250,6 +1250,7 @@ class Membrr_mcp {
 									'plan_free_trial' => $this->EE->input->post('free_trial'),
 									'plan_occurrences' => $this->EE->input->post('occurrences'),
 									'plan_price' => $this->EE->input->post('amount'),
+									'plan_initial_charge' => $this->EE->input->post('initial_charge'),
 									'plan_interval' => $this->EE->input->post('interval'),
 									'plan_import_date' => date('Y-m-d H:i:s'),
 									'plan_redirect_url' => $this->EE->input->post('redirect_url'),
@@ -1298,6 +1299,7 @@ class Membrr_mcp {
         
         // default values
         $plan_name = ($this->EE->input->post('plan_name')) ? $this->EE->input->post('plan_name') : $plan['name']; 
+        $plan_initial_charge = ($this->EE->input->post('initial_charge')) ? $this->EE->input->post('initial_charge') : $plan['amount']; 
 		$plan_description = ($this->EE->input->post('plan_description')) ? $this->EE->input->post('plan_description') : '';
 		$new_member_group = ($this->EE->input->post('new_member_group')) ? $this->EE->input->post('new_member_group') : '';
 		$new_member_group_expire = ($this->EE->input->post('new_member_group_expire')) ? $this->EE->input->post('new_member_group_expire') : '';
@@ -1310,6 +1312,7 @@ class Membrr_mcp {
 		$vars['form_action'] = $this->form_url('import_plan_2');
 		$vars['config'] = $this->config;
 		$vars['plan_name'] = $plan_name;
+		$vars['plan_initial_charge'] = $plan_initial_charge;
 		$vars['plan_description'] = $plan_description;
 		$vars['new_member_group'] = $new_member_group;
 		$vars['new_member_group_expire'] = $new_member_group_expire;

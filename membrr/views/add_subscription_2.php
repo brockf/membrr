@@ -45,7 +45,7 @@ $this->table->add_row(
 	
 $this->table->add_row(
 		lang('membrr_custom_first_charge_rate'),
-		 $config['currency_symbol'] . form_input(array('name' => 'first_charge_rate', 'value' => $plan['price'], 'maxlength' => '10', 'style' => 'width:75px'))
+		 $config['currency_symbol'] . form_input(array('name' => 'first_charge_rate', 'value' => $plan['initial_charge'], 'maxlength' => '10', 'style' => 'width:75px'))
 	);
 	
 $this->table->add_row(

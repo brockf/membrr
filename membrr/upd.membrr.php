@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.0.5';
+	var $version = '1.0.6';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -44,6 +44,10 @@ class Membrr_upd {
         
         if ($current < '1.0.5') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_payments` ADD COLUMN `refunded` TINYINT NOT NULL AFTER `date`');
+        }
+        
+        if ($current < '1.0.6') {
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_plans` ADD COLUMN `plan_initial_charge` FLOAT AFTER `plan_price`');
         }
 	
 		return TRUE;

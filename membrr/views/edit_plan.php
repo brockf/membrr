@@ -44,6 +44,11 @@ $this->table->add_row(
 	);
 	
 $this->table->add_row(
+		lang('membrr_initial_charge'),
+		form_input('initial_charge', $plan_initial_charge)
+	);	
+	
+$this->table->add_row(
 		lang('membrr_new_member_group'),
 		form_dropdown('member_group', $member_groups, $new_member_group)
 	);

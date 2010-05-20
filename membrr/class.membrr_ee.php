@@ -77,7 +77,12 @@ if (!class_exists('Membrr_EE')) {
 		}
 	
 		function Subscribe ($plan_id, $member_id, $credit_card, $customer, $end_date = FALSE, $first_charge = FALSE, $recurring_charge = FALSE) {
-			$plan = $this->GetPlan($plan_id);	
+			$plan = $this->GetPlan($plan_id);
+			
+			// calculate initial charge
+			if ($plan['initial_charge'] != $plan['price'] and $first_charge == FALSE) {
+				$first_charge = $plan['initial_charge'];
+			}	
 			
 			$config = $this->GetConfig();
 			
@@ -129,7 +134,9 @@ if (!class_exists('Membrr_EE')) {
 			$recur->UsePlan($plan['api_id']);
 			
 			$security = (empty($credit_card['security_code'])) ? FALSE : $credit_card['security_code'];
-			$recur->CreditCard($credit_card['name'], $credit_card['number'], $credit_card['expiry_month'], $credit_card['expiry_year'], $security);
+			if ($credit_card and !empty($credit_card) and isset($credit_card['number']) and !empty($credit_card['number'])) {
+				$recur->CreditCard($credit_card['name'], $credit_card['number'], $credit_card['expiry_month'], $credit_card['expiry_year'], $security);
+			}
 			
 			// specify the gateway?
 			if (!empty($config['gateway'])) {
@@ -628,6 +635,7 @@ if (!class_exists('Membrr_EE')) {
 								'name' => $row['plan_name'],
 								'description' => $row['plan_description'],
 								'price' => money_format("%!i",$row['plan_price']),
+								'initial_charge' => money_format("%!i",$row['plan_initial_charge']),
 								'interval' => $row['plan_interval'],
 								'free_trial' => $row['plan_free_trial'],
 								'occurrences' => $row['plan_occurrences'],
