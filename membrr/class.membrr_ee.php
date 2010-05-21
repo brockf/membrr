@@ -156,7 +156,12 @@ if (!class_exists('Membrr_EE')) {
 			
 			// if they are using PayPal, we need the following parameters
 			if (empty($return_url)) {
-				$action_id = $this->EE->cp->fetch_action_id('Membrr', 'post_notify');
+				$this->EE->db->select('action_id');
+				$this->EE->db->where('class','Membrr');
+				$this->EE->db->where('method','post_notify');
+				$result = $this->EE->db->get('exp_actions');
+				$action_id = $result->row_array();
+				$action_id = $action_id['action_id'];
 			 	$return_url = $this->EE->functions->create_url('?ACT=' . $action_id . '&member=' . $member_id . '&plan_id=' . $plan_id, 0);
 			}
 			$recur->Param('return_url',htmlspecialchars($return_url));
