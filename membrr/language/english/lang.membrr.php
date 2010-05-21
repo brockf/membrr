@@ -3,7 +3,7 @@
 $lang = array(
 	'membrr_order_form_select_plan' => 'Select your subscription plan',
 	'membrr_order_form_plan' => 'Subscription Plan',
-	'membrr_order_form_credit_card' => 'Credit Card',
+	'membrr_order_form_credit_card' => 'Credit Card (not required for free or off-site checkout subscriptions)',
 	'membrr_order_form_cc_number' => 'Credit Card Number',
 	'membrr_order_form_cc_name' => 'Name on Credit Card',
 	'membrr_order_form_cc_expiry' => 'Credit Card Expiry Date',
@@ -126,7 +126,7 @@ $lang = array(
 	'membrr_no_available_plans' => 'You do not have any available subscription plans for a new subscription.  To create a new plan, select "Plans" from the navigation.',
 	'membrr_please_select' => 'Please select',
 	'membrr_pricing_details' => 'Pricing Details',
-	'membrr_free_subscription' => 'Free Subscription (leave Credit Card Details blank)',
+	'membrr_free_subscription' => 'Free Subscription',
 	'membrr_subscription_ends' => 'Subscription Ends',
 	'membrr_custom_recurring_rate' => 'Recurring Rate',
 	'membrr_custom_first_charge_rate' => 'First Charge Rate',

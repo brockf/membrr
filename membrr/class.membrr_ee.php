@@ -165,6 +165,14 @@ if (!class_exists('Membrr_EE')) {
 			}
 			$recur->Param('cancel_url',htmlspecialchars($cancel_url));
 			
+			// call "membrr_pre_subscribe" hook with: $recur, $member_id, $plan_id, $recurring_charge, $first_charge, $end_date, $next_charge_date
+			
+			if (isset($this->EE->extensions->extensions['membrr_pre_subscribe']))
+			{
+			    $this->EE->extensions->call_extension('membrr_pre_subscribe', $recur, $member_id, $plan_id, $recurring_charge, $first_charge, $end_date, $next_charge_date);
+			    if ($this->EE->extensions->end_script === TRUE) return FALSE;
+			}
+			
 			$response = $recur->Charge();
 			
 			if (isset($response['response_code']) and $response['response_code'] == '100') {
