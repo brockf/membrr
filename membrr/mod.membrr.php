@@ -633,6 +633,10 @@ class Membrr {
 				$plan_id = $plan['id'];
 				$member_id = $this->EE->session->userdata('member_id');
 				
+				$this->EE->load->model('member_model');
+			    $member = $this->EE->member_model->get_member_data($this->EE->session->userdata('member_id'));
+			    $member = $member->row_array();
+				
 				// update address book
 				if ($this->EE->input->post('address')) {
 					$this->membrr->UpdateAddress($member_id,
@@ -659,10 +663,6 @@ class Membrr {
 									);
 				}
 				elseif ($this->EE->input->post('free')) {
-					$this->EE->load->model('member_model');
-				    $member = $this->EE->member_model->get_member_data($this->EE->session->userdata('member_id'));
-				    $member = $member->row_array();
-				    
 					// use dummy CC info for free subscription
 					$credit_card = array(
 										'number' => '0000000000000000',
@@ -685,7 +685,7 @@ class Membrr {
 								 ($this->EE->input->post('region_other') and $this->EE->input->post('region_other') != '') ? $this->EE->input->post('region_other') : $this->EE->input->post('region'),
 								 $this->EE->input->post('country'),
 								 $this->EE->input->post('postal_code'),
-								 $this->EE->input->post('email')
+								 ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email']
 							);
 							
 				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer);
@@ -699,8 +699,6 @@ class Membrr {
 				else {
 					// success!
 					// redirect to URL
-					$plan = $this->membrr->GetPlan($plan_id);
-					
 					if (!empty($plan['redirect_url'])) {
 						header('Location: ' . $plan['redirect_url']);
 						die();
