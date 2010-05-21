@@ -76,7 +76,7 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 	
-		function Subscribe ($plan_id, $member_id, $credit_card, $customer, $end_date = FALSE, $first_charge = FALSE, $recurring_charge = FALSE) {
+		function Subscribe ($plan_id, $member_id, $credit_card, $customer, $end_date = FALSE, $first_charge = FALSE, $recurring_charge = FALSE, $cancel_url = '', $return_url = '') {
 			$plan = $this->GetPlan($plan_id);
 			
 			// calculate initial charge
@@ -154,13 +154,24 @@ if (!class_exists('Membrr_EE')) {
 			}
 			$recur->Param('customer_ip_address',$current_ip);
 			
+			// if they are using PayPal, we need the following parameters
+			if (empty($return_url)) {
+				$action_id = $this->EE->cp->fetch_action_id('Membrr', 'post_notify');
+			 	$return_url = $this->EE->functions->create_url('?ACT=' . $action_id . '&member=' . $member_id . '&plan_id=' . $plan_id, 0);
+			}
+			$recur->Param('return_url',htmlspecialchars($return_url));
+			if (empty($cancel_url)) {
+				$cancel_url = $this->EE->functions->fetch_current_uri();
+			}
+			$recur->Param('cancel_url',htmlspecialchars($cancel_url));
+			
 			$response = $recur->Charge();
 			
 			if (isset($response['response_code']) and $response['response_code'] == '100') {
 				// success!
 				
 				// calculate payment amount
-				$payment = ($recurring_charge == FALSE) ? $plan['price'] : money_format("%!i",$recurring_charge);
+				$recur_payment = ($recurring_charge == FALSE) ? $plan['price'] : money_format("%!i",$recurring_charge);
 				
 				// calculate end date
 				if ($end_date != FALSE) {
@@ -193,48 +204,56 @@ if (!class_exists('Membrr_EE')) {
 					$next_charge_date = date('Y-m-d',$next_charge_date);
 				}
 				
-				// create subscription record
-				$insert_array = array(
-									'recurring_id' => $response['recurring_id'],
-									'member_id' => $member_id,
-									'plan_id' => $plan_id,
-									'subscription_price' => $payment,
-									'date_created' => date('Y-m-d H:i:s'),
-									'date_cancelled' => '0000-00-00 00:00:00',
-									'next_charge_date' => $next_charge_date,
-									'end_date' => $end_date,
-									'expired' => '0',
-									'cancelled' => '0',
-									'active' => '1',
-									'expiry_processed' => '0'
-								);
-	
-				$this->EE->db->insert('exp_membrr_subscriptions',$insert_array);
-							                						  
 				$payment = ($first_charge == FALSE) ? $plan['price'] : money_format("%!i",$first_charge);
 				 
 				if ($plan['free_trial'] == 0) {
 					// create payment record               						  
 					$this->RecordPayment($response['recurring_id'], $response['charge_id'], $payment);
 				}
-	
-				// shall we move to a new usergroup?
-				if (!empty($plan['member_group'])) {
-					$this->EE->db->where('member_id',$member_id);
-					$this->EE->db->where('group_id !=','1');
-					$this->EE->db->update('exp_members',array('group_id' => $plan['member_group']));
-				}
 				
-				// call "membrr_subscribe" hook with: member_id, subscription_id, plan_id, end_date
-				
-				if (isset($this->EE->extensions->extensions['membrr_subscribe']))
-				{
-				    $this->EE->extensions->call_extension('membrr_subscribe', $member_id, $response['recurring_id'], $plan['id'], $end_date);
-				    if ($this->EE->extensions->end_script === TRUE) return $response;
-				} 
+				$this->RecordSubscription($response['recurring_id'], $member_id, $plan_id, $next_charge_date, $end_date, $recur_payment); 
 			}
 			
 			return $response;
+		}
+		
+		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment) {
+			// create subscription record
+			$insert_array = array(
+								'recurring_id' => $recurring_id,
+								'member_id' => $member_id,
+								'plan_id' => $plan_id,
+								'subscription_price' => $payment,
+								'date_created' => date('Y-m-d H:i:s'),
+								'date_cancelled' => '0000-00-00 00:00:00',
+								'next_charge_date' => $next_charge_date,
+								'end_date' => $end_date,
+								'expired' => '0',
+								'cancelled' => '0',
+								'active' => '1',
+								'expiry_processed' => '0'
+							);
+
+			$this->EE->db->insert('exp_membrr_subscriptions',$insert_array);
+			
+			$plan = $this->GetPlan($plan_id);
+
+			// shall we move to a new usergroup?
+			if (!empty($plan['member_group'])) {
+				$this->EE->db->where('member_id',$member_id);
+				$this->EE->db->where('group_id !=','1');
+				$this->EE->db->update('exp_members',array('group_id' => $plan['member_group']));
+			}
+			
+			// call "membrr_subscribe" hook with: member_id, subscription_id, plan_id, end_date
+			
+			if (isset($this->EE->extensions->extensions['membrr_subscribe']))
+			{
+			    $this->EE->extensions->call_extension('membrr_subscribe', $member_id, $recurring_id, $plan_id, $end_date);
+			    if ($this->EE->extensions->end_script === TRUE) return $response;
+			}
+			
+			return TRUE;
 		}
 		
 		function RecordPayment ($subscription_id, $charge_id, $amount) {
@@ -262,12 +281,15 @@ if (!class_exists('Membrr_EE')) {
 			$opengateway->Param('charge_id', $charge_id);
 			$response = $opengateway->Process();
 			
-			if ($response['response_code'] == '50') {
+			if (isset($response['response_code']) and $response['response_code'] == '50') {
 				$this->EE->db->update('exp_membrr_payments',array('refunded' => '1'),array('charge_id' => $charge_id));
 				return array('success' => TRUE);
 			}
-			else {
+			elseif (isset($response['response_code'])) {
 				return array('success' => FALSE, 'error' => $response['response_text']);
+			}
+			else {
+				return array('success' => FALSE, 'error' => $response['error_text']);
 			}
 		}
 		

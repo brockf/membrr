@@ -837,7 +837,7 @@ class Membrr_mcp {
 					$first_charge_rate = money_format("%!i",$this->EE->input->post('first_charge_rate'));
 					$recurring_rate = money_format("%!i",$this->EE->input->post('recurring_rate'));
 				}
-							
+										
 				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, $end_date, $first_charge_rate, $recurring_rate);
 				
 				if (!is_array($response) or isset($response['error'])) {
@@ -857,7 +857,7 @@ class Membrr_mcp {
 				}
 			}
 		}
-			
+		
 		// get selected plan
 		$plan = $this->membrr->GetPlan($this->EE->input->post('plan_id'));
 		

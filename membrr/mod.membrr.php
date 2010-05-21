@@ -1053,6 +1053,70 @@ class Membrr {
     	// get Membrr config
     	$config = $this->membrr->GetConfig();
     	
+    	// connect to API
+    	require_once(dirname(__FILE__) . '/opengateway.php');
+		$connect_url = $config['api_url'] . '/api';
+		$server = new OpenGateway;
+		$server->Authenticate($config['api_id'], $config['secret_key'], $connect_url);
+    	
+    	// first, we'll check for external payment API redirects
+    	if ($this->EE->input->get('member') and is_numeric($this->EE->input->get('member')) and is_numeric($this->EE->input->get('plan_id'))) {
+    		if ($plan = $this->membrr->GetPlan($this->EE->input->get('plan_id')))	{
+	    		// get customer ID
+	    		$server->SetMethod('GetCustomers');
+	    		$server->Param('internal_id',$this->EE->input->get('member'));
+	    		$response = $server->Process();
+	    		$customer = (!isset($response['customers']['customer'][0])) ? $response['customers']['customer'] : $response['customers']['customer'][0];
+	    		
+	    		if (empty($customer)) {
+	    			die('Invalid customer record.');
+	    		}
+	    		
+	    		$server->SetMethod('GetRecurrings');
+	    		$server->Param('customer_id',$customer['id']);
+	    		$server->Param('plan_id',$plan['api_id']);
+	    		$response = $server->Process();
+	    		
+	    		if (isset($response['recurrings']['recurring'][0])) {
+					$recurrings = $response['recurrings']['recurring'];
+				}
+				elseif (isset($response['recurrings'])) {
+					$recurrings = array();
+					$recurrings[] = $response['recurrings']['recurring'];
+				}
+				else {
+					$recurrings = array();
+				}
+				
+				// is there a new recurring charge for this client?
+				foreach ($recurrings as $recurring) {
+					if (!$this->membrr->GetSubscription($recurring['id'])) {
+						// we have a new charge!
+						$end_date = date('Y-m-d H:i:s',strtotime($recurring['end_date']));
+						$next_charge_date = date('Y-m-d H:i:s',strtotime($recurring['next_charge_date']));
+						
+						// get the first charge
+						$server->SetMethod('GetCharges');
+						$server->Param('recurring_id',$recurring['id']);
+						$charge = $server->Process();
+						
+						// charge should be an array, but there shouldn't be multiple charges!
+						if (!empty($charge) and is_array($charge) and !isset($charge['charges']['charge'][0])) {
+							$charge = $charge['charges']['charge'];
+							$payment = $charge['amount'];
+							$this->membrr->RecordPayment($recurring['id'], $charge['id'], $payment);
+						}
+						
+						$this->membrr->RecordSubscription($recurring['id'], $this->EE->input->get('member'), $plan['id'], $next_charge_date, $end_date, $recurring['amount']);
+						
+						// redirect
+						header('Location: ' . $plan['redirect_url']);
+						die();
+					}
+				}
+			}
+    	}
+    	
     	// is the secret key OK?  ie. is this a legitimate call?
 		if ($this->EE->input->post('secret_key') != $config['secret_key']) {
 			die('Invalid secret key.');
@@ -1063,10 +1127,6 @@ class Membrr {
 		}
 		
 		// get customer data from server
-		require_once(dirname(__FILE__) . '/opengateway.php');
-		$connect_url = $config['api_url'] . '/api';
-		$server = new OpenGateway;
-		$server->Authenticate($config['api_id'], $config['secret_key'], $connect_url);
 		$server->SetMethod('GetCustomer');
 		$server->Param('customer_id',$this->EE->input->post('customer_id'));
 		$response = $server->Process();
