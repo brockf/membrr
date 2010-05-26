@@ -114,7 +114,7 @@ class Membrr_upd {
 				 `recurring_id` INT NOT NULL ,
 				 `amount` float NOT NULL ,
 				 `date` DATETIME NOT NULL,
-				 `refunded` TINYINT NOT NULL,
+				 `refunded` TINYINT NOT NULL
 				 ) ENGINE = MYISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1000 ;";
 				 
 		$sql[] = "CREATE TABLE IF NOT EXISTS `exp_membrr_address_book` (
