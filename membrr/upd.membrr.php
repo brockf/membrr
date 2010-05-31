@@ -83,6 +83,7 @@ class Membrr_upd {
 				  `plan_free_trial` int(11) NOT NULL,
 				  `plan_occurrences` int(11) NOT NULL,
 				  `plan_price` float NOT NULL,
+				  `plan_initial_charge` float,
 				  `plan_interval` int(11) NOT NULL,
 				  `plan_import_date` datetime NOT NULL,
 				  `plan_redirect_url` varchar(250) NOT NULL,
