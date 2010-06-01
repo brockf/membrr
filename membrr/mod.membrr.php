@@ -315,7 +315,7 @@ class Membrr {
 			// get the return format
 			$sub_return = $this->EE->TMPL->tagdata;
 			
-			$variables = array(
+			$variables[0] = array(
 								'plan_id' => $plan['id'],
 								'name' => $plan['name'],
 								'description' => $plan['description'],
