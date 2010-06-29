@@ -677,15 +677,15 @@ class Membrr {
 				}
 				
 				$customer = array(
-								 $this->EE->input->post('first_name'),
-								 $this->EE->input->post('last_name'),
-								 $this->EE->input->post('address'),
-								 $this->EE->input->post('address_2'),
-								 $this->EE->input->post('city'),
-								 ($this->EE->input->post('region_other') and $this->EE->input->post('region_other') != '') ? $this->EE->input->post('region_other') : $this->EE->input->post('region'),
-								 $this->EE->input->post('country'),
-								 $this->EE->input->post('postal_code'),
-								 ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email']
+								 'first_name' => $this->EE->input->post('first_name'),
+								 'last_name' => $this->EE->input->post('last_name'),
+								 'address' => $this->EE->input->post('address'),
+								 'address_2' => $this->EE->input->post('address_2'),
+								 'city' => $this->EE->input->post('city'),
+								 'region' => ($this->EE->input->post('region_other') and $this->EE->input->post('region_other') != '') ? $this->EE->input->post('region_other') : $this->EE->input->post('region'),
+								 'country' => $this->EE->input->post('country'),
+								 'postal_code' => $this->EE->input->post('postal_code'),
+								 'email' => ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email']
 							);
 							
 				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer);
