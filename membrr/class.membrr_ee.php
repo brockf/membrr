@@ -645,6 +645,14 @@ if (!class_exists('Membrr_EE')) {
 				if (isset($filters['id'])) {
 					$this->EE->db->where('exp_membrr_plans.plan_id',$filters['id']);
 				}
+				if (isset($filters['ids']) and is_array($filters['ids'])) {
+					$count = 1;
+					foreach ($filters['ids'] as $id) {
+						$function = ($count == 1) ? 'where' : 'or_where';
+						$this->EE->db->$function('exp_membrr_plans.plan_id',$id);
+						$count++;
+					}
+				}
 				if (isset($filters['active'])) {
 					$this->EE->db->where('exp_membrr_plans.plan_active',$filters['active']);
 				}

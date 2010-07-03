@@ -285,14 +285,19 @@ class Membrr {
     *
     * @param int $id Retrieve only this plan's details
     * @param int $for_sale Set to "0" to retrieve all plans (Default: Only for sale plans)
+    * @param string $ids A string of ID's to pull information about multiple plans (e.g., 1001|1002|10003)
+    *
     * @return string Each plan in the format of the HTML between the plugin tags.
 	*/
 	
 	function plans () {		
 		$filters = array();
 		
-		if ($this->EE->TMPL->fetch_param('id')) {
+		if ($this->EE->TMPL->fetch_param('id') and !strstr($this->EE->TMPL->fetch_param('id'), '|')) {
 			$filters['id'] = $this->EE->TMPL->fetch_param('id');
+		}
+		elseif ($this->EE->TMPL->fetch_param('id')) {
+			$filters['ids'] = explode('|',$this->EE->TMPL->fetch_param('id'));
 		}
 		
 		if ($this->EE->TMPL->fetch_param('for_sale')) {
