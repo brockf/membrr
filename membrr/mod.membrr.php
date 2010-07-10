@@ -614,6 +614,15 @@ class Membrr {
     	
 		// handle potential form submission
 		if ($this->EE->input->post('membrr_order_form')) {
+			$plan_id = $this->EE->input->post('plan_id');
+			$plan = $this->membrr->GetPlan($plan_id);
+			if ((int)$plan['price'] == 0) {
+				$free_plan = TRUE;
+			}
+			else {
+				$free_plan = FALSE;
+			}
+			
 			// there's a submission
 			$this->EE->form_validation->set_rules('plan_id','lang:membrr_order_form_select_plan','trim|required');
 			
@@ -658,7 +667,7 @@ class Membrr {
 				}
 								
 				// prep arrays to send to Membrr_EE class	
-				if ($this->EE->input->post('free') != '1' and $this->EE->input->post('cc_number')) {			
+				if ($this->EE->input->post('free') != '1' and $this->EE->input->post('cc_number') and $free_plan == FALSE) {			
 					$credit_card = array(
 										'number' => $this->EE->input->post('cc_number'),
 										'name' => $this->EE->input->post('cc_name'),
@@ -667,7 +676,7 @@ class Membrr {
 										'security_code' => $this->EE->input->post('cc_cvv2')
 									);
 				}
-				elseif ($this->EE->input->post('free')) {
+				elseif ($this->EE->input->post('free') or $free_plan == TRUE) {
 					// use dummy CC info for free subscription
 					$credit_card = array(
 										'number' => '0000000000000000',
@@ -888,6 +897,14 @@ class Membrr {
 		// handle potential form submission
 		if ($this->EE->input->post('membrr_order_form')) {
 			// there's a submission
+			$plan_id = $this->EE->input->post('plan_id');
+			$plan = $this->membrr->GetPlan($plan_id);
+			if ((int)$plan['price'] == 0) {
+				$free_plan = TRUE;
+			}
+			else {
+				$free_plan = FALSE;
+			}
 			
 			// field validation pattern
 			$fields = array(
@@ -904,7 +921,7 @@ class Membrr {
 							'customer_email|Email Address' => 'empty|email|trim'
 						);
 						
-			if ($this->EE->input->post('free') != '1') {
+			if ($this->EE->input->post('free') != '1' and $free_plan == FALSE) {
 				$fields2 = array(
 							'cc_number|Credit Card Number' => 'empty|numeric|trim',
 							'cc_name|Credit Card Name' => 'empty|trim',
@@ -949,7 +966,7 @@ class Membrr {
 				$this->membrr->UpdateAddress($member_id,$values['customer_first_name'],$values['customer_last_name'],$values['customer_address'],$values['customer_address_2'],$values['customer_city'],$values['customer_region'],$values['customer_region_other'],$values['customer_country'],$values['customer_postal_code']);
 								
 				// prep arrays to send to Membrr_EE class	
-				if ($this->EE->input->post('free') != '1') {			
+				if ($this->EE->input->post('free') != '1' and $free_plan == FALSE) {			
 					$credit_card = array(
 										'number' => $values['cc_number'],
 										'name' => $values['cc_name'],
