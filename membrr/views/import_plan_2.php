@@ -70,6 +70,11 @@ $this->table->add_row(
 		lang('membrr_redirect_url'),
 		form_input(array('name' => 'redirect_url', 'value' => $redirect_url, 'style' => 'width:375px'))
 	);
+	
+$this->table->add_row(
+		lang('membrr_plan_gateway'),
+		form_dropdown('gateway', $gateways, $selected_gateway)
+	);
 		
 $this->table->add_row(
 		'',

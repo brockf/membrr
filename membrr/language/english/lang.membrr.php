@@ -163,5 +163,6 @@ $lang = array(
 	'membrr_total_charges' => 'Number of Charges (Occurrences)',
 	'membrr_total_charges_short' => '# of Charges',
 	'membrr_default_gateway' => 'Gateway for New Charges',
-	'membrr_sync_plan_next_charge' => 'All next charge dates synchronized with server.'
+	'membrr_sync_plan_next_charge' => 'All next charge dates synchronized with server.',
+	'membrr_plan_gateway' => 'Payment Gateway'
 );

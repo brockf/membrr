@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.0.7';
+	var $version = '1.0.8';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -48,6 +48,10 @@ class Membrr_upd {
         
         if ($current < '1.0.6') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_plans` ADD COLUMN `plan_initial_charge` FLOAT AFTER `plan_price`');
+        }
+        
+        if ($current < '1.0.8') {
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_plans` ADD COLUMN `plan_gateway` INT(11) AFTER `plan_initial_charge`');
         }
 	
 		return TRUE;
@@ -84,6 +88,7 @@ class Membrr_upd {
 				  `plan_occurrences` int(11) NOT NULL,
 				  `plan_price` float NOT NULL,
 				  `plan_initial_charge` float,
+				  `plan_gateway` int(11) NOT NULL,
 				  `plan_interval` int(11) NOT NULL,
 				  `plan_import_date` datetime NOT NULL,
 				  `plan_redirect_url` varchar(250) NOT NULL,

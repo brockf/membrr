@@ -1120,6 +1120,7 @@ class Membrr_mcp {
 									'plan_name' => $this->EE->input->post('plan_name'),
 									'plan_description' => $this->EE->input->post('plan_description'),
 									'plan_initial_charge' => $this->EE->input->post('initial_charge'),
+									'plan_gateway' => $this->EE->input->post('gateway'),
 									'plan_redirect_url' => $this->EE->input->post('redirect_url'),
 									'plan_member_group' => $this->EE->input->post('member_group'),
 									'plan_member_group_expire' => $this->EE->input->post('member_group_expire'),
@@ -1155,6 +1156,29 @@ class Membrr_mcp {
 		$new_member_group_expire = ($this->EE->input->post('new_member_group_expire')) ? $this->EE->input->post('new_member_group_expire') : $plan['member_group_expire'];
 		$redirect_url = ($this->EE->input->post('redirect_url')) ? $this->EE->input->post('redirect_url') : $plan['redirect_url'];
 		$for_sale = ($this->EE->input->post('for_sale')) ? $this->EE->input->post('for_sale') : $plan['for_sale'];
+		$selected_gateway = ($this->EE->input->post('gateway')) ? $this->EE->input->post('gateway') : $plan['gateway'];
+		
+		// load possible gateways
+		$this->server->SetMethod('GetGateways');
+		$response = $this->server->Process();
+		
+		// we may get one gateway or many
+		$gateways = isset($response['gateways']) ? $response['gateways'] : FALSE;
+		
+		// hold our list of available options
+		$gateway_options = array();
+		$gateway_options[''] = 'Default Gateway';
+		
+		if (is_array($gateways) and isset($gateways['gateway'][0])) {
+			foreach ($gateways['gateway'] as $gateway) {
+				$gateway_options[$gateway['id']] = $gateway['gateway'];
+			}
+		}
+		elseif (is_array($gateways)) {
+			$gateway = $gateways['gateway'];
+			
+			$gateway_options[$gateway['id']] = $gateway['gateway'];
+		}
 		
 		// load view
 		$vars = array();
@@ -1169,6 +1193,8 @@ class Membrr_mcp {
 		$vars['new_member_group_expire'] = $new_member_group_expire;
 		$vars['redirect_url'] = $redirect_url;
 		$vars['for_sale'] = $for_sale;
+		$vars['gateways'] = $gateway_options;
+		$vars['selected_gateway'] = $selected_gateway;
 		
 		return $this->EE->load->view('edit_plan',$vars, TRUE);
 	}
@@ -1251,6 +1277,7 @@ class Membrr_mcp {
 									'plan_occurrences' => $this->EE->input->post('occurrences'),
 									'plan_price' => $this->EE->input->post('amount'),
 									'plan_initial_charge' => $this->EE->input->post('initial_charge'),
+									'plan_gateway' => $this->EE->input->post('gateway'),
 									'plan_interval' => $this->EE->input->post('interval'),
 									'plan_import_date' => date('Y-m-d H:i:s'),
 									'plan_redirect_url' => $this->EE->input->post('redirect_url'),
@@ -1304,6 +1331,29 @@ class Membrr_mcp {
 		$new_member_group = ($this->EE->input->post('new_member_group')) ? $this->EE->input->post('new_member_group') : '';
 		$new_member_group_expire = ($this->EE->input->post('new_member_group_expire')) ? $this->EE->input->post('new_member_group_expire') : '';
 		$redirect_url = ($this->EE->input->post('redirect_url')) ? $this->EE->input->post('redirect_url') : $this->EE->functions->fetch_site_index();
+		$selected_gateway = ($this->EE->input->post('gateway')) ? $this->EE->input->post('gateway') : '';
+		
+		// load possible gateways
+		$this->server->SetMethod('GetGateways');
+		$response = $this->server->Process();
+		
+		// we may get one gateway or many
+		$gateways = isset($response['gateways']) ? $response['gateways'] : FALSE;
+		
+		// hold our list of available options
+		$gateway_options = array();
+		$gateway_options[''] = 'Default Gateway';
+		
+		if (is_array($gateways) and isset($gateways['gateway'][0])) {
+			foreach ($gateways['gateway'] as $gateway) {
+				$gateway_options[$gateway['id']] = $gateway['gateway'];
+			}
+		}
+		elseif (is_array($gateways)) {
+			$gateway = $gateways['gateway'];
+			
+			$gateway_options[$gateway['id']] = $gateway['gateway'];
+		}
 		
 		// load view
 		$vars = array();
@@ -1317,6 +1367,8 @@ class Membrr_mcp {
 		$vars['new_member_group'] = $new_member_group;
 		$vars['new_member_group_expire'] = $new_member_group_expire;
 		$vars['redirect_url'] = $redirect_url;
+		$vars['gateways'] = $gateway_options;
+		$vars['selected_gateway'] = $selected_gateway;
 		
 		return $this->EE->load->view('import_plan_2',$vars, TRUE);
 	}

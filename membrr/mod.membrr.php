@@ -592,6 +592,8 @@ class Membrr {
 	*	region_raw_options (array of regions)
 	*	country_options
 	*	country_raw_options (array of countries)
+	*	gateway_options
+	*	gateway_raw_optiosn (array of gateways)
 	*	cc_expiry_month_options
 	*	cc_expiry_year_options
 	*	errors_array
@@ -702,8 +704,10 @@ class Membrr {
 								 'email' => ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email']
 							);
 							
-				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer);
-				
+				$gateway_id = ($this->EE->input->post('gateway') and $this->EE->input->post('gateway') != '' and $this->EE->input->post('gateway') != '0') ? $this->EE->input->post('gateway') : FALSE;
+							
+				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, FALSE, FALSE, FALSE, '', '', $gateway_id);
+							
 				if (isset($response['error'])) {
 					$errors[] = $this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['error_text'] . ' (#' . $response['error'] . ')';
 				}
@@ -827,6 +831,35 @@ class Membrr {
 		$variables['country_options'] = $country_options;
 		reset($countries);
 		$variables['country_raw_options'] = $countries;
+		
+		// prep gateway options
+		$this->server->SetMethod('GetGateways');
+		$response = $this->server->Process();
+		
+		// we may get one gateway or many
+		$gateways = isset($response['gateways']) ? $response['gateways'] : FALSE;
+		
+		// hold our list of available options
+		$gateway_raw_options = array();
+		
+		if (is_array($gateways) and isset($gateways['gateway'][0])) {
+			foreach ($gateways['gateway'] as $gateway) {
+				$gateway_raw_options[$gateway['id']] = $gateway['gateway'];
+			}
+		}
+		elseif (is_array($gateways)) {
+			$gateway = $gateways['gateway'];
+			$gateway_raw_options[$gateway['id']] = $gateway['gateway'];
+		}
+		
+		$gateway_options = '';
+		foreach ($gateway_raw_options as $gateway_id => $gateway_name) {
+			$gateway_options .= '<option value="' . $gateway_id . '">' . $gateway_name . '</option>';
+		}
+		
+		$variables['gateway_options'] = $gateway_options;
+		reset($gateway_raw_options);
+		$variables['gateway_raw_options'] = $gateway_raw_options;
 	    
 	    // prep form action
 	    $variables['form_action'] = ($_SERVER["SERVER_PORT"] == "443") ? str_replace('http://','https://',$this->EE->functions->fetch_current_uri()) : $this->EE->functions->fetch_current_uri();

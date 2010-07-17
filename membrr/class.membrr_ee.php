@@ -76,7 +76,7 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 	
-		function Subscribe ($plan_id, $member_id, $credit_card, $customer, $end_date = FALSE, $first_charge = FALSE, $recurring_charge = FALSE, $cancel_url = '', $return_url = '') {
+		function Subscribe ($plan_id, $member_id, $credit_card, $customer, $end_date = FALSE, $first_charge = FALSE, $recurring_charge = FALSE, $cancel_url = '', $return_url = '', $gateway_id = FALSE) {
 			$plan = $this->GetPlan($plan_id);
 			
 			// calculate initial charge
@@ -139,7 +139,16 @@ if (!class_exists('Membrr_EE')) {
 			}
 			
 			// specify the gateway?
-			if (!empty($config['gateway'])) {
+			// from arguments first:
+			if (!empty($gateway_id)) {
+				$recur->Param('gateway_id',$gateway_id);
+			}
+			// from plan first:
+			elseif (!empty($plan['gateway'])) {
+				$recur->Param('gateway_id',$plan['gateway']);
+			}
+			// then from general settings:
+			elseif (!empty($config['gateway'])) {
 				$recur->Param('gateway_id',$config['gateway']);
 			}
 			
@@ -679,6 +688,7 @@ if (!class_exists('Membrr_EE')) {
 								'description' => $row['plan_description'],
 								'price' => money_format("%!i",$row['plan_price']),
 								'initial_charge' => money_format("%!i",$row['plan_initial_charge']),
+								'gateway' => $row['plan_gateway'],
 								'interval' => $row['plan_interval'],
 								'free_trial' => $row['plan_free_trial'],
 								'occurrences' => $row['plan_occurrences'],

@@ -67,6 +67,11 @@ $this->table->add_row(
 		lang('membrr_for_sale'),
 		form_dropdown('for_sale', array('1' => 'Yes - this plan is available for purchase', '0' => 'No'), $for_sale)
 	);
+	
+$this->table->add_row(
+		lang('membrr_plan_gateway'),
+		form_dropdown('gateway', $gateways, $selected_gateway)
+	);
 		
 $this->table->add_row(
 		'',
