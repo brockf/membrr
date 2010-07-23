@@ -608,7 +608,7 @@ class Membrr {
 			    	
     	// user must be logged in
     	if ($this->EE->session->userdata('member_id') == '' or $this->EE->session->userdata('member_id') == '0') {
-    		echo 'Membrr for EE2 **WARNING** This user is not logged in.  This form should be seen by only logged in members.';
+    		return 'Membrr for EE2 **WARNING** This user is not logged in.  This form should be seen by only logged in members.';
     	}
     	
     	// store all errors in here
@@ -897,7 +897,7 @@ class Membrr {
     function quick_order_form () {    	
     	// user must be logged in
     	if ($this->EE->session->userdata('member_id') == '' or $this->EE->session->userdata('member_id') == '0') {
-    		echo '<h2>Membrr for ExpressionEngine Error:</h2>
+    		return '<h2>Membrr for ExpressionEngine Error:</h2>
     		<p>User must be logged in to see this order form.  This form tag should be protected like:</p>
     				<pre>' . htmlspecialchars('{if logged_in}
 	{exp:membrr:order_form}
