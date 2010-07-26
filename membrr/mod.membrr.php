@@ -833,6 +833,10 @@ class Membrr {
 		$variables['country_raw_options'] = $countries;
 		
 		// prep gateway options
+		require(dirname(__FILE__) . '/opengateway.php');
+		$this->server = new OpenGateway;
+		$this->config = $this->membrr->GetConfig();
+		$this->server->Authenticate($this->config['api_id'], $this->config['secret_key'], $this->config['api_url'] . '/api');
 		$this->server->SetMethod('GetGateways');
 		$response = $this->server->Process();
 		
