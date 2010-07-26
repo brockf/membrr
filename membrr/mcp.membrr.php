@@ -1311,7 +1311,8 @@ class Membrr_mcp {
 					   		'interval' => $response['plan']['interval'],
 					   		'amount' => $response['plan']['amount'],
 					   		'free_trial' => $response['plan']['free_trial'],
-					   		'occurrences' => $response['plan']['occurrences']
+					   		'occurrences' => $response['plan']['occurrences'],
+					   		'initial_charge' => (empty($response['plan']['free_trial'])) ? $response['plan']['amount'] : '0.00'
 						);
 								
 		$this->EE->load->model('member_model'); 
@@ -1326,7 +1327,7 @@ class Membrr_mcp {
         
         // default values
         $plan_name = ($this->EE->input->post('plan_name')) ? $this->EE->input->post('plan_name') : $plan['name']; 
-        $plan_initial_charge = ($this->EE->input->post('initial_charge')) ? $this->EE->input->post('initial_charge') : $plan['amount']; 
+        $plan_initial_charge = ($this->EE->input->post('initial_charge')) ? $this->EE->input->post('initial_charge') : $plan['initial_charge']; 
 		$plan_description = ($this->EE->input->post('plan_description')) ? $this->EE->input->post('plan_description') : '';
 		$new_member_group = ($this->EE->input->post('new_member_group')) ? $this->EE->input->post('new_member_group') : '';
 		$new_member_group_expire = ($this->EE->input->post('new_member_group_expire')) ? $this->EE->input->post('new_member_group_expire') : '';

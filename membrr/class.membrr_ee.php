@@ -80,7 +80,7 @@ if (!class_exists('Membrr_EE')) {
 			$plan = $this->GetPlan($plan_id);
 			
 			// calculate initial charge
-			if ($plan['initial_charge'] != $plan['price'] and $first_charge == FALSE) {
+			if ($plan['initial_charge'] != $plan['price'] and $first_charge === FALSE) {
 				$first_charge = $plan['initial_charge'];
 			}	
 			
@@ -119,7 +119,7 @@ if (!class_exists('Membrr_EE')) {
 			}
 			
 			// if different first charge?
-			if ($first_charge != FALSE) {
+			if ($first_charge !== FALSE) {
 				$recur->Amount($first_charge);
 			}
 			else {
