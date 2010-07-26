@@ -1336,10 +1336,10 @@ class Membrr {
 					</li>
 					<li class="field">
 						<select name="customer_country" id="customer_country">';
-		foreach ($countries as $country) {
-			$selected = (!empty($customer_country) and $customer_country == $country)  ? ' selected="selected" ' : '';
+		foreach ($countries as $country_code => $country) {
+			$selected = (!empty($customer_country) and $customer_country == $country_code)  ? ' selected="selected" ' : '';
 			
-			$return .= '<option value="' . $country . '"' . $selected . '>' . $country . '</option>';
+			$return .= '<option value="' . $country_code . '"' . $selected . '>' . $country . '</option>';
 		}
 		
 		$return .= '</select></li>';

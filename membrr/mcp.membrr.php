@@ -906,8 +906,8 @@ class Membrr_mcp {
         
 		$country_options = array();
 		$country_options[] = '';
-		foreach ($countries as $country) {
-			$country_options[$country] = $country;
+		foreach ($countries as $country_code => $country) {
+			$country_options[$country_code] = $country;
 		}
 		
 		// add a little JavaScript
