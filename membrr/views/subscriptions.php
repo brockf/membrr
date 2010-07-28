@@ -1,5 +1,5 @@
 <?php ?>
-<form method="get" action="index.php">
+<form method="get" action="<?=basename($_SERVER['SCRIPT_NAME']);?>">
 <label><?=lang('membrr_search_all_subscriptions');?></label>
 <?=form_input('search', $search_query);?><br /><input type="submit" name="go" value="Search" />&nbsp;<a href="<?=$cp_url;?>">View All</a>
 <? foreach ($search_fields as $field => $value) { ?>
