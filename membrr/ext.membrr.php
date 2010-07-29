@@ -177,7 +177,7 @@ class Membrr_ext
 				
 				$insert_id = $row['Auto_increment'];
 				
-    			$insert = $this->EE->db->query('INSERT INTO `exp_membrr_channel_posts` (`channel_id`, `channel_entry_id`, `recurring_id`, `active`) VALUES (\'' . $channel['channel_id'] . '\', \'' . $insert_id . '\', \'' . $recurring_id . '\', \'1\');');
+    			$insert = $this->EE->db->query('INSERT INTO `exp_membrr_channel_posts` (`channel_id`, `channel_entry_id`, `recurring_id`, `active`, `channel_post_date`) VALUES (\'' . $channel['channel_id'] . '\', \'' . $insert_id . '\', \'' . $recurring_id . '\', \'1\', \'' . date('Y-m-d H:i:s') . '\');');
     		}
     	}
     	

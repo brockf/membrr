@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.0.9';
+	var $version = '1.0.91';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -52,6 +52,10 @@ class Membrr_upd {
         
         if ($current < '1.0.8') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_plans` ADD COLUMN `plan_gateway` INT(11) AFTER `plan_initial_charge`');
+        }
+        
+        if ($current < '1.0.91') {
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_channel_posts` ADD COLUMN `channel_post_date` DATETIME NOT NULL');
         }
 	
 		return TRUE;
@@ -151,7 +155,8 @@ class Membrr_upd {
 				 `channel_id` int(11) NOT NULL,
 				 `channel_entry_id` INT NOT NULL,
 				 `recurring_id` INT NOT NULL,
-				 `active` TINYINT NOT NULL
+				 `active` TINYINT NOT NULL,
+				 `channel_post_date` DATETIME NOT NULL
 				 ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ;";
     
     	$sql[] = "INSERT INTO `exp_actions` (action_id, 
