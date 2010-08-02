@@ -459,6 +459,42 @@ if (!class_exists('Membrr_EE')) {
 									'postal_code' => $postal_code
 								);
 				$this->EE->db->update('exp_membrr_address_book',$update_array, array('address_id' => $address['address_id']));
+				
+				// update OpenGateway customer record
+				$config = $this->GetConfig();
+					
+				if (!class_exists('OpenGateway')) {
+					require(dirname(__FILE__) . '/opengateway.php');
+				}
+				
+				$connect_url = $config['api_url'] . '/api';
+				$server = new OpenGateway;
+				$server->Authenticate($config['api_id'], $config['secret_key'], $connect_url);
+				
+				// get customer ID
+				$server->SetMethod('GetCustomers');
+				$server->Param('internal_id', $member_id);
+				$response = $server->Process();
+				
+				if ($response['total_results'] > 0) {	
+					// there is already a customer record here
+					$customer = (!isset($response['customers']['customer'][0])) ? $response['customers']['customer'] : $response['customers']['customer'][0];
+					
+					$server->SetMethod('UpdateCustomer');
+					$server->Param('customer_id',$customer['id']);
+					$server->Param('first_name', $first_name); 
+					$server->Param('last_name', $last_name); 
+					$server->Param('address_1', $street_address); 
+					$server->Param('address_2', $address_2); 
+					$server->Param('city', $city); 
+					$server->Param('state', (empty($region)) ? $region_other : $region); 
+					$server->Param('country', $country); 
+					$server->Param('postal_code', $postal_code);
+					$response = $server->Process();
+				}
+				else {
+					// this is unexpected, there should be a record here
+				}
 			}
 			else {
 				// insert
