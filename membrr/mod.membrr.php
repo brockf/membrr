@@ -515,8 +515,8 @@ class Membrr {
 			if ($this->EE->TMPL->fetch_param('date_format')) {
 				$subscription['date_created'] = date($this->EE->TMPL->fetch_param('date_format'),strtotime($subscription['date_created']));
 				$subscription['date_cancelled'] = ($subscription['date_cancelled'] != FALSE) ? date($this->EE->TMPL->fetch_param('date_format'),strtotime($subscription['date_cancelled'])) : FALSE;
-				$subscription['next_charge_date'] = ($subscription['next_charge_date'] != FALSE) ? date($TMPL->fetch_param('date_format'),strtotime($subscription['next_charge_date'])) : FALSE;
-				$subscription['end_date'] = ($subscription['end_date'] != FALSE) ? date($TMPL->fetch_param('date_format'),strtotime($subscription['end_date'])) : FALSE;
+				$subscription['next_charge_date'] = ($subscription['next_charge_date'] != FALSE) ? date($this->EE->TMPL->->fetch_param('date_format'),strtotime($subscription['next_charge_date'])) : FALSE;
+				$subscription['end_date'] = ($subscription['end_date'] != FALSE) ? date($this->EE->TMPL->->fetch_param('date_format'),strtotime($subscription['end_date'])) : FALSE;
 			}
 			
 			$variables = array();
