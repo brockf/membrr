@@ -906,6 +906,7 @@ if (!class_exists('Membrr_EE')) {
 					'CO' => 'Colorado',
 					'CT' => 'Connecticut',
 					'DE' => 'Delaware',
+					'DC' => 'District of Columbia',
 					'FL' => 'Florida',
 					'GA' => 'Georgia',
 					'HI' => 'Hawaii',
