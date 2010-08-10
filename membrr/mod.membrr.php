@@ -419,7 +419,7 @@ class Membrr {
 			$sub_return = $this->EE->TMPL->tagdata;
 			
 			if ($this->EE->TMPL->fetch_param('date_format')) {
-				$payment['date'] = date($this->EE->TMPL->fetch_param('date_format'),strtotime($payment['date']));
+				$payment['date'] = (!empty($payment['date'])) ? date($this->EE->TMPL->fetch_param('date_format'),strtotime($payment['date'])) : FALSE;
 			}
 			
 			$variables = array();
