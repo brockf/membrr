@@ -576,7 +576,7 @@ if (!class_exists('Membrr_EE')) {
 								'plan_name' => $row['plan_name'],
 								'plan_id' => $row['plan_id'],
 								'plan_description' => $row['plan_description'],
-								'date' => date('M j, Y @ h:i a',strtotime($row['date'])),
+								'date' => date('M j, Y h:i a',strtotime($row['date'])),
 								'refunded' => $row['refunded'],
 								'entry_id' => (empty($row['entry_id'])) ? FALSE : $row['entry_id'],
 								'channel' => (empty($row['entry_id'])) ? FALSE : $row['channel_name']
