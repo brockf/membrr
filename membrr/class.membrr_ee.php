@@ -630,8 +630,7 @@ if (!class_exists('Membrr_EE')) {
 				}
 			}	
 			
-			$this->EE->db->select('exp_membrr_subscriptions.*, exp_membrr_subscriptions.recurring_id AS subscription_id, exp_membrr_payments.*, exp_members.*, exp_membrr_plans.*, exp_membrr_channel_posts.channel_entry_id AS entry_id, exp_channels.channel_name AS channel', FALSE);
-			$this->EE->db->join('exp_membrr_payments','exp_membrr_subscriptions.recurring_id = exp_membrr_payments.recurring_id','left');
+			$this->EE->db->select('exp_membrr_subscriptions.*, exp_membrr_subscriptions.recurring_id AS subscription_id, exp_members.*, exp_membrr_plans.*, exp_membrr_channel_posts.channel_entry_id AS entry_id, exp_channels.channel_name AS channel', FALSE);
 			$this->EE->db->join('exp_members','exp_membrr_subscriptions.member_id = exp_members.member_id','left');
 			$this->EE->db->join('exp_membrr_plans','exp_membrr_subscriptions.plan_id = exp_membrr_plans.plan_id','left');
 			$this->EE->db->join('exp_membrr_channel_posts','exp_membrr_subscriptions.recurring_id = exp_membrr_channel_posts.recurring_id','left');
