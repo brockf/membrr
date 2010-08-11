@@ -110,6 +110,18 @@ if (!class_exists('Membrr_EE')) {
 			else {
 				// no customer records, yet
 				$recur->Param('internal_id', $member_id, 'customer');
+				
+				// let's try to auto-generate a name based if there isn't one there
+				if (empty($customer['first_name']) and empty($customer['last_name'])) {
+					// do we have a credit card name to generate from?
+					if (isset($credit_card['name']) and !empty($credit_card['name'])) {
+						$names = explode(' ', $credit_card['name']);
+						
+						$customer['first_name'] = $names[0];
+						$customer['last_name'] = end($names);
+					}
+				}
+				
 				$recur->Customer($customer['first_name'],$customer['last_name'],'',$customer['address'],$customer['address_2'],$customer['city'],$customer['region'],$customer['country'],$customer['postal_code'],'',$customer['email']);
 			}
 			
