@@ -626,11 +626,11 @@ class Membrr_mcp {
 		
 		// pagination
 		if (!empty($filters)) {
-			$total = count($this->membrr->GetSubscriptions(0,10000,$filters));
+			$total = count($membrr->GetSubscriptions(0,10000,$filters));
 		}
 		else {
 			$result = $this->EE->db->select('count(recurring_id) AS total_rows',FALSE)->from('exp_membrr_subscriptions')->get();
-			$total = $result->row()->total_rows;
+			$total = $result->row()->total_rows; 
 		}
 	
 		// pass the relevant data to the paginate class so it can display the "next page" links
