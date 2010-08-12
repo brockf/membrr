@@ -63,9 +63,9 @@ if (!class_exists('Membrr_EE')) {
 					}
 					
 					// call "membrr_expire" hook with: member_id, subscription_id, plan_id
-					if (isset($this->EE->extensions->extensions['membrr_expire']))
+					if ($this->EE->extensions->active_hook('membrr_expire') == TRUE)
 					{
-					    $this->EE->extensions->call_extension('membrr_expire', $row['member_id'], $row['recurring_id'], $row['plan_id']);
+					    $this->EE->extensions->call('membrr_expire', $row['member_id'], $row['recurring_id'], $row['plan_id']);
 					    if ($this->EE->extensions->end_script === TRUE) return;
 					} 
 					
@@ -191,11 +191,11 @@ if (!class_exists('Membrr_EE')) {
 			}
 			$recur->Param('cancel_url',htmlspecialchars($cancel_url));
 			
-			// call "membrr_pre_subscribe" hook with: $recur, $member_id, $plan_id, $recurring_charge, $first_charge, $end_date, $next_charge_date
+			// call "membrr_pre_subscribe" hook with: $recur, $member_id, $plan_id, $recurring_charge, $first_charge, $end_date
 			
-			if (isset($this->EE->extensions->extensions['membrr_pre_subscribe']))
+			if ($this->EE->extensions->active_hook('membrr_pre_subscribe') == TRUE)
 			{
-			    $this->EE->extensions->call_extension('membrr_pre_subscribe', $recur, $member_id, $plan_id, $recurring_charge, $first_charge, $end_date, $next_charge_date);
+				$this->EE->extensions->call('membrr_pre_subscribe', $recur, $member_id, $plan_id, $recurring_charge, $first_charge, $end_date);
 			    if ($this->EE->extensions->end_script === TRUE) return FALSE;
 			}
 			
@@ -240,7 +240,7 @@ if (!class_exists('Membrr_EE')) {
 				
 				$payment = ($first_charge == FALSE) ? $plan['price'] : money_format("%!i",$first_charge);
 				 
-				if ($plan['free_trial'] == 0) {
+				if ($plan['free_trial'] == 0 and isset($response['charge_id'])) {
 					// create payment record               						  
 					$this->RecordPayment($response['recurring_id'], $response['charge_id'], $payment);
 				}
@@ -281,9 +281,9 @@ if (!class_exists('Membrr_EE')) {
 			
 			// call "membrr_subscribe" hook with: member_id, subscription_id, plan_id, end_date
 			
-			if (isset($this->EE->extensions->extensions['membrr_subscribe']))
+			if ($this->EE->extensions->active_hook('membrr_subscribe') == TRUE)
 			{
-			    $this->EE->extensions->call_extension('membrr_subscribe', $member_id, $recurring_id, $plan_id, $end_date);
+			    $this->EE->extensions->call('membrr_subscribe', $member_id, $recurring_id, $plan_id, $end_date);
 			    if ($this->EE->extensions->end_script === TRUE) return $response;
 			}
 			
@@ -300,6 +300,13 @@ if (!class_exists('Membrr_EE')) {
 							);
 							
 			$this->EE->db->insert('exp_membrr_payments',$insert_array);
+			
+			if ($this->EE->extensions->active_hook('membrr_payment') == TRUE) {
+    			 $subscription = $this->GetSubscription($subscription_id);
+            
+    			 $this->EE->extensions->call('membrr_payment', $subscription['member_id'], $subscription_id, $subscription['plan_id'], $charge_id, $subscription['next_charge_date']);
+    			 if ($this->EE->extensions->end_script === TRUE) return $response;
+			} 
 			
 			return TRUE;
 		}
@@ -571,6 +578,7 @@ if (!class_exists('Membrr_EE')) {
 			$this->EE->db->join('exp_channels','exp_membrr_channel_posts.channel_id = exp_channels.channel_id','left');
 			$this->EE->db->group_by('exp_membrr_payments.charge_id');
 			$this->EE->db->order_by('exp_membrr_payments.date','DESC');
+			$this->EE->db->where('exp_membrr_payments.charge_id >','0');
 			$this->EE->db->limit($limit, $offset);
 				      
 			$result = $this->EE->db->get('exp_membrr_payments');
@@ -848,9 +856,9 @@ if (!class_exists('Membrr_EE')) {
 			}
 			
 			// call "membrr_cancel" hook with: member_id, subscription_id, plan_id, end_date
-			if (isset($this->EE->extensions->extensions['membrr_cancel']))
+			if ($this->EE->extensions->active_hook('membrr_cancel') == TRUE)
 			{
-			    $this->EE->extensions->call_extension('membrr_cancel', $subscription['member_id'], $subscription['id'], $subscription['plan_id'], $subscription['end_date']);
+			    $this->EE->extensions->call('membrr_cancel', $subscription['member_id'], $subscription['id'], $subscription['plan_id'], $subscription['end_date']);
 			    if ($this->EE->extensions->end_script === TRUE) return;
 			} 
 					

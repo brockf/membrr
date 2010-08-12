@@ -14,7 +14,7 @@
 if (!class_exists('OpenGateway')) {
 	class OpenGateway
 	{		
-		private $params;
+		public $params;
 		public $post_url;
 		public $api_id;
 		public $secret_key;
