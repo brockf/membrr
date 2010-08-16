@@ -185,7 +185,6 @@ class Membrr {
 		
 		return $this->return_data;
     }
-
     
     /**
     * Returns HTML between tags if user has the active plan
@@ -556,6 +555,272 @@ class Membrr {
 		
 		return $return;
 	}
+	
+	/**
+    * Displays a customizable update credit card form
+    *
+    * @param int $subscription_id
+    * @param string $redirect_url
+    *
+    * Requires upon POST submission: "subscription_id", logged in user, credit card fields
+    *
+    * Note: You should validate form fields client side to avoid unnecessary API calls.
+    *
+    * Submission requires:
+    *	user be logged in
+    *	subscription_id
+	*	cc_number
+	*	cc_name
+	*	cc_expiry_month
+	*	cc_expiry_year
+	*   cc_cvv2
+	*	membrr_update_form (hidden field) == 1
+	*	if sending a region, use "region" for North American regions and "region_other" for non-NA regions
+    *
+    * @returns all form related data:
+    *
+    *	first_name
+	*	last_name
+	*	address
+	*	address_2
+	*	city
+	*	region
+	*	region_other
+	*	country
+	*	postal_code
+	*	email
+	*	region_options
+	*	region_raw_options (array of regions)
+	*	country_options
+	*	country_raw_options (array of countries)
+	*	cc_expiry_month_options
+	*	cc_expiry_year_options
+	*	errors
+	*	form_action (the current URL)
+	*	form_method (POST)
+	*	subscription_id of the subscription to be updated
+    */
+    function update_form () {
+    	$this->EE->load->helper('form');
+		$this->EE->load->library('form_validation');
+			    	
+    	// user must be logged in
+    	if ($this->EE->session->userdata('member_id') == '' or $this->EE->session->userdata('member_id') == '0') {
+    		return 'Membrr for EE2 **WARNING** This user is not logged in.  This form should be seen by only logged in members.';
+    	}
+    	
+    	if (!$this->EE->TMPL->fetch_param('subscription_id')) {
+    		return 'You are missing the required "subscription_id" parameter.';
+    	}
+    	
+    	if (!$this->EE->TMPL->fetch_param('redirect_url')) {
+    		return 'You are missing the required "redirect_url" parameter.  This is the URL to send the user to after they have updated their subscription.';
+    	}
+    	
+    	// store all errors in here
+    	$errors = array();
+    	
+    	// get subscription and validate member ownership
+    	$subscription_id = ($this->EE->input->post('subscription_id')) ? $this->EE->input->post('subscription_id') : $this->EE->TMPL->fetch_param('subscription_id');
+    	$subscription = $this->membrr->GetSubscription($subscription_id);
+    	
+    	if (empty($subscription) or $subscription['member_id'] != $this->EE->session->userdata('member_id')) {
+    		return 'Invalid subscription ID.';
+    	}
+    	
+		// handle potential form submission
+		if ($this->EE->input->post('membrr_update_form')) {
+			// validate email if it is there
+			if ($this->EE->input->post('email')) {
+				$this->EE->form_validation->set_rules('email','lang:membrr_order_form_customer_email','trim|valid_email');
+			}
+			// and credit card...
+			$this->EE->form_validation->set_rules('cc_number','lang:membrr_order_form_cc_number','trim|numeric');
+			$this->EE->form_validation->set_rules('cc_name','lang:membrr_order_form_cc_name','trim');
+			$this->EE->form_validation->set_rules('cc_expiry_month','lang:membrr_order_form_cc_expiry_month','trim|numeric');
+			$this->EE->form_validation->set_rules('cc_expiry_year','lang:membrr_order_form_cc_expiry_year','trim|numeric');
+			
+			if ($this->EE->session->userdata('member_id') and $this->EE->form_validation->run() !== FALSE) {								
+				$member_id = $this->EE->session->userdata('member_id');
+				
+				$this->EE->load->model('member_model');
+			    $member = $this->EE->member_model->get_member_data($this->EE->session->userdata('member_id'));
+			    $member = $member->row_array();
+				
+				// update address book
+				if ($this->EE->input->post('address')) {
+					$this->membrr->UpdateAddress($member_id,
+												 $this->EE->input->post('first_name'),
+												 $this->EE->input->post('last_name'),
+												 $this->EE->input->post('address'),
+												 $this->EE->input->post('address_2'),
+												 $this->EE->input->post('city'),
+												 $this->EE->input->post('region'),
+												 $this->EE->input->post('region_other'),
+												 $this->EE->input->post('country'),
+												 $this->EE->input->post('postal_code')
+												);
+				}
+								
+				// prep arrays to send to Membrr_EE class	
+				$credit_card = array(
+									'number' => $this->EE->input->post('cc_number'),
+									'name' => $this->EE->input->post('cc_name'),
+									'expiry_month' => $this->EE->input->post('cc_expiry_month'),
+									'expiry_year' => $this->EE->input->post('cc_expiry_year'),
+									'security_code' => $this->EE->input->post('cc_cvv2')
+								);
+			
+				$response = $this->membrr->UpdateCC($subscription['id'], $credit_card);
+							
+				if (isset($response['error'])) {
+					$errors[] = $this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['error_text'] . ' (#' . $response['error'] . ')';
+				}
+				elseif ($response['response_code'] != '104') {
+					$errors[] = $this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['response_text'] . '. ' . $response['reason'] . ' (#' . $response['response_code'] . ')';
+				}
+				else {
+					// success!
+					// redirect to URL
+					header('Location: ' . $this->EE->TMPL->fetch_param('redirect_url'));
+					die();
+				}
+			}	
+		}
+		
+		if (validation_errors()) {
+			// neat little hack to get an array of errors
+			$form_errors = validation_errors('', '[|]');
+			$form_errors = explode('[|]',$form_errors);
+			
+			foreach ($form_errors as $form_error) {
+				$errors[] = $form_error;
+			}
+		}
+    	
+    	// get content of templates
+    	$sub_return = $this->EE->TMPL->tagdata;
+			
+		// get customer information
+		$address = $this->membrr->GetAddress($this->EE->session->userdata('member_id'));
+		
+		$this->EE->load->model('member_model');
+	    $member = $this->EE->member_model->get_member_data($this->EE->session->userdata('member_id'));
+	    $member = $member->row_array();
+		
+		$variables = array(
+						'first_name' => ($this->EE->input->post('first_name')) ? $this->EE->input->post('first_name') : $address['first_name'], 
+						'last_name' => ($this->EE->input->post('last_name')) ? $this->EE->input->post('last_name') : $address['last_name'],
+						'address' => ($this->EE->input->post('address')) ? $this->EE->input->post('address') : $address['address'],
+						'address_2' => ($this->EE->input->post('address_2')) ? $this->EE->input->post('address_2') : $address['address_2'],
+						'city' => ($this->EE->input->post('city')) ? $this->EE->input->post('city') : $address['city'],
+						'region' => ($this->EE->input->post('region')) ? $this->EE->input->post('region') : $address['region'],
+						'region_other' => ($this->EE->input->post('region_other')) ? $this->EE->input->post('region_other') : $address['region_other'], 
+						'country' => ($this->EE->input->post('country')) ? $this->EE->input->post('country') : $address['country'],
+						'postal_code' => ($this->EE->input->post('postal_code')) ? $this->EE->input->post('postal_code') : $address['postal_code'],
+						'email' => ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email']
+					);
+					
+		// subscription_id
+		$variables['subscription_id'] = $subscription['id'];
+					
+		// prep credit card fields
+		
+		// prep expiry month options
+		$months = '';
+		for ($i = 1; $i <= 12; $i++) {
+	       $month = str_pad($i, 2, "0", STR_PAD_LEFT);
+	       $month_text = date('M',strtotime('2010-' . $month . '-01'));
+	       
+	       $months .= '<option value="' . $month . '">' . $month . ' - ' . $month_text . '</option>' . "\n";
+	    }
+	    
+	    $variables['cc_expiry_month_options'] = $months;
+	    
+	    // prep same for years
+	    
+	    $years = '';
+		$now = date('Y');
+		$future = $now + 10;
+		for ($i = $now; $i <= $future; $i++) {
+			$years .= '<option value="' . $i . '">' . $i . '</option>';
+		}
+	    
+	    $variables['cc_expiry_year_options'] = $years;
+	    
+	    // prep regions
+	    $regions = $this->membrr->GetRegions();
+		
+		if ($this->EE->input->post('customer_region')) {
+			$customer_region = $this->EE->input->post('customer_region');
+		}
+		elseif (isset($address['region'])) {
+			$customer_region = $address['region'];
+		}
+		else {
+			$customer_region = '';
+		}
+		
+		$return = '';
+		foreach ($regions as $region_code => $region) {
+			$selected = ($customer_region == $region_code) ? ' selected="selected"' : '';
+			$return .= '<option value="' . $region_code . '"' . $selected . '>' . $region . '</option>';
+		}
+		
+		$region_options = $return;
+		
+		$variables['region_options'] = $region_options;
+		reset($regions);
+		$variables['region_raw_options'] = $regions;
+							
+		// field: customer country
+		$countries = $this->membrr->GetCountries();
+		
+		if ($this->EE->input->post('customer_country')) {
+			$customer_country = $this->EE->input->post('customer_country');
+		}
+		elseif (isset($address['country'])) {
+			$customer_country = $address['country'];
+		}
+		else {
+			$customer_country = '';
+		}
+		
+		$return = '';
+		foreach ($countries as $country_code => $country) {
+			$selected = ($customer_country == $country_code) ? ' selected="selected"' : '';
+			$return .= '<option value="' . $country_code . '"' . $selected . '>' . $country . '</option>';
+		}
+
+		$country_options = $return;
+		
+		$variables['country_options'] = $country_options;
+		reset($countries);
+		$variables['country_raw_options'] = $countries;
+		
+		// prep form action
+	    $variables['form_action'] = ($_SERVER["SERVER_PORT"] == "443") ? str_replace('http://','https://',$this->EE->functions->fetch_current_uri()) : $this->EE->functions->fetch_current_uri();
+	    $variables['form_method'] = 'POST';
+	    
+	    // prep errors
+	    $variables['errors_array'] = $errors;
+	    
+	    $error_string = '';
+	    foreach ($errors as $error) {
+	    	$error_string .= '<div>' . $error . '</div>';
+	    }
+	    $variables['errors'] = $error_string;
+	    
+	    // parse the tag content with our new variables
+	    $var_data = array();
+	    $var_data[0] = $variables;
+			
+		$sub_return = $this->EE->TMPL->parse_variables($sub_return, $var_data);
+    	
+    	$this->return_data = $sub_return;
+    	
+    	return $sub_return;
+    }
 	
 	/**
     * Displays a customizable order form

@@ -625,6 +625,7 @@ class Membrr_mcp {
 				$options = '<a href="' . $this->cp_url('subscription', array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_view') . '</a>';
 				
 				if ($subscription['active'] == '1') {
+					$options .= ' | <a href="' . $this->cp_url('update_cc', array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_update_cc') . '</a>';
 					$options .= ' | <a class="confirm" href="' . $this->cp_url('cancel_subscription',array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_cancel') . '</a>';
 				}
 				
@@ -716,6 +717,143 @@ class Membrr_mcp {
 		$vars['config'] = $this->config;
 	
 		return $this->EE->load->view('subscription',$vars,TRUE);	
+	}
+	
+	function update_cc () {
+		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_update_cc_title'));
+		
+		$recurring_id = $this->EE->input->get('id');
+		$subscription = $this->membrr->GetSubscription($recurring_id);
+		
+		// get select user
+		$this->EE->load->model('member_model');
+	    $member = $this->EE->member_model->get_member_data($subscription['member_id']);
+	    $member = $member->row_array();
+	    
+	    // end date
+	    $end_date_days = array();
+	    for ($i = 1; $i <= 31; $i++) {
+        	$end_date_days[$i] = $i;
+        }
+        
+        $end_date_months = array();
+	    for ($i = 1; $i <= 12; $i++) {
+        	$end_date_months[$i] = date('m - M',mktime(1, 1, 1, $i, 1, 2010));
+        }
+        
+        $end_date_years = array();
+	    for ($i = date('Y'); $i <= (date('Y') + 3); $i++) {
+        	$end_date_years[$i] = $i;
+        }
+        
+        // cc expiry date
+        $expiry_date_years = array();
+        
+        for ($i = date('Y'); $i <= (date('Y') + 10); $i++) {
+        	$expiry_date_years[$i] = $i;
+        }
+        
+        // get address if available
+        $address = $this->membrr->GetAddress($member['member_id']);
+        
+        // get regions
+        $regions = $this->membrr->GetRegions();
+        
+		$region_options = array();
+		$region_options[] = '';
+		foreach ($regions as $code => $region) {
+			$region_options[$code] = $region;
+		}
+        
+        // get countries
+        $countries = $this->membrr->GetCountries();
+        
+		$country_options = array();
+		$country_options[] = '';
+		foreach ($countries as $country_code => $country) {
+			$country_options[$country_code] = $country;
+		}
+		
+		// errors
+		$errors = ($this->EE->session->flashdata('errors')) ? $this->EE->session->flashdata('errors') : FALSE;
+		
+		$vars = array();
+		$vars['config'] = $this->config;
+		$vars['member'] = $member;
+		$vars['end_date_days'] = $end_date_days;
+		$vars['end_date_months'] = $end_date_months;
+		$vars['end_date_years'] = $end_date_years;
+		$vars['expiry_date_years'] = $expiry_date_years;
+		$vars['form_action'] = $this->form_url('post_update_cc');
+		$vars['regions'] = $region_options;
+		$vars['countries'] = $country_options;
+		$vars['address'] = $address;
+		$vars['subscription'] = $subscription;
+		$vars['errors'] = $errors;
+		
+		return $this->EE->load->view('update_cc',$vars, TRUE);
+	}
+	
+	function post_update_cc () {
+		// setup validation
+		$this->EE->load->library('form_validation');
+		$this->EE->form_validation->set_rules('subscription_id','Subscription ID','required');
+											
+		$this->EE->form_validation->set_rules('first_name','lang:membrr_order_form_customer_first_name','trim|required');
+		$this->EE->form_validation->set_rules('last_name','lang:membrr_order_form_customer_last_name','trim|required');
+		$this->EE->form_validation->set_rules('address','lang:membrr_order_form_customer_address','trim|required');
+		$this->EE->form_validation->set_rules('city','lang:membrr_order_form_customer_city','trim|required');
+		$this->EE->form_validation->set_rules('country','lang:membrr_order_form_customer_country','trim|required');
+		$this->EE->form_validation->set_rules('postal_code','lang:membrr_order_form_customer_postal_code','trim|required');
+		
+		$this->EE->form_validation->set_rules('cc_number','Credit Card Number','trim|required');
+		$this->EE->form_validation->set_rules('cc_name','Credit Card Name','trim|required');
+		
+		// get subscription
+		$subscription = $this->membrr->GetSubscription($this->EE->input->post('subscription_id'));
+		
+			
+		if ($this->EE->form_validation->run() !== FALSE) {
+			// update address
+			$this->membrr->UpdateAddress($subscription['member_id'],$this->EE->input->post('first_name'),$this->EE->input->post('last_name'),$this->EE->input->post('address'),$this->EE->input->post('address_2'),$this->EE->input->post('city'),$this->EE->input->post('region'),$this->EE->input->post('region_other'),$this->EE->input->post('country'),$this->EE->input->post('postal_code'));
+			
+			// process subscription update
+			$member_id = $subscription['member_id'];
+			
+			$credit_card = array(
+								'number' => $this->EE->input->post('cc_number'),
+								'name' => $this->EE->input->post('cc_name'),
+								'expiry_month' => $this->EE->input->post('cc_expiry_month'),
+								'expiry_year' => $this->EE->input->post('cc_expiry_year'),
+								'security_code' => $this->EE->input->post('cc_cvv2')
+							);
+									
+			$response = $this->membrr->UpdateCC($subscription['id'], $credit_card);
+			
+			if (!is_array($response) or isset($response['error'])) {
+				$this->EE->session->set_flashdata('errors',$this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['error_text'] . ' (#' . $response['error'] . ')');
+			}
+			elseif ($response['response_code'] != '104') {
+				$this->EE->session->set_flashdata('errors',$this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['response_text'] . '. ' . $response['reason'] . ' (#' . $response['response_code'] . ')');
+			}
+			else {
+				// success!
+				$this->EE->session->set_flashdata('message_success', 'You have successfully updated this subscription.');
+				
+				// redirect to URL
+				$this->EE->functions->redirect(htmlspecialchars_decode($this->cp_url('subscription', array('id' => $response['recurring_id']))));
+				die();
+				return TRUE;
+			}
+			
+			$this->EE->functions->redirect(htmlspecialchars_decode($this->cp_url('update_cc', array('id' => $subscription['id']))));
+			die();
+		}
+		else {
+			$this->EE->session->set_flashdata('errors',validation_errors());
+			$this->EE->functions->redirect(htmlspecialchars_decode($this->cp_url('update_cc', array('id' => $subscription['id']))));
+			die();
+		}
 	}
 	
 	function cancel_subscription () {		

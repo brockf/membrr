@@ -164,5 +164,8 @@ $lang = array(
 	'membrr_total_charges_short' => '# of Charges',
 	'membrr_default_gateway' => 'Gateway for New Charges',
 	'membrr_sync_plan_next_charge' => 'All next charge dates synchronized with server.',
-	'membrr_plan_gateway' => 'Payment Gateway'
+	'membrr_plan_gateway' => 'Payment Gateway',
+	'membrr_update_cc' => 'credit card',
+	'membrr_update_cc_title' => 'Update Credit Card for Subscription',
+	'membrr_update_cc_button' => 'Update Credit Card'
 );

@@ -251,6 +251,39 @@ if (!class_exists('Membrr_EE')) {
 			return $response;
 		}
 		
+		function UpdateCC ($subscription_id, $credit_card) {
+			$config = $this->GetConfig();
+			
+			if (!class_exists('Opengateway')) {
+				require(dirname(__FILE__) . '/opengateway.php');
+			}
+			
+			// connect to OG
+			$connect_url = $config['api_url'] . '/api';
+			$opengateway = new OpenGateway;
+			$opengateway->Authenticate($config['api_id'], $config['secret_key'], $connect_url);
+			$opengateway->SetMethod('UpdateCreditCard');
+			$opengateway->Param('recurring_id', $subscription_id);
+			
+			// credit card
+			$opengateway->Param('card_num', $credit_card['number'], 'credit_card');
+			$opengateway->Param('name', $credit_card['name'], 'credit_card');
+			$opengateway->Param('exp_month', $credit_card['expiry_month'], 'credit_card');
+			$opengateway->Param('exp_year', $credit_card['expiry_year'], 'credit_card');
+			$opengateway->Param('cvv', $credit_card['security_code'], 'credit_card');
+			
+			$response = $opengateway->Process();
+			
+			if ($response['response_code'] == '104') {
+				// we have to update all local subscription ID references
+				$this->EE->db->update('exp_membrr_subscriptions',array('recurring_id' => $response['recurring_id']),array('recurring_id' => $subscription_id));
+				$this->EE->db->update('exp_membrr_payments',array('recurring_id' => $response['recurring_id']),array('recurring_id' => $subscription_id));
+				$this->EE->db->update('exp_membrr_channel_posts',array('recurring_id' => $response['recurring_id']),array('recurring_id' => $subscription_id));
+			}
+			
+			return $response;
+		}
+		
 		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment) {
 			// create subscription record
 			$insert_array = array(
