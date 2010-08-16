@@ -40,7 +40,7 @@ else {
 		}
 		
 		$this->table->add_row($subscription['id'],
-						$subscription['user_screenname'],
+						'<a href="' . $subscription['member_link'] . '">' . $subscription['user_screenname'] . '</a>',
 						$subscription['plan_name'],
 						$config['currency_symbol'] . $subscription['amount'],
 						$subscription['date_created'],

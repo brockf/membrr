@@ -23,7 +23,7 @@ class Membrr_ext
 {
 	var $ext_class		= "Membrr_ext";
 	var $name			= "Membrr";
-	var $version		= "1.0";
+	var $version		= "1.1";
 	var $description	= "Part of the Membrr for EE module for subscription memberships.";
 	var $settings_exist	= "n";
 	var $docs_url		= "";

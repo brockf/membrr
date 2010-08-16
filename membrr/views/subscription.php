@@ -17,7 +17,7 @@ $this->table->add_row(
 	
 $this->table->add_row(
 		array('data' => lang('membrr_user'), 'style' => 'width:30%'),
-		$subscription['user_screenname']
+		'<a href="' . $subscription['member_link'] . '">' . $subscription['user_screenname'] . '</a>'
 	);
 	
 $this->table->add_row(

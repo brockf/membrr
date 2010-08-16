@@ -134,6 +134,8 @@ class Membrr_mcp {
 				else {
 					$payments[$key]['refund_text'] = '';
 				}
+				
+				$payments[$key]['member_link'] = $this->member_link($payment['member_id']);
 			}
 			reset($payments);
 		}
@@ -169,6 +171,12 @@ class Membrr_mcp {
 		foreach ($variables as $variable => $value) {
 			$url .= AMP . $variable . '=' . $value;
 		}
+		
+		return $url;
+	}
+	
+	function member_link ($member_id) {
+		$url = BASE.AMP.'D=cp'.AMP.'C=myaccount'.AMP.'id='. $member_id;
 		
 		return $url;
 	}
@@ -557,6 +565,8 @@ class Membrr_mcp {
 				else {
 					$payments[$key]['refund_text'] = '';
 				}
+				
+				$payments[$key]['member_link'] = $this->member_link($payment['member_id']);
 			}
 			reset($payments);
 		}
@@ -619,6 +629,7 @@ class Membrr_mcp {
 				}
 				
 				$subscriptions[$key]['options'] = $options;	
+				$subscriptions[$key]['member_link'] = $this->member_link($subscription['member_id']);
 			}
 			
 			reset($subscriptions);
@@ -626,7 +637,7 @@ class Membrr_mcp {
 		
 		// pagination
 		if (!empty($filters)) {
-			$total = count($membrr->GetSubscriptions(0,10000,$filters));
+			$total = count($this->membrr->GetSubscriptions(0,10000,$filters));
 		}
 		else {
 			$result = $this->EE->db->select('count(recurring_id) AS total_rows',FALSE)->from('exp_membrr_subscriptions')->get();
@@ -696,6 +707,8 @@ class Membrr_mcp {
 		$subscription['status'] = $status;
 		
 		$subscription['plan_link'] = $this->cp_url('edit_plan',array('id' => $subscription['plan_id']));
+		
+		$subscription['member_link'] = $this->member_link($subscription['member_id']);
 	
 		$vars = array();
 		$vars['subscription'] = $subscription;
@@ -1013,7 +1026,7 @@ class Membrr_mcp {
 			$default_gateway = ($this->EE->input->post('gateway')) ? $this->EE->input->post('gateway') : $this->config['gateway'];
 		}
 		else {
-			$api_url = ($this->EE->input->post('api_url')) ? $this->EE->input->post('api_url') : 'https://server.membrr.com'; 
+			$api_url = ($this->EE->input->post('api_url')) ? $this->EE->input->post('api_url') : 'https://www.yourdomain.com/opengateway'; 
 			$api_id = ($this->EE->input->post('api_id')) ? $this->EE->input->post('api_id') : '';
 			$secret_key = ($this->EE->input->post('secret_key')) ? $this->EE->input->post('secret_key') : '';
 			$currency_symbol = ($this->EE->input->post('currency_symbol')) ? $this->EE->input->post('currency_symbol') : '$';

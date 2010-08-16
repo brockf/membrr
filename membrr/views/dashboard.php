@@ -25,7 +25,7 @@ if (!$payments) {
 else {
 	foreach ($payments as $payment) {
 		$this->table->add_row($payment['id'],
-						$payment['user_screenname'],
+						'<a href="' . $payment['member_link'] . '">' . $payment['user_screenname'] . '</a>',
 						$payment['sub_link'],
 						$payment['plan_name'],
 						$payment['date'],

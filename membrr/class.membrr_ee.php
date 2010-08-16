@@ -589,6 +589,7 @@ if (!class_exists('Membrr_EE')) {
 				$payments[] = array(
 								'id' => $row['charge_id'],
 								'recurring_id' => $row['recurring_id'],
+								'member_id' => $row['member_id'],
 								'user_screenname' => $row['screen_name'],
 								'user_username' => $row['username'],
 								'user_groupid' => $row['group_id'],
