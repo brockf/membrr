@@ -599,7 +599,7 @@ if (!class_exists('Membrr_EE')) {
 								'date' => date('M j, Y h:i a',strtotime($row['date'])),
 								'refunded' => $row['refunded'],
 								'entry_id' => (empty($row['entry_id'])) ? FALSE : $row['entry_id'],
-								'channel' => (empty($row['entry_id'])) ? FALSE : $row['channel_name']
+								'channel' => (empty($row['entry_id'])) ? FALSE : $row['channel']
 							);
 			}
 			
