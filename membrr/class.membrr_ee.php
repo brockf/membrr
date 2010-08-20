@@ -184,6 +184,9 @@ if (!class_exists('Membrr_EE')) {
 				$action_id = $result->row_array();
 				$action_id = $action_id['action_id'];
 			 	$return_url = $this->EE->functions->create_url('?ACT=' . $action_id . '&member=' . $member_id . '&plan_id=' . $plan_id, 0);
+			 	
+			 	// sometimes, with query strings, we get index.php?/?ACT=26...
+			 	$return_url = str_replace('?/?','?', $return_url);
 			}
 			$recur->Param('return_url',htmlspecialchars($return_url));
 			if (empty($cancel_url)) {
