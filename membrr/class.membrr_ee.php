@@ -33,10 +33,10 @@ if (!class_exists('Membrr_EE')) {
 					// we need to change the status of the post
 					
 					// get info on channel protection
-					$channel = $this->Getchannel($row['channel_name'],'blog_name');
+					$channel = $this->Getchannel($row['channel_name'],'channel_name');
 					
 					// update the status
-					$this->EE->db->update('exp_channel_ti`tles',array('status' => $channel['status_name']), array('entry_id' => $row['channel_entry_id']));
+					$this->EE->db->update('exp_channel_titles',array('status' => $channel['status_name']), array('entry_id' => $row['channel_entry_id']));
 										  
 					// delete the link
 					$this->EE->db->update('exp_membrr_channel_posts',array('active' => '0'), array('post_id' => $row['post_id']));
