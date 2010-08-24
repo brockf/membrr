@@ -66,10 +66,10 @@ else {
 }
 
 if ($subscription['entry_id'] != FALSE) {
-	$this->table->add_row(
-			array('data' => lang('membrr_weblog_post_link'), 'style' => 'width:30%'),
-			'<a href="' . BASE.AMP. 'C=edit' . AMP . 'M=edit_entry' . AMP . 'entry_id=' . $subscription['entry_id'] . '">' . $subscription['channel'] . ': #' . $subscription['entry_id'] . '</a>'
-		);
+    $this->table->add_row(
+                   array('data' => lang('membrr_channel_post_link'), 'style' => 'width:30%'),
+                   '<a href="' . BASE.AMP. 'C=content_publish' . AMP . 'M=entry_form' . AMP . 'entry_id=' . $subscription['entry_id'] . '">' . $subscription['channel'] . ': #' . $subscription['entry_id'] . '</a>'
+           );
 }
 	
 $this->table->add_row(
