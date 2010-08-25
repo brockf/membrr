@@ -751,8 +751,8 @@ class Membrr {
 	    // prep regions
 	    $regions = $this->membrr->GetRegions();
 		
-		if ($this->EE->input->post('customer_region')) {
-			$customer_region = $this->EE->input->post('customer_region');
+		if ($this->EE->input->post('region')) {
+			$customer_region = $this->EE->input->post('region');
 		}
 		elseif (isset($address['region'])) {
 			$customer_region = $address['region'];
@@ -776,8 +776,8 @@ class Membrr {
 		// field: customer country
 		$countries = $this->membrr->GetCountries();
 		
-		if ($this->EE->input->post('customer_country')) {
-			$customer_country = $this->EE->input->post('customer_country');
+		if ($this->EE->input->post('country')) {
+			$customer_country = $this->EE->input->post('country');
 		}
 		elseif (isset($address['country'])) {
 			$customer_country = $address['country'];
@@ -1050,8 +1050,8 @@ class Membrr {
 	    // prep regions
 	    $regions = $this->membrr->GetRegions();
 		
-		if ($this->EE->input->post('customer_region')) {
-			$customer_region = $this->EE->input->post('customer_region');
+		if ($this->EE->input->post('region')) {
+			$customer_region = $this->EE->input->post('region');
 		}
 		elseif (isset($address['region'])) {
 			$customer_region = $address['region'];
@@ -1075,8 +1075,8 @@ class Membrr {
 		// field: customer country
 		$countries = $this->membrr->GetCountries();
 		
-		if ($this->EE->input->post('customer_country')) {
-			$customer_country = $this->EE->input->post('customer_country');
+		if ($this->EE->input->post('country')) {
+			$customer_country = $this->EE->input->post('country');
 		}
 		elseif (isset($address['country'])) {
 			$customer_country = $address['country'];
