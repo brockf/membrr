@@ -33,7 +33,7 @@ if (!class_exists('Membrr_EE')) {
 					// we need to change the status of the post
 					
 					// get info on channel protection
-					$channel = $this->Getchannel($row['channel_name'],'channel_name');
+					$channel = $this->GetChannel($row['channel_id']);
 					
 					// update the status
 					$this->EE->db->update('exp_channel_titles',array('status' => $channel['status_name']), array('entry_id' => $row['channel_entry_id']));
