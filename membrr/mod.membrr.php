@@ -910,7 +910,7 @@ class Membrr {
 			
 			$plan = (is_numeric($this->EE->input->post('plan_id'))) ? $this->membrr->GetPlan($this->EE->input->post('plan_id')) : FALSE;
 			
-			if ($this->EE->session->userdata('member_id') and !empty($plan) and $this->EE->form_validation->run() != FALSE) {								
+			if ($this->EE->form_validation->run() != FALSE and $this->EE->session->userdata('member_id') and !empty($plan)) {								
 				$plan_id = $plan['id'];
 				$member_id = $this->EE->session->userdata('member_id');
 				
