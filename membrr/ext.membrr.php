@@ -132,7 +132,7 @@ class Membrr_ext
     		}
     		else {
     			// link with $recurring_id
-    			$this->EE->db->query('INSERT INTO `exp_membrr_channel_posts` (`channel_id`, `channel_entry_id`, `recurring_id`, `active`) VALUES (\'' . $channel['channel_id'] . '\', \'' . $entry_id . '\', \'' . $recurring_id . '\', \'1\');');
+    			$this->EE->db->query('INSERT INTO `exp_membrr_channel_posts` (`channel_id`, `channel_entry_id`, `recurring_id`, `active`) VALUES (\'' . $channel['id'] . '\', \'' . $entry_id . '\', \'' . $recurring_id . '\', \'1\');');
     		}
     	}
     	
