@@ -883,7 +883,7 @@ class Membrr {
 		if ($this->EE->input->post('membrr_order_form')) {
 			$plan_id = $this->EE->input->post('plan_id');
 			$plan = $this->membrr->GetPlan($plan_id);
-			if ((int)$plan['price'] == 0) {
+			if ((float)$plan['price'] == 0) {
 				$free_plan = TRUE;
 			}
 			else {
@@ -1201,7 +1201,7 @@ class Membrr {
 			// there's a submission
 			$plan_id = $this->EE->input->post('plan_id');
 			$plan = $this->membrr->GetPlan($plan_id);
-			if ((int)$plan['price'] == 0) {
+			if ((float)$plan['price'] == 0) {
 				$free_plan = TRUE;
 			}
 			else {
