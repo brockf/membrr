@@ -21,7 +21,7 @@
 * Enables frontend template tags:
 *	- {exp:membrr:order_form}
 *	- {exp:membrr:quick_order_form} e.g., {exp:membrr:quick_order_form button="Subscribe Now!" plan_id="X"}
-*	- {exp:membrr:subscriptions}{/exp:membrr:subscriptions} e.g. {exp:membrr:subscriptions id="X" date_format="Y-m-d" inactive="1"}
+*	- {exp:membrr:subscriptions}{/exp:membrr:subscriptions} e.g. {exp:membrr:subscriptions id="X" date_format="Y-m-d"}
 *	- {exp:membrr:subscribed plan="X"}{/exp:membrr:subscribed}
 *	- {exp:membrr:not_subscribed plan="X"}{/exp:membrr:not_subscribed}
 *	- {exp:membrr:payments}{/exp:membrr:payments} e.g. {exp:membrr:payments id="X" subscription_id="X" offset="X" limit="X" date_format="Y-m-d"}
@@ -470,7 +470,7 @@ class Membrr {
     *   - {if expired}{/if}   (it expired)
     *
     * @param string $date_format The PHP format of dates
-    * @param int $inactive Set to "1" to retrieve ended subscriptions (Default: still recurring)
+    * @param int $inactive Set to "1" to retrieve ended subscriptions
     * @param int $id Set to the subscription ID to retrieve only that subscription
     * @return string Each subscription in the format of the HTML between the plugin tags.
 	*/
@@ -489,9 +489,6 @@ class Membrr {
 		
 		if ($this->EE->TMPL->fetch_param('inactive') == '1') {
 			$filters['active'] = '0';
-		}
-		else {
-			$filters['active'] = '1';
 		}
 		
 		if ($this->EE->TMPL->fetch_param('id')) {
