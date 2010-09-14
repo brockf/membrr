@@ -167,5 +167,6 @@ $lang = array(
 	'membrr_plan_gateway' => 'Payment Gateway',
 	'membrr_update_cc' => 'credit card',
 	'membrr_update_cc_title' => 'Update Credit Card for Subscription',
-	'membrr_update_cc_button' => 'Update Credit Card'
+	'membrr_update_cc_button' => 'Update Credit Card',
+	'membrr_renewed' => 'Renewed'
 );

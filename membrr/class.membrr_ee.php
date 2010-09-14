@@ -47,6 +47,7 @@ if (!class_exists('Membrr_EE')) {
 			if ($this->EE->db->table_exists('exp_membrr_subscriptions')) {	
 				$this->EE->db->select('exp_membrr_subscriptions.member_id');
 				$this->EE->db->select('exp_membrr_subscriptions.recurring_id');
+				$this->EE->db->select('exp_membrr_subscriptions.renewed_recurring_id');
 				$this->EE->db->select('exp_membrr_subscriptions.plan_id');
 				$this->EE->db->select('exp_membrr_plans.plan_member_group_expire');				 
 				$this->EE->db->where('(`end_date` <= NOW() and `end_date` != \'0000-00-00 00:00:00\')',NULL,FALSE);
@@ -55,19 +56,31 @@ if (!class_exists('Membrr_EE')) {
 				$query = $this->EE->db->get('exp_membrr_subscriptions');
 				
 				foreach ($query->result_array() AS $row) {
-					if ($row['plan_member_group_expire'] > 0) {
-						// move to a new usergroup?
-						$this->EE->db->where('member_id',$row['member_id']);
-						$this->EE->db->where('group_id !=','1');
-						$this->EE->db->update('exp_members',array('group_id' => $row['plan_member_group_expire']));
+					$perform_expiration = TRUE;
+					// is there an active renewal for this?
+					if (!empty($row['renewed_recurring_id'])) {
+						$renewing = $this->GetSubscription($row['renewed_recurring_id']);
+						
+						if ($renewing['active'] == '1') {
+							$perform_expiration = FALSE;
+						}
 					}
-					
-					// call "membrr_expire" hook with: member_id, subscription_id, plan_id
-					if ($this->EE->extensions->active_hook('membrr_expire') == TRUE)
-					{
-					    $this->EE->extensions->call('membrr_expire', $row['member_id'], $row['recurring_id'], $row['plan_id']);
-					    if ($this->EE->extensions->end_script === TRUE) return;
-					} 
+				
+					if ($perform_expiration == TRUE) {
+						if ($row['plan_member_group_expire'] > 0) {
+							// move to a new usergroup?
+							$this->EE->db->where('member_id',$row['member_id']);
+							$this->EE->db->where('group_id !=','1');
+							$this->EE->db->update('exp_members',array('group_id' => $row['plan_member_group_expire']));
+						}
+						
+						// call "membrr_expire" hook with: member_id, subscription_id, plan_id
+						if ($this->EE->extensions->active_hook('membrr_expire') == TRUE)
+						{
+						    $this->EE->extensions->call('membrr_expire', $row['member_id'], $row['recurring_id'], $row['plan_id']);
+						    if ($this->EE->extensions->end_script === TRUE) return;
+						} 
+					}
 					
 					// this expiry is processed
 					$this->EE->db->where('recurring_id',$row['recurring_id']);
@@ -76,7 +89,7 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 	
-		function Subscribe ($plan_id, $member_id, $credit_card, $customer, $end_date = FALSE, $first_charge = FALSE, $recurring_charge = FALSE, $cancel_url = '', $return_url = '', $gateway_id = FALSE) {
+		function Subscribe ($plan_id, $member_id, $credit_card, $customer, $end_date = FALSE, $first_charge = FALSE, $recurring_charge = FALSE, $cancel_url = '', $return_url = '', $gateway_id = FALSE, $renew_subscription = FALSE) {
 			$plan = $this->GetPlan($plan_id);
 			
 			// calculate initial charge
@@ -143,6 +156,30 @@ if (!class_exists('Membrr_EE')) {
 				$recur->Param('amount', $recurring_charge, 'recur');
 			}
 			
+			// are we renewing an existing subscription?
+			if (!empty($renew_subscription)) {
+				// is sub active?
+				$old_sub = $this->GetSubscription($renew_subscription);
+				
+				if ($old_sub['active'] == '1') {
+					$recur->Param('renew',$renew_subscription);
+				
+					// cancel the existing subscription
+					$this->CancelSubscription($renew_subscription, TRUE, FALSE);
+					
+					// get the end date of that subscription
+					$old_sub = $this->GetSubscription($renew_subscription);
+					$old_end_date = strtotime($old_sub['end_date']);
+					
+					// postpone the start date of this new subscription from that end_date
+					$difference_in_days = ($old_end_date - time()) / (60*60*24);
+					
+					$recur->Param('start_date', date('Y-m-d', $old_end_date), 'recur');
+					
+					$plan['free_trial'] = $difference_in_days;
+				}
+			}
+			
 			$recur->UsePlan($plan['api_id']);
 			
 			$security = (empty($credit_card['security_code'])) ? FALSE : $credit_card['security_code'];
@@ -207,6 +244,15 @@ if (!class_exists('Membrr_EE')) {
 			if (isset($response['response_code']) and $response['response_code'] == '100') {
 				// success!
 				
+				// if this subscription is linked to weblog posts and we're renewing, let's update those
+				if (!empty($renew_subscription)) {
+					$result = $this->EE->db->select('*')->from('exp_membrr_channel_posts')->where('recurring_id',$old_sub['id'])->get();
+					
+					if ($result->num_rows() > 0) {
+						$this->EE->db->update('exp_membrr_channel_posts',array('recurring_id' => $response['recurring_id']), array('recurring_id' => $old_sub['id']));
+					}
+				}
+				
 				// calculate payment amount
 				$recur_payment = ($recurring_charge == FALSE) ? $plan['price'] : money_format("%!i",$recurring_charge);
 				
@@ -248,7 +294,7 @@ if (!class_exists('Membrr_EE')) {
 					$this->RecordPayment($response['recurring_id'], $response['charge_id'], $payment);
 				}
 				
-				$this->RecordSubscription($response['recurring_id'], $member_id, $plan_id, $next_charge_date, $end_date, $recur_payment); 
+				$this->RecordSubscription($response['recurring_id'], $member_id, $plan_id, $next_charge_date, $end_date, $recur_payment, $renew_subscription); 
 			}
 			
 			return $response;
@@ -287,7 +333,11 @@ if (!class_exists('Membrr_EE')) {
 			return $response;
 		}
 		
-		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment) {
+		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment, $renew_subscription = FALSE) {
+			if (!empty($renew_subscription)) {
+				$this->EE->db->update('exp_membrr_subscriptions', array('renewed_recurring_id' => $recurring_id), array('recurring_id' => $renew_subscription));
+			}
+		
 			// create subscription record
 			$insert_array = array(
 								'recurring_id' => $recurring_id,
@@ -301,6 +351,7 @@ if (!class_exists('Membrr_EE')) {
 								'expired' => '0',
 								'cancelled' => '0',
 								'active' => '1',
+								'renewed_recurring_id' => '0',
 								'expiry_processed' => '0'
 							);
 
@@ -719,7 +770,9 @@ if (!class_exists('Membrr_EE')) {
 								'end_date' => ($row['end_date'] == '0000-00-00 00:00:00') ? FALSE : date('M j, Y h:i a',strtotime($row['end_date'])),
 								'active' => $row['active'],
 								'cancelled' => $row['cancelled'],
-								'expired' => $row['expired']
+								'expired' => $row['expired'],
+								'renewed' => (empty($row['renewed_recurring_id'])) ? FALSE : TRUE,
+								'renewed_recurring_id' => $row['renewed_recurring_id']
 							);
 			}
 			

@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.12';
+	var $version = '1.2';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -56,6 +56,10 @@ class Membrr_upd {
         
         if ($current < '1.0.91') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_channel_posts` ADD COLUMN `channel_post_date` DATETIME NOT NULL');
+        }
+        
+        if ($current < '1.2') {
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` ADD COLUMN `renewed_recurring_id` INT(11) AFTER `active`');
         }
 	
 		return TRUE;

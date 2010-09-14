@@ -537,7 +537,10 @@ class Membrr {
 			
 			// put all data in conditionals so they can use {if subscription_id == "4343"} etc.
 			$conditionals['active'] = ($subscription['active'] == '1') ? TRUE : FALSE;
+			// user_cancelled is deprecated
 			$conditionals['user_cancelled'] = ($subscription['cancelled'] == '1') ? TRUE : FALSE;
+			$conditionals['cancelled'] = ($subscription['cancelled'] == '1') ? TRUE : FALSE;
+			$conditionals['renewed'] = ($subscription['renewed'] == TRUE) ? TRUE : FALSE;
 			$conditionals['expired'] = ($subscription['expired'] == '1') ? TRUE : FALSE;
 			
 			$sub_return = $this->EE->functions->prep_conditionals($sub_return, $conditionals);
@@ -905,9 +908,28 @@ class Membrr {
 				$this->EE->form_validation->set_rules('cc_expiry_year','lang:membrr_order_form_cc_expiry_year','trim|numeric');
 			}
 			
+			// validate renewal subscription if we have one
+			if ($this->EE->input->post('renew')) {
+				$renewed_subscription = $this->membrr->GetSubscription($this->EE->input->post('renew'));
+				
+				if (empty($renewed_subscription)) {
+					$errors[] = 'The subscription you are trying to renew does not exist.';
+				}
+				elseif ($renewed_subscription['member_id'] != $this->EE->session->userdata('member_id')) {
+					$errors[] = 'You are trying to renew a subscription that is not yours.';
+				}
+				else {
+					// looks good, let's mark this as a renewal
+					$renew_subscription = $renewed_subscription['id'];
+				}
+			}
+			else {
+				$renew_subscription = FALSE;
+			}
+			
 			$plan = (is_numeric($this->EE->input->post('plan_id'))) ? $this->membrr->GetPlan($this->EE->input->post('plan_id')) : FALSE;
 			
-			if ($this->EE->form_validation->run() != FALSE and $this->EE->session->userdata('member_id') and !empty($plan)) {								
+			if ($this->EE->form_validation->run() != FALSE and $this->EE->session->userdata('member_id') and !empty($plan) and empty($errors)) {								
 				$plan_id = $plan['id'];
 				$member_id = $this->EE->session->userdata('member_id');
 				
@@ -968,7 +990,7 @@ class Membrr {
 							
 				$gateway_id = ($this->EE->input->post('gateway') and $this->EE->input->post('gateway') != '' and $this->EE->input->post('gateway') != '0') ? $this->EE->input->post('gateway') : FALSE;
 							
-				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, FALSE, FALSE, FALSE, '', '', $gateway_id);
+				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, FALSE, FALSE, FALSE, '', '', $gateway_id, $renew_subscription);
 							
 				if (isset($response['error'])) {
 					$errors[] = $this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['error_text'] . ' (#' . $response['error'] . ')';

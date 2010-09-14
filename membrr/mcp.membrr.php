@@ -701,6 +701,9 @@ class Membrr_mcp {
 		elseif ($subscription['expired'] == '1') {
 			$status = $this->EE->lang->line('membrr_expired');
 		}
+		elseif ($subscription['renewed'] == TRUE) {
+			$status = 'Renewed with <a href=" ' . $this->cp_url('subscription',array('id' => $subscription['renewed_recurring_id'])) . '">subscription #' . $subscription['renewed_recurring_id'] . '</a>';
+		}
 		elseif ($subscription['cancelled'] == '1') {
 			$status = $this->EE->lang->line('membrr_cancelled');
 		}

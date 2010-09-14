@@ -16,7 +16,7 @@ $this->table->set_heading(
     array('data' => lang('membrr_user'), 'style' => 'width: 20%;'),
     array('data' => lang('membrr_plan_name'), 'style' => 'width: 15%;'),
     array('data' => lang('membrr_amount'), 'style' => 'width: 10%;'),
-    array('data' => lang('membrr_start_date'), 'style' => 'width: 17%;'),
+    array('data' => lang('membrr_next_charge_date'), 'style' => 'width: 17%;'),
     array('data' => lang('membrr_status'), 'style' => 'width: 10%;'),
     array('data' => '', 'style' => 'width:23%')
 );
@@ -35,6 +35,9 @@ else {
 		elseif ($subscription['expired'] == '1') {
 			$status = $this->lang->line('membrr_expired');
 		}
+		elseif ($subscription['renewed'] == TRUE) {
+			$status = $this->lang->line('membrr_renewed');
+		}
 		elseif ($subscription['cancelled'] == '1') {
 			$status = $this->lang->line('membrr_cancelled');
 		}
@@ -43,7 +46,7 @@ else {
 						'<a href="' . $subscription['member_link'] . '">' . $subscription['user_screenname'] . '</a>',
 						$subscription['plan_name'],
 						$config['currency_symbol'] . $subscription['amount'],
-						$subscription['date_created'],
+						$subscription['next_charge_date'],
 						$status,
 						$subscription['options']
 					);
