@@ -973,6 +973,12 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 		
+		function EndNow ($recurring_id) {
+			$this->EE->db->update('exp_membrr_subscriptions', array('end_date' => date('Y-m-d H:i:s')), array('recurring_id' => $recurring_id));
+			
+			return TRUE;
+		}
+		
 		function GetConfig () {
 			$result = $this->EE->db->get('exp_membrr_config');
 			

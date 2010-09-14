@@ -61,7 +61,7 @@ else {
 		);
 	$this->table->add_row(
 			array('data' => lang('membrr_date_ending'), 'style' => 'width:30%'),
-			$subscription['end_date']
+			$subscription['end_date'] . $end_now
 		);
 }
 

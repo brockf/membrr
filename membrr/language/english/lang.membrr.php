@@ -168,5 +168,10 @@ $lang = array(
 	'membrr_update_cc' => 'credit card',
 	'membrr_update_cc_title' => 'Update Credit Card for Subscription',
 	'membrr_update_cc_button' => 'Update Credit Card',
-	'membrr_renewed' => 'Renewed'
+	'membrr_renewed' => 'Renewed',
+	'membrr_search_for_member' => 'Search for Member',
+	'membrr_search_by' => 'Search by screen name, username, or email.',
+	'membrr_no_members' => 'No members in the database matched your search query.',
+	'membrr_add_subscription_to_membrr' => 'Continue Adding Subscription to Selected Membrr',
+	'membrr_end_now' => 'End Subscription Immediately!'
 );

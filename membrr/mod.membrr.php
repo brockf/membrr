@@ -189,6 +189,8 @@ class Membrr {
     /**
     * Returns HTML between tags if user has the active plan
     *
+    * @param int|string plan A single plan_id or multiple plan_id's separated by pipes
+    *
     * @return string Tag data, if active plan of ID exists
     */
     function subscribed () {    	
@@ -209,19 +211,34 @@ class Membrr {
 			$filters['member_id'] = $member_id;
 		}
 		
-		$filters['plan_id'] = $id;
-    	
-    	$subscriptions = $this->membrr->GetSubscriptions(0,1,$filters);
-    	
-    	if (is_array($subscriptions) and !empty($subscriptions)) {
-    		$return = $this->EE->TMPL->tagdata;
-    	}
-    	else {
-    		$return = '';
-    	}
-    	
-    	$this->return_data = $return;
+		$filters['active'] = '1';
 		
+		$return = '';
+		if (strpos($id, '|') !== FALSE) {
+			// we have an array of plan ID's
+			$ids = explode('|', trim($id));
+			
+			foreach ($ids as $id) {
+				$filters['plan_id'] = $id;
+				
+				$subscriptions = $this->membrr->GetSubscriptions(0,1,$filters);
+    	
+		    	if (is_array($subscriptions) and !empty($subscriptions)) {
+		    		$return = $this->EE->TMPL->tagdata;
+		    	}
+			}	
+		}
+		else {
+			$filters['plan_id'] = $id;
+				
+			$subscriptions = $this->membrr->GetSubscriptions(0,1,$filters);
+	
+	    	if (is_array($subscriptions) and !empty($subscriptions)) {
+	    		$return = $this->EE->TMPL->tagdata;
+	    	}
+		}
+		
+		$this->return_data = $return;
 		return $return;
     }
     
@@ -248,19 +265,34 @@ class Membrr {
 			$filters['member_id'] = $member_id;
 		}
 		
-		$filters['plan_id'] = $id;
-    	
-    	$subscriptions = $this->membrr->GetSubscriptions(0,1,$filters);
-    	
-    	if ($subscriptions == FALSE) {
-    		$return = $this->EE->TMPL->tagdata;
-    	}
-    	else {
-    		$return = '';
-    	}
-    	
-    	$this->return_data = $return;
+		$filters['active'] = '1';
 		
+		$return = $this->EE->TMPL->tagdata;
+		if (strpos($id, '|') !== FALSE) {
+			// we have an array of plan ID's
+			$ids = explode('|', trim($id));
+			
+			foreach ($ids as $id) {
+				$filters['plan_id'] = $id;
+				
+				$subscriptions = $this->membrr->GetSubscriptions(0,1,$filters);
+    	
+		    	if (is_array($subscriptions) and !empty($subscriptions)) {
+		    		$return = '';
+		    	}
+			}	
+		}
+		else {
+			$filters['plan_id'] = $id;
+				
+			$subscriptions = $this->membrr->GetSubscriptions(0,1,$filters);
+	
+	    	if (is_array($subscriptions) and !empty($subscriptions)) {
+	    		$return = '';
+	    	}
+		}
+		
+		$this->return_data = $return;
 		return $return;
     }
     

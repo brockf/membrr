@@ -713,13 +713,29 @@ class Membrr_mcp {
 		$subscription['plan_link'] = $this->cp_url('edit_plan',array('id' => $subscription['plan_id']));
 		
 		$subscription['member_link'] = $this->member_link($subscription['member_id']);
-	
+		
+		// should we have an end now button?
+		if ($subscription['active'] == '0' and strtotime($subscription['end_date']) > time()) {
+			$end_now = ' (<a href="' . $this->cp_url('end_now',array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_end_now') . '</a>)';
+		}
+		else{
+			$end_now = FALSE;
+		}
+		
 		$vars = array();
 		$vars['subscription'] = $subscription;
 		$vars['payments'] = $payments;
 		$vars['config'] = $this->config;
+		$vars['end_now'] = $end_now;
 	
 		return $this->EE->load->view('subscription',$vars,TRUE);	
+	}
+	
+	function end_now () {
+		$this->membrr->EndNow($this->EE->input->get('id'));
+		
+		$this->EE->functions->redirect(htmlspecialchars_decode($this->cp_url('subscription', array('id' => $this->EE->input->get('id')))));
+		die();
 	}
 	
 	function update_cc () {
@@ -873,6 +889,11 @@ class Membrr_mcp {
 	function add_subscription () {	
 		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_create_subscription'));
 		
+		// shall we pass this off?
+		if (!$this->EE->input->post('member_search') and $this->EE->input->post('member_id') and $this->EE->input->post('plan_id')) {
+			return $this->add_subscription_2();
+		}
+		
 		// get active plans
 		$plans = $this->membrr->GetPlans(array('active' => '1'));
 		
@@ -884,18 +905,32 @@ class Membrr_mcp {
 		}
 		
 		// get users
-		$this->EE->load->model('member_model');
-	    $members_db = $this->EE->member_model->get_members('','','','',array('screen_name' => 'ASC'));
-	    
-	    $members = array();
-	    foreach ($members_db->result_array() as $member) {
-	    	$members[$member['member_id']] = $member['screen_name'] . ' (' . $member['email'] . ')';
+		if ($this->EE->input->post('member_search')) {
+			$searching = TRUE;
+		
+			$this->EE->load->model('member_model');
+		    $members_db = $this->EE->member_model->get_members('','250','',$this->EE->input->post('member_search'),array('screen_name' => 'ASC'));
+		    
+		    $members = array();
+		    
+		    if (is_object($members_db) and $members_db->num_rows() > 0) {
+			    foreach ($members_db->result_array() as $member) {
+			    	$members[] = $member;
+			    }
+			}
+	    }
+	    else {
+	    	$searching = FALSE;
+	    	
+	    	$members = array();
 	    }
 	        
 		$vars = array();
 		$vars['plans'] = $plan_options;
+		$vars['searching'] = $searching;
 		$vars['members'] = $members;
-		$vars['form_action'] = $this->form_url('add_subscription_2');
+		$vars['selected_plan'] = ($this->EE->input->post('plan_id')) ? $this->EE->input->post('plan_id') : FALSE;
+		$vars['form_action'] = $this->form_url('add_subscription');
 		
 		return $this->EE->load->view('add_subscription',$vars, TRUE);
 	}
