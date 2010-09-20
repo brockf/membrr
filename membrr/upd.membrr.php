@@ -119,6 +119,7 @@ class Membrr_upd {
 				 `expired` TINYINT NOT NULL ,
 				 `cancelled` TINYINT NOT NULL ,
 				 `active` TINYINT NOT NULL ,
+				 `renewed_recurring_id` INT(11) NOT NULL,
 				 `expiry_processed` TINYINT NOT NULL
 				 ) ENGINE = MYISAM DEFAULT CHARSET=latin1 ;";
 				 
