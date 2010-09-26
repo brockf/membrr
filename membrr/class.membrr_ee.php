@@ -164,9 +164,6 @@ if (!class_exists('Membrr_EE')) {
 				if ($old_sub['active'] == '1') {
 					$recur->Param('renew',$renew_subscription);
 				
-					// cancel the existing subscription
-					$this->CancelSubscription($renew_subscription, TRUE, FALSE);
-					
 					// get the end date of that subscription
 					$old_sub = $this->GetSubscription($renew_subscription);
 					$old_end_date = strtotime($old_sub['end_date']);
@@ -251,6 +248,10 @@ if (!class_exists('Membrr_EE')) {
 					if ($result->num_rows() > 0) {
 						$this->EE->db->update('exp_membrr_channel_posts',array('recurring_id' => $response['recurring_id']), array('recurring_id' => $old_sub['id']));
 					}
+					
+					// we should also cancel the old subscription
+					// cancel the existing subscription
+					$this->CancelSubscription($renew_subscription, FALSE, FALSE);
 				}
 				
 				// calculate payment amount
