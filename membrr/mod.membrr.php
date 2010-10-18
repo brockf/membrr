@@ -459,7 +459,7 @@ class Membrr {
 						'subscription_id' =>  $payment['recurring_id'],
 						'amount' =>  $payment['amount'],
 						'date' => $payment['date'],
-						'plan_name' > $payment['plan_name'],
+						'plan_name' => $payment['plan_name'],
 						'plan_id' => $payment['plan_id'],
 						'plan_description' => $payment['plan_description'],
 						'channel' => $payment['channel'],
