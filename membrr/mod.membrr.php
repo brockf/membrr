@@ -161,7 +161,7 @@ class Membrr {
     	$subscriptions = $this->membrr->GetSubscriptions(0,1,$filters);
     	
     	$owns_sub = FALSE;
-    	foreach ($subscriptions as $subscription) {
+    	foreach ((array)$subscriptions as $subscription) {
     		if ($subscription['id'] == $id) {
     			$owns_sub = TRUE;
     		}
@@ -169,7 +169,7 @@ class Membrr {
     	
     	$cancelled_sub = FALSE;
     	
-    	if ($owns_sub == TRUE and $this->membrr->CancelSubscription($id)) {
+    	if ($owns_sub == TRUE and $this->membrr->CancelSubscription($id) == TRUE) {
     		$cancelled_sub = TRUE;
     	}
     	
@@ -527,7 +527,9 @@ class Membrr {
 			$filters['id'] = $this->EE->TMPL->fetch_param('id');
 		}
 		
-		$subscriptions = $this->membrr->GetSubscriptions(0,100,$filters);
+		$limit = ($this->EE->TMPL->fetch_param('limit')) ? $this->EE->TMPL->fetch_param('limit') : 100;
+		
+		$subscriptions = $this->membrr->GetSubscriptions(0,$limit,$filters);
 		
 		if (empty($subscriptions)) {
 			// no subscriptions matching parameters
