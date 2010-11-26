@@ -49,6 +49,11 @@ $this->table->add_row(
 	);
 	
 $this->table->add_row(
+		lang('membrr_coupon'),
+		form_input(array('name' => 'coupon', 'value' => '', 'maxlength' => '10', 'style' => 'width:125px'))
+	);	
+	
+$this->table->add_row(
 		array('data' => '<b>' . lang('membrr_order_form_credit_card') . '</b>', 'colspan' => '2')
 	);
 	

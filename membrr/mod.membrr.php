@@ -1023,8 +1023,10 @@ class Membrr {
 							);
 							
 				$gateway_id = ($this->EE->input->post('gateway') and $this->EE->input->post('gateway') != '' and $this->EE->input->post('gateway') != '0') ? $this->EE->input->post('gateway') : FALSE;
+				
+				$coupon = ($this->EE->input->post('coupon')) ? $this->EE->input->post('coupon') : FALSE;
 							
-				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, FALSE, FALSE, FALSE, '', '', $gateway_id, $renew_subscription);
+				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, FALSE, FALSE, FALSE, '', '', $gateway_id, $renew_subscription, $coupon);
 							
 				if (isset($response['error'])) {
 					$errors[] = $this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['error_text'] . ' (#' . $response['error'] . ')';
@@ -1353,7 +1355,9 @@ class Membrr {
 								'email' => $values['customer_email']
 							);
 							
-				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer);
+				$coupon = ($this->EE->input->post('coupon')) ? $this->EE->input->post('coupon') : FALSE;
+							
+				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, $coupon);
 				
 				if (isset($response['error'])) {
 					$errors[] = $this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['error_text'] . ' (#' . $response['error'] . ')';

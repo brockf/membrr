@@ -72,6 +72,15 @@ if (!class_exists('OpenGateway')) {
 	    }
 	
 		/**
+	    * Use a Coupon
+	    *
+	    * @param string $coupon_string
+	    */
+	    public function Coupon($coupon_code) {
+	    	$this->params->coupon = $coupon_code;
+	    }	
+		
+		/**
 		* Process the Request
 		*
 		* Sends the request to the server in XML and returns a PHP array of the response

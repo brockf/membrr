@@ -1034,7 +1034,9 @@ class Membrr_mcp {
 					$recurring_rate = money_format("%!i",$this->EE->input->post('recurring_rate'));
 				}
 										
-				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, $end_date, $first_charge_rate, $recurring_rate);
+				$coupon = ($this->EE->input->post('coupon')) ? $this->EE->input->post('coupon') : FALSE;					
+										
+				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, $end_date, $first_charge_rate, $recurring_rate, FALSE, FALSE, FALSE, FALSE, $coupon);
 				
 				if (!is_array($response) or isset($response['error'])) {
 					$failed_transaction = $this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['error_text'] . ' (#' . $response['error'] . ')';

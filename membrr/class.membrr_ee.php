@@ -89,7 +89,27 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 	
-		function Subscribe ($plan_id, $member_id, $credit_card, $customer, $end_date = FALSE, $first_charge = FALSE, $recurring_charge = FALSE, $cancel_url = '', $return_url = '', $gateway_id = FALSE, $renew_subscription = FALSE) {
+		/**
+		* Subscribe
+		*
+		* This is the heart of the Membrr engine, an essentially a wrapper for OpenGateway's Recur API Call.
+		* 
+		* @param int $plan_id
+		* @param int $member_id
+		* @param array $credit_card
+		* @param array $customer
+		* @param string/boolean $end_date
+		* @param float/boolean $first_charge
+		* @param float/boolean $recurring_charge
+		* @param string/boolean $cancel_url
+		* @param string/boolean $return_url
+		* @param int/boolean $gateway_id
+		* @param int/boolean $renew_subscription
+		* @param string $coupon
+		*
+		* @return array Response from OpenGateway
+		*/
+		function Subscribe ($plan_id, $member_id, $credit_card, $customer, $end_date = FALSE, $first_charge = FALSE, $recurring_charge = FALSE, $cancel_url = '', $return_url = '', $gateway_id = FALSE, $renew_subscription = FALSE, $coupon = FALSE) {
 			$plan = $this->GetPlan($plan_id);
 			
 			// calculate initial charge
@@ -136,6 +156,11 @@ if (!class_exists('Membrr_EE')) {
 				}
 				
 				$recur->Customer($customer['first_name'],$customer['last_name'],'',$customer['address'],$customer['address_2'],$customer['city'],$customer['region'],$customer['country'],$customer['postal_code'],'',$customer['email']);
+			}
+			
+			// coupon?
+			if ($coupon != FALSE) {
+				$recur->Coupon($coupon);
 			}
 			
 			// end date?
@@ -255,7 +280,10 @@ if (!class_exists('Membrr_EE')) {
 				}
 				
 				// calculate payment amount
-				$recur_payment = ($recurring_charge == FALSE) ? $plan['price'] : money_format("%!i",$recurring_charge);
+				$recur_payment = $response['recur_amount'];
+				$payment = $response['amount'];
+				$free_trial = $response['free_trial'];
+				$start_date = $response['start_date'];
 				
 				// calculate end date
 				if ($end_date != FALSE) {
@@ -269,13 +297,13 @@ if (!class_exists('Membrr_EE')) {
 						$end_date = '0000-00-00 00:00:00';
 					}
 					else {
-						$end_date = date('Y-m-d H:i:s',time() + ($plan['free_trial'] * 86400) + ($plan['occurrences'] * $plan['interval'] * 86400));
+						$end_date = date('Y-m-d H:i:s',time() + ($free_trial * 86400) + ($plan['occurrences'] * $plan['interval'] * 86400));
 					}
 				}
 				
 				// calculate next charge date
-				if (!empty($plan['free_trial'])) {
-					$next_charge_date = time() + ($plan['free_trial'] * 86400);
+				if (!empty($free_trial)) {
+					$next_charge_date = time() + ($free_trial * 86400);
 				}
 				else {
 					$next_charge_date = time() + ($plan['interval'] * 86400);
@@ -287,10 +315,8 @@ if (!class_exists('Membrr_EE')) {
 				else {
 					$next_charge_date = date('Y-m-d',$next_charge_date);
 				}
-				
-				$payment = ($first_charge == FALSE) ? $plan['price'] : money_format("%!i",$first_charge);
 				 
-				if ($plan['free_trial'] == 0 and isset($response['charge_id'])) {
+				if (empty($free_trial) and isset($response['charge_id'])) {
 					// create payment record               						  
 					$this->RecordPayment($response['recurring_id'], $response['charge_id'], $payment);
 				}

@@ -173,5 +173,6 @@ $lang = array(
 	'membrr_search_by' => 'Search by screen name, username, or email.',
 	'membrr_no_members' => 'No members in the database matched your search query.',
 	'membrr_add_subscription_to_membrr' => 'Continue Adding Subscription to Selected Membrr',
-	'membrr_end_now' => 'End Subscription Immediately!'
+	'membrr_end_now' => 'End Subscription Immediately!',
+	'membrr_coupon' => 'Coupon Code'
 );
