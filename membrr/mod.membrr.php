@@ -1834,7 +1834,14 @@ class Membrr {
 			// update next charge date
 			$plan = $this->membrr->GetPlan($subscription['plan_id']);
 			
-			$next_charge_date = strtotime('now + ' . $plan['interval'] . ' days');
+			if ($this->membrr->same_day_every_month == TRUE and $plan['interval'] % 30 === 0) {
+				$months = $plan['interval'] / 30;
+				$plural = ($months > 1) ? 's' : '';
+				$next_charge_date = strtotime('today + ' . $months . ' month' . $plural);
+			} else {
+				$next_charge_date = strtotime('now + ' . $plan['interval'] . ' days');
+			}
+			
 			if (!empty($subscription['end_date']) and (strtotime($subscription['end_date']) < $next_charge_date)) {	
 				// there won't be a next charge
 				// subscription will expire beforehand

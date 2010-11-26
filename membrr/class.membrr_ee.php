@@ -18,6 +18,7 @@
 if (!class_exists('Membrr_EE')) {
 	class Membrr_EE {
 		var $cache;
+		public $same_day_every_month = FALSE;
 		
 		// constructor, with maintenance	
 		function Membrr_EE () {	
@@ -306,7 +307,13 @@ if (!class_exists('Membrr_EE')) {
 					$next_charge_date = time() + ($free_trial * 86400);
 				}
 				else {
-					$next_charge_date = time() + ($plan['interval'] * 86400);
+					if ($this->same_day_every_month == TRUE and $plan['interval'] % 30 === 0) {
+						$months = $plan['interval'] / 30;
+						$plural = ($months > 1) ? 's' : '';
+						$next_charge_date = strtotime('today + ' . $months . ' month' . $plural);
+					} else {
+						$next_charge_date = strtotime('today + ' . $plan['interval'] . ' days');
+					}
 				}
 				
 				if ((date('Y-m-d',$next_charge_date) == date('Y-m-d',strtotime($end_date)) or $next_charge_date > strtotime($end_date)) and $end_date != '0000-00-00 00:00:00') {
