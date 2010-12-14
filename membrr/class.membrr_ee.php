@@ -334,7 +334,7 @@ if (!class_exists('Membrr_EE')) {
 			return $response;
 		}
 		
-		function UpdateCC ($subscription_id, $credit_card) {
+		function UpdateCC ($subscription_id, $credit_card, $plan_id = FALSE) {
 			$config = $this->GetConfig();
 			
 			if (!class_exists('Opengateway')) {
@@ -355,6 +355,22 @@ if (!class_exists('Membrr_EE')) {
 			$opengateway->Param('exp_year', $credit_card['expiry_year'], 'credit_card');
 			$opengateway->Param('cvv', $credit_card['security_code'], 'credit_card');
 			
+			// plan?
+			$subscription = $this->GetSubscription($subscription_id);
+			
+			if (!empty($plan_id)) {
+				$new_plan = $this->GetPlan($plan_id);
+				
+				if (empty($new_plan)) {
+					return FALSE;
+				}
+				
+				if ($new_plan['id'] != $subscription['plan_id']) {
+					$opengateway->Param('plan_id', $new_plan['api_id']);
+					$set_new_plan = TRUE;
+				}
+			}
+			
 			$response = $opengateway->Process();
 			
 			if (isset($response['response_code']) and $response['response_code'] == '104') {
@@ -362,6 +378,10 @@ if (!class_exists('Membrr_EE')) {
 				$this->EE->db->update('exp_membrr_subscriptions',array('recurring_id' => $response['recurring_id']),array('recurring_id' => $subscription_id));
 				$this->EE->db->update('exp_membrr_payments',array('recurring_id' => $response['recurring_id']),array('recurring_id' => $subscription_id));
 				$this->EE->db->update('exp_membrr_channel_posts',array('recurring_id' => $response['recurring_id']),array('recurring_id' => $subscription_id));
+				
+				if (isset($set_new_plan) and !empty($set_new_plan)) {
+					$this->EE->db->update('exp_membrr_subscriptions',array('plan_id' => $new_plan['id']),array('recurring_id' => $response['recurring_id']));
+				}
 			}
 			
 			return $response;

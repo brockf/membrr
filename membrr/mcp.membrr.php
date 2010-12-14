@@ -794,6 +794,16 @@ class Membrr_mcp {
 			$country_options[$country_code] = $country;
 		}
 		
+		// plans
+		$plans = $this->membrr->GetPlans(array('active' => '1'));
+		
+		$plan_options = array();
+		if (is_array($plans)) {
+			foreach ($plans as $plan) {
+				$plan_options[$plan['id']] = $plan['name'];
+			}
+		}
+		
 		// errors
 		$errors = ($this->EE->session->flashdata('errors')) ? $this->EE->session->flashdata('errors') : FALSE;
 		
@@ -810,6 +820,7 @@ class Membrr_mcp {
 		$vars['address'] = $address;
 		$vars['subscription'] = $subscription;
 		$vars['errors'] = $errors;
+		$vars['plans'] = $plan_options;
 		
 		return $this->EE->load->view('update_cc',$vars, TRUE);
 	}
@@ -847,8 +858,10 @@ class Membrr_mcp {
 								'expiry_year' => $this->EE->input->post('cc_expiry_year'),
 								'security_code' => $this->EE->input->post('cc_cvv2')
 							);
+							
+			$plan_id = $this->EE->input->post('plan_id');				
 									
-			$response = $this->membrr->UpdateCC($subscription['id'], $credit_card);
+			$response = $this->membrr->UpdateCC($subscription['id'], $credit_card, $plan_id);
 			
 			if (!is_array($response) or isset($response['error'])) {
 				$this->EE->session->set_flashdata('errors',$this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['error_text'] . ' (#' . $response['error'] . ')');

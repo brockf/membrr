@@ -19,6 +19,7 @@
 * Membrr Module
 *
 * Enables frontend template tags:
+*   - {exp:membrr:update_form}
 *	- {exp:membrr:order_form}
 *	- {exp:membrr:quick_order_form} e.g., {exp:membrr:quick_order_form button="Subscribe Now!" plan_id="X"}
 *	- {exp:membrr:subscriptions}{/exp:membrr:subscriptions} e.g. {exp:membrr:subscriptions id="X" date_format="Y-m-d"}
@@ -30,7 +31,7 @@
 *	- {exp:membrr:has_subscription_for_channel channel="ad_posts"}<!-- HTML -->{/exp...channel} or {exp:membrr:has_subscription_for_channel channel="22"}<!-- HTML -->{/exp...channel} 
 *	- {exp:membrr:no_subscription_for_channel channel="ad_posts"}<!-- HTML -->{/exp...channel} or {exp:membrr:no_subscription_for_channel channel="22"}<!-- HTML -->{/exp...channel}
 *
-* @version 1.0
+* @version 1.3
 * @author Electric Function, Inc.
 * @package OpenGateway
 
@@ -704,8 +705,10 @@ class Membrr {
 									'expiry_year' => $this->EE->input->post('cc_expiry_year'),
 									'security_code' => $this->EE->input->post('cc_cvv2')
 								);
+								
+				$plan_id = ($this->EE->input->post('plan_id')) ? $this->EE->input->post('plan_id') : FALSE;				
 			
-				$response = $this->membrr->UpdateCC($subscription['id'], $credit_card);
+				$response = $this->membrr->UpdateCC($subscription['id'], $credit_card, $plan_id);
 							
 				if (isset($response['error'])) {
 					$errors[] = $this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['error_text'] . ' (#' . $response['error'] . ')';

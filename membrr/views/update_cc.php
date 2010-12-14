@@ -11,16 +11,16 @@ $this->table->set_template($cp_table_template);
 $this->table->set_heading(
 					array('data' => lang('membrr_create_subscription'), 'colspan' => '2')
 						);
-
-$this->table->add_row(
-			array('data' => 'Subscription Plan', 'style' => 'width:30%'),
-			$subscription['plan_name']
-		);
-
+		
 $this->table->add_row(
 		lang('membrr_user'),
 		$member['screen_name'] . ' (' . $member['email'] . ')' . form_hidden('member_id',$member['member_id'])
 	);
+	
+$this->table->add_row(
+			array('data' => 'Subscription Plan', 'style' => 'width:30%'),
+			form_dropdown('plan_id', $plans, $subscription['plan_id'])
+		);
 
 $this->table->add_row(
 		array('data' => '<b>New Credit Card Information</b>', 'colspan' => '2')
