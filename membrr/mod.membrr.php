@@ -1171,12 +1171,12 @@ class Membrr {
 		
 		if (is_array($gateways) and isset($gateways['gateway'][0])) {
 			foreach ($gateways['gateway'] as $gateway) {
-				$gateway_raw_options[$gateway['id']] = $gateway['gateway'];
+				$gateway_raw_options[] = array('id' => $gateway['id'], 'name' => $gateway['gateway']);
 			}
 		}
 		elseif (is_array($gateways)) {
 			$gateway = $gateways['gateway'];
-			$gateway_raw_options[$gateway['id']] = $gateway['gateway'];
+			$gateway_raw_options[] = array('id' => $gateway['id'], 'name' => $gateway['gateway']);
 		}
 		
 		$gateway_options = '';
