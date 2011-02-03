@@ -708,6 +708,9 @@ class Membrr_mcp {
 		elseif ($subscription['cancelled'] == '1') {
 			$status = $this->EE->lang->line('membrr_cancelled');
 		}
+		else {
+			$status = 'Unknown';
+		}
 		
 		$subscription['status'] = $status;
 		

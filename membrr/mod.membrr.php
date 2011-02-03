@@ -1180,8 +1180,8 @@ class Membrr {
 		}
 		
 		$gateway_options = '';
-		foreach ($gateway_raw_options as $gateway_id => $gateway_name) {
-			$gateway_options .= '<option value="' . $gateway_id . '">' . $gateway_name . '</option>';
+		foreach ($gateway_raw_options as $gateway) {
+			$gateway_options .= '<option value="' . $gateway['id'] . '">' . $gateway['name'] . '</option>';
 		}
 		
 		$variables['gateway_options'] = $gateway_options;
