@@ -404,12 +404,12 @@ class Membrr {
 	*/
 	
 	function payments () {
-		$member_id = $this->EE->session->userdata('member_id');
+		$member_id = ($this->EE->TMPL->fetch_param('member_id')) ? $this->EE->TMPL->fetch_param('member_id') : $this->EE->session->userdata('member_id');
 		
 		$filters = array();
 		
 		if (empty($member_id)) { 
-			return 'User is not logged in.';
+			return 'User is not logged in and you have not passed a "member_id" parameter.';
 		}
 		else {
 			$filters['member_id'] = $member_id;
@@ -509,12 +509,12 @@ class Membrr {
 	*/
 	
 	function subscriptions () {		
-		$member_id = $this->EE->session->userdata('member_id');
+		$member_id = ($this->EE->TMPL->fetch_param('member_id')) ? $this->EE->TMPL->fetch_param('member_id') : $this->EE->session->userdata('member_id');
 		
 		$filters = array();
 		
 		if (empty($member_id)) { 
-			return 'User is not logged in.';
+			return 'User is not logged in and you have not passed a "member_id" parameter.';
 		}
 		else {
 			$filters['member_id'] = $member_id;
