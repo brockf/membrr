@@ -32,7 +32,7 @@ $this->table->add_row(
 	
 $this->table->add_row(
 		array('data' => lang('membrr_total_amount'), 'style' => 'width:30%'),
-		$config['currency_symbol'] . money_format("%!i",$subscription['total_amount'])
+		$config['currency_symbol'] . money_format("%!^i",$subscription['total_amount'])
 	);
 	
 $this->table->add_row(

@@ -359,7 +359,7 @@ class Membrr {
 								'free_trial' => $plan['free_trial'],
 								'interval' => $plan['interval'],
 								'occurrences' => $plan['occurrences'],
-								'price' => money_format("%!i",$plan['price']),
+								'price' => money_format("%!^i",$plan['price']),
 								'total_subscribers' => $plan['num_subscribers']
 							);
 			
@@ -1444,7 +1444,7 @@ class Membrr {
 		$return .= '</ul></fieldset>';
 		
 		// only show CC if not Free!
-		if (!$this->EE->TMPL->fetch_param('plan_id') or !isset($plan) or !is_array($plan) or money_format("%!i",$plan['price']) != '0.00') {
+		if (!$this->EE->TMPL->fetch_param('plan_id') or !isset($plan) or !is_array($plan) or money_format("%!^i",$plan['price']) != '0.00') {
 			$return .= '<fieldset>
 							<legend>' . $this->EE->lang->line('membrr_order_form_credit_card') . '</legend>
 							<ul class="' . $ul_class . '">';

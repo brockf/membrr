@@ -1046,8 +1046,8 @@ class Membrr_mcp {
 					$recurring_rate = '0.00';
 				}
 				else {
-					$first_charge_rate = money_format("%!i",$this->EE->input->post('first_charge_rate'));
-					$recurring_rate = money_format("%!i",$this->EE->input->post('recurring_rate'));
+					$first_charge_rate = money_format("%!^i",$this->EE->input->post('first_charge_rate'));
+					$recurring_rate = money_format("%!^i",$this->EE->input->post('recurring_rate'));
 				}
 										
 				$coupon = ($this->EE->input->post('coupon')) ? $this->EE->input->post('coupon') : FALSE;					
