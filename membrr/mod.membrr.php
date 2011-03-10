@@ -190,7 +190,7 @@ class Membrr {
     /**
     * Returns HTML between tags if user has the active plan
     *
-    * @param int|string plan A single plan_id or multiple plan_id's separated by pipes
+    * @param int|string plan A single plan_id or multiple plan_id's separated by pipes (optional, will check for any subscription if empty)
     *
     * @return string Tag data, if active plan of ID exists
     */
@@ -215,7 +215,14 @@ class Membrr {
 		$filters['active'] = '1';
 		
 		$return = '';
-		if (strpos($id, '|') !== FALSE) {
+		if (empty($id)) {
+			$subscriptions = $this->membrr->GetSubscriptions(0,1,$filters);
+			
+			if (is_array($subscriptions) and !empty($subscriptions)) {
+				$return = $this->EE->TMPL->tagdata;
+			}
+		}
+		elseif (strpos($id, '|') !== FALSE) {
 			// we have an array of plan ID's
 			$ids = explode('|', trim($id));
 			
@@ -269,7 +276,14 @@ class Membrr {
 		$filters['active'] = '1';
 		
 		$return = $this->EE->TMPL->tagdata;
-		if (strpos($id, '|') !== FALSE) {
+		if (empty($id)) {
+			$subscriptions = $this->membrr->GetSubscriptions(0,1,$filters);
+			
+			if (is_array($subscriptions) and !empty($subscriptions)) {
+				$return = '';
+			}
+		}
+		elseif (strpos($id, '|') !== FALSE) {
 			// we have an array of plan ID's
 			$ids = explode('|', trim($id));
 			
