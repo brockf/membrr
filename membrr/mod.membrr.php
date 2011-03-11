@@ -197,10 +197,6 @@ class Membrr {
     function subscribed () {    	
     	$id = $this->EE->TMPL->fetch_param('plan');
     	
-    	if (empty($id)) {
-    		return 'You are missing the required "plan" parameter to specify which active plan to check for';
-    	}
-    	
     	$filters = array();
     	
     	$member_id = $this->EE->session->userdata('member_id');
@@ -257,10 +253,6 @@ class Membrr {
     */
     function not_subscribed () {    	
     	$id = $this->EE->TMPL->fetch_param('plan');
-    	
-    	if (empty($id)) {
-    		return 'You are missing the required "plan" parameter to specify which active plan to check for';
-    	}
     	
     	$filters = array();
     	
