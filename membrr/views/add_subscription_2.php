@@ -50,7 +50,7 @@ $this->table->add_row(
 	
 $this->table->add_row(
 		lang('membrr_coupon'),
-		form_input(array('name' => 'coupon', 'value' => '', 'maxlength' => '10', 'style' => 'width:125px'))
+		form_input(array('name' => 'coupon', 'value' => '', 'maxlength' => '100', 'style' => 'width:125px'))
 	);	
 	
 $this->table->add_row(
