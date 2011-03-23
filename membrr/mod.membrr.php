@@ -1042,7 +1042,7 @@ class Membrr {
 			}
 			else {
 				if (!$this->EE->session->userdata('member_id')) {
-					$errors[] = 'You are not logged in and the administrator has not configured this form for combined registration.';
+					$errors[] = 'Please complete all required fields.';
 					$member_id = FALSE;
 					$member_created = FALSE;
 				}
@@ -1136,18 +1136,20 @@ class Membrr {
 				}
 				else {
 					// success!
+					error_reporting(E_ALL);
+					ini_set('display_errors','On');
 					if ($member_created == TRUE) {
 						// let's log the user in						
-						$this->EE->sessions->userdata['ip_address'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
-						$this->EE->sessions->userdata['user_agent'] = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
+						$this->EE->session->userdata['ip_address'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+						$this->EE->session->userdata['user_agent'] = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
 						
 						$expire = (60*60*24); // 1 day expire
 						
-						$this->EE->functions->set_cookie($this->EE->sessions->c_expire , time()+$expire, $expire);
-				        $this->EE->functions->set_cookie($this->EE->sessions->c_uniqueid , $unique_id, $expire);       
-				        $this->EE->functions->set_cookie($this->EE->sessions->c_password , sha1($password),  $expire);
+						$this->EE->functions->set_cookie($this->EE->session->c_expire , time()+$expire, $expire);
+				        $this->EE->functions->set_cookie($this->EE->session->c_uniqueid , $unique_id, $expire);       
+				        $this->EE->functions->set_cookie($this->EE->session->c_password , sha1($password),  $expire);
 				        
-						$this->EE->sessions->create_new_session($member_id);
+						$this->EE->session->create_new_session($member_id);
 						$this->EE->session->userdata['username']  = $username;
 					}
 					
