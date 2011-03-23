@@ -650,10 +650,6 @@ class Membrr {
     		return 'Membrr for EE2 **WARNING** This user is not logged in.  This form should be seen by only logged in members.';
     	}
     	
-    	if (!$this->EE->TMPL->fetch_param('subscription_id')) {
-    		return 'You are missing the required "subscription_id" parameter.';
-    	}
-    	
     	if (!$this->EE->TMPL->fetch_param('redirect_url')) {
     		return 'You are missing the required "redirect_url" parameter.  This is the URL to send the user to after they have updated their subscription.';
     	}
