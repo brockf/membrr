@@ -914,11 +914,6 @@ class Membrr {
     	$this->EE->load->helper('form');
 		$this->EE->load->library('form_validation');
 			    	
-    	// user must be logged in
-    	if ($this->EE->session->userdata('member_id') == '' or $this->EE->session->userdata('member_id') == '0') {
-    		return 'Membrr for EE2 **WARNING** This user is not logged in.  This form should be seen by only logged in members.';
-    	}
-    	
     	// store all errors in here
     	$errors = array();
     	
@@ -970,14 +965,100 @@ class Membrr {
 				$renew_subscription = FALSE;
 			}
 			
+			if ($this->EE->input->post('password')) {
+				$password = preg_replace('#\s#i','',$this->EE->input->post('password'));
+			
+				// does password meet requirements?
+				if (strlen($password) < 6) {
+					$errors[] = 'Your password must be at least 6 characters in length.';
+				}
+				
+				// check if passwords match, if there are two passwords
+				if (isset($_POST['password2']) and $this->EE->input->post('password2') != $password) {
+					$errors[] = 'Your passwords do not match.';
+				}
+				
+				// set screen_name, username, and email from email
+				$email = $this->EE->input->post('email');
+				$username = $this->EE->input->post('email');
+				$screen_name = $this->EE->input->post('email');
+				
+				// set random unique_id
+				$unique_id = md5(time() + rand(10,1000));
+				
+				// override screen_name?
+				if ($this->EE->input->post('username')) {
+					$username = $this->EE->input->post('username');
+				}
+				
+				// override username?
+				if ($this->EE->input->post('screen_name')) {
+					$screen_name = $this->EE->input->post('screen_name');
+				}
+				
+				// check email/username uniqueness
+				$result = $this->EE->db->where('email',$email)
+									   ->get('exp_members');
+									   
+				if ($result->num_rows() > 0) {
+					$errors[] = 'Your email is already registered to an account.  Please login to your account if you have already registered.';
+				}
+				
+				if ($username != $email) {
+					$result = $this->EE->db->where('username',$username)
+										   ->get('exp_members');
+										   
+					if ($result->num_rows() > 0) {
+						$errors[] = 'Your username is already being used and must be unique.  Please select another.';
+					}											   
+				}
+				
+				if (empty($errors)) {
+					// attempt to create an account, put an error if $errors[] if failed
+					$member_data = array(
+										'group_id' => $this->EE->config->item('default_member_group'),
+										'language' => $this->EE->config->item('language'),
+										'timezone' => $this->EE->config->item('server_timezone'),
+										'time_format' => $this->EE->config->item('time_format'),
+										'daylight_savings' => $this->EE->config->item('daylight_savings'),
+										'ip_address' => $this->EE->input->ip_address(),
+										'join_date' => $this->EE->localize->now,
+										'email' => $email,
+										'unique_id' => $unique_id,
+										'username' => $username,
+										'screen_name' => $screen_name,
+										'password' => sha1($password)	
+									);
+					
+					$this->EE->load->model('member_model');
+					$member_id = $this->EE->member_model->create_member($member_data);
+						
+					if (empty($member_id)) {
+						$errors[] = 'Member account could not be created.';
+					}
+					
+					$member_created = TRUE;
+				}
+			}
+			else {
+				if (!$this->EE->session->userdata('member_id')) {
+					$errors[] = 'You are not logged in and the administrator has not configured this form for combined registration.';
+					$member_id = FALSE;
+					$member_created = FALSE;
+				}
+				else {
+					$member_id = $this->EE->session->userdata('member_id');
+					$member_created = FALSE;
+				}
+			}
+			
 			$plan = (is_numeric($this->EE->input->post('plan_id'))) ? $this->membrr->GetPlan($this->EE->input->post('plan_id')) : FALSE;
 			
-			if ($this->EE->form_validation->run() != FALSE and $this->EE->session->userdata('member_id') and !empty($plan) and empty($errors)) {								
+			if ($this->EE->form_validation->run() != FALSE and isset($member_id) and !empty($member_id) and !empty($plan) and empty($errors)) {								
 				$plan_id = $plan['id'];
-				$member_id = $this->EE->session->userdata('member_id');
 				
 				$this->EE->load->model('member_model');
-			    $member = $this->EE->member_model->get_member_data($this->EE->session->userdata('member_id'));
+			    $member = $this->EE->member_model->get_member_data($member_id);
 			    $member = $member->row_array();
 				
 				// update address book
@@ -1039,12 +1120,37 @@ class Membrr {
 							
 				if (isset($response['error'])) {
 					$errors[] = $this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['error_text'] . ' (#' . $response['error'] . ')';
+					
+					// delete the member we just created if we created one
+					if ($member_created == TRUE) {
+						$this->EE->db->delete('exp_members', array('member_id' => $member_id));
+					}
 				}
 				elseif ($response['response_code'] == '2') {
 					$errors[] = $this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['response_text'] . '. ' . $response['reason'] . ' (#' . $response['response_code'] . ')';
+					
+					// delete the member we just created if we created one
+					if ($member_created == TRUE) {
+						$this->EE->db->delete('exp_members', array('member_id' => $member_id));
+					}
 				}
 				else {
 					// success!
+					if ($member_created == TRUE) {
+						// let's log the user in						
+						$this->EE->sessions->userdata['ip_address'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+						$this->EE->sessions->userdata['user_agent'] = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
+						
+						$expire = (60*60*24); // 1 day expire
+						
+						$this->EE->functions->set_cookie($this->EE->sessions->c_expire , time()+$expire, $expire);
+				        $this->EE->functions->set_cookie($this->EE->sessions->c_uniqueid , $unique_id, $expire);       
+				        $this->EE->functions->set_cookie($this->EE->sessions->c_password , sha1($password),  $expire);
+				        
+						$this->EE->sessions->create_new_session($member_id);
+						$this->EE->session->userdata['username']  = $username;
+					}
+					
 					// redirect to URL
 					if (!empty($plan['redirect_url'])) {
 						header('Location: ' . $plan['redirect_url']);
@@ -1067,12 +1173,32 @@ class Membrr {
     	// get content of templates
     	$sub_return = $this->EE->TMPL->tagdata;
 			
-		// get customer information
-		$address = $this->membrr->GetAddress($this->EE->session->userdata('member_id'));
-		
-		$this->EE->load->model('member_model');
-	    $member = $this->EE->member_model->get_member_data($this->EE->session->userdata('member_id'));
-	    $member = $member->row_array();
+		if ($this->EE->session->userdata('member_id')) {	
+			// get customer information
+			$address = $this->membrr->GetAddress($this->EE->session->userdata('member_id'));
+			
+			$this->EE->load->model('member_model');
+		    $member = $this->EE->member_model->get_member_data($this->EE->session->userdata('member_id'));
+		    $member = $member->row_array();
+		}
+		else {
+			$address = array(
+							'first_name' => '',
+							'last_name' => '',
+							'address' => '',
+							'address_2' => '',
+							'city' => '',
+							'region' => '',
+							'region_other' => '',
+							'country' => '',
+							'postal_code' => '',
+							'email' => ''
+						);
+						
+			$member = array(
+							'email' => ''
+						);	
+		}
 		
 		$variables = array(
 						'first_name' => ($this->EE->input->post('first_name')) ? $this->EE->input->post('first_name') : $address['first_name'], 
