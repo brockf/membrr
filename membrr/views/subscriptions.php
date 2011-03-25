@@ -41,6 +41,9 @@ else {
 		elseif ($subscription['cancelled'] == '1') {
 			$status = $this->lang->line('membrr_cancelled');
 		}
+		else {
+			$status = '';
+		}
 		
 		$this->table->add_row($subscription['id'],
 						'<a href="' . $subscription['member_link'] . '">' . $subscription['user_screenname'] . '</a>',
