@@ -1699,6 +1699,23 @@ class Membrr {
 					<li class="field">
 						<input type="text" id="customer_last_name" name="customer_last_name" maxlength="100" value="' . $customer_last_name . '" />
 					</li>';
+		
+		// field: customer company			
+		if ($this->EE->input->post('customer_company')) {
+			$customer_company = $this->EE->input->post('customer_company');
+		}
+		elseif (isset($address['company'])) {
+			$customer_company = $address['company'];
+		}
+		else {
+			$customer_company = '';
+		}
+		$return .= '<li class="label">
+						<label for="customer_company">' . $this->EE->lang->line('membrr_order_form_customer_company') . '</label>
+					</li>
+					<li class="field">
+						<input type="text" id="customer_company" name="customer_company" value="' . $customer_company . '" />
+					</li>';
 					
 		// field: customer address
 		if ($this->EE->input->post('customer_address')) {
@@ -1850,22 +1867,8 @@ class Membrr {
 					<li class="field">
 						<input type="text" id="customer_email" name="customer_email" value="' . $customer_email . '" />
 					</li>';
-					
-		if ($this->EE->input->post('customer_company')) {
-			$customer_company = $this->EE->input->post('customer_company');
-		}
-		elseif (isset($address['company'])) {
-			$customer_company = $address['company'];
-		}
-		else {
-			$customer_company = '';
-		}
-		$return .= '<li class="label">
-						<label for="customer_company">' . $this->EE->lang->line('membrr_order_form_customer_company') . '</label>
-					</li>
-					<li class="field">
-						<input type="text" id="customer_company" name="customer_company" value="' . $customer_company . '" />
-					</li>';
+		
+		// field: customer phone
 					
 		if ($this->EE->input->post('customer_phone')) {
 			$customer_phone = $this->EE->input->post('customer_phone');

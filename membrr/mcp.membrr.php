@@ -849,7 +849,7 @@ class Membrr_mcp {
 			
 		if ($this->EE->form_validation->run() !== FALSE) {
 			// update address
-			$this->membrr->UpdateAddress($subscription['member_id'],$this->EE->input->post('first_name'),$this->EE->input->post('last_name'),$this->EE->input->post('address'),$this->EE->input->post('address_2'),$this->EE->input->post('city'),$this->EE->input->post('region'),$this->EE->input->post('region_other'),$this->EE->input->post('country'),$this->EE->input->post('postal_code'));
+			$this->membrr->UpdateAddress($subscription['member_id'],$this->EE->input->post('first_name'),$this->EE->input->post('last_name'),$this->EE->input->post('address'),$this->EE->input->post('address_2'),$this->EE->input->post('city'),$this->EE->input->post('region'),$this->EE->input->post('region_other'),$this->EE->input->post('country'),$this->EE->input->post('postal_code'),$this->EE->input->post('company'),$this->EE->input->post('phone'),$this->EE->input->post('company'),$this->EE->input->post('phone'));
 			
 			// process subscription update
 			$member_id = $subscription['member_id'];
@@ -989,7 +989,7 @@ class Membrr_mcp {
 			
 			if ($this->EE->form_validation->run() != FALSE) {
 				// update address
-				$this->membrr->UpdateAddress($this->EE->input->post('member_id'),$this->EE->input->post('first_name'),$this->EE->input->post('last_name'),$this->EE->input->post('address'),$this->EE->input->post('address_2'),$this->EE->input->post('city'),$this->EE->input->post('region'),$this->EE->input->post('region_other'),$this->EE->input->post('country'),$this->EE->input->post('postal_code'));
+				$this->membrr->UpdateAddress($this->EE->input->post('member_id'),$this->EE->input->post('first_name'),$this->EE->input->post('last_name'),$this->EE->input->post('address'),$this->EE->input->post('address_2'),$this->EE->input->post('city'),$this->EE->input->post('region'),$this->EE->input->post('region_other'),$this->EE->input->post('country'),$this->EE->input->post('postal_code'),$this->EE->input->post('company'),$this->EE->input->post('phone'));
 				
 				// process subscription
 				// prep arrays to send to Membrr_EE class
@@ -1029,7 +1029,9 @@ class Membrr_mcp {
 								'region' => ($this->EE->input->post('region_other') != '') ? $this->EE->input->post('region_other') : $this->EE->input->post('region'),
 								'country' => $this->EE->input->post('country'),
 								'postal_code' => $this->EE->input->post('postal_code'),
-								'email' => $member['email']
+								'email' => $member['email'],
+								'company' => $this->EE->input->post('company'),
+								'phone' => $this->EE->input->post('phone')
 							);
 							
 				// create end date if necessary

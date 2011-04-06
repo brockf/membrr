@@ -92,6 +92,11 @@ $this->table->add_row(
 	);
 	
 $this->table->add_row(
+		lang('membrr_order_form_customer_company'),
+		form_input(array('name' => 'company', 'value' => $address['company'], 'style' => 'width: 250px'))
+	);
+	
+$this->table->add_row(
 		lang('membrr_order_form_customer_address'),
 		form_input(array('name' => 'address', 'value' => $address['address'], 'style' => 'width: 250px'))
 	);
@@ -119,6 +124,11 @@ $this->table->add_row(
 $this->table->add_row(
 		lang('membrr_order_form_customer_postal_code'),
 		form_input(array('name' => 'postal_code', 'value' => $address['postal_code'], 'style' => 'width: 250px'))
+	);
+	
+$this->table->add_row(
+		lang('membrr_order_form_customer_phone'),
+		form_input(array('name' => 'phone', 'value' => $address['phone'], 'style' => 'width: 250px'))
 	);
 	
 $this->table->add_row(
