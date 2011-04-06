@@ -1173,6 +1173,10 @@ class Membrr_mcp {
 				
 				$post_url = rtrim($post_url, '/');
 				
+				if (substr($post_url,3,-3) == 'api') {
+					$post_url = substr_replace($post_url,'',-4,4);
+				}
+				
 				// validate API connection
 				if (!$this->validate_api($post_url, $post_id, $post_key)) {
 					$failed_to_connect = $this->EE->lang->line('membrr_config_failed');
