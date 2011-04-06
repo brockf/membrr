@@ -156,7 +156,7 @@ if (!class_exists('Membrr_EE')) {
 					}
 				}
 				
-				$recur->Customer($customer['first_name'],$customer['last_name'],'',$customer['address'],$customer['address_2'],$customer['city'],$customer['region'],$customer['country'],$customer['postal_code'],'',$customer['email']);
+				$recur->Customer($customer['first_name'],$customer['last_name'],$customer['company'],$customer['address'],$customer['address_2'],$customer['city'],$customer['region'],$customer['country'],$customer['postal_code'],$customer['phone'],$customer['email']);
 			}
 			
 			// coupon?
@@ -597,7 +597,7 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 		
-		function UpdateAddress ($member_id, $first_name, $last_name, $street_address, $address_2, $city, $region, $region_other, $country, $postal_code) {
+		function UpdateAddress ($member_id, $first_name, $last_name, $street_address, $address_2, $city, $region, $region_other, $country, $postal_code, $company = '', $phone = '') {
 			$this->EE->db->select('address_id');
 			$this->EE->db->where('member_id',$member_id);
 			$result = $this->EE->db->get('exp_membrr_address_book');
@@ -616,7 +616,9 @@ if (!class_exists('Membrr_EE')) {
 									'region' => $region, 
 									'region_other' => $region_other, 
 									'country' => $country, 
-									'postal_code' => $postal_code
+									'postal_code' => $postal_code,
+									'company' => $company,
+									'phone' => $phone
 								);
 				$this->EE->db->update('exp_membrr_address_book',$update_array, array('address_id' => $address['address_id']));
 				
@@ -650,6 +652,8 @@ if (!class_exists('Membrr_EE')) {
 					$server->Param('state', (empty($region)) ? $region_other : $region); 
 					$server->Param('country', $country); 
 					$server->Param('postal_code', $postal_code);
+					$server->Param('company',$company);
+					$server->Param('phone',$phone);
 					$response = $server->Process();
 				}
 				else {
@@ -668,7 +672,9 @@ if (!class_exists('Membrr_EE')) {
 									'region' => $region, 
 									'region_other' => $region_other, 
 									'country' => $country, 
-									'postal_code' => $postal_code
+									'postal_code' => $postal_code,
+									'company' => $company,
+									'phone' => $phone
 								);
 				$this->EE->db->insert('exp_membrr_address_book',$insert_array);
 			}
@@ -693,7 +699,9 @@ if (!class_exists('Membrr_EE')) {
 						'region' => '',
 						'region_other' => '', 
 						'country' => '',
-						'postal_code' => ''
+						'postal_code' => '',
+						'company' => '',
+						'phone' => ''
 					);
 			}
 		}

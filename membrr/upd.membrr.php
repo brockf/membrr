@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.4';
+	var $version = '1.41';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -60,6 +60,11 @@ class Membrr_upd {
         
         if ($current < '1.2') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` ADD COLUMN `renewed_recurring_id` INT(11) AFTER `active`');
+        }
+        
+        if ($current < '1.41') {
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_address_book` ADD COLUMN `company` VARCHAR(250) AFTER `postal_code`');
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_address_book` ADD COLUMN `phone` VARCHAR(250) AFTER `company`');
         }
 	
 		return TRUE;
@@ -143,7 +148,9 @@ class Membrr_upd {
 				 `region` varchar(250) NOT NULL,
 				 `region_other` varchar(250) NOT NULL,
 				 `country` varchar(250) NOT NULL,
-				 `postal_code` varchar(250) NOT NULL 
+				 `postal_code` varchar(250) NOT NULL,
+				 `company` varchar(250),
+				 `phone` varchar(250)
 				 ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ;";
 				 
 		$sql[] = "CREATE TABLE IF NOT EXISTS `exp_membrr_channels` (

@@ -624,6 +624,8 @@ class Membrr {
 	*	last_name
 	*	address
 	*	address_2
+	*	company
+	*	phone
 	*	city
 	*	region
 	*	region_other
@@ -695,7 +697,9 @@ class Membrr {
 												 $this->EE->input->post('region'),
 												 $this->EE->input->post('region_other'),
 												 $this->EE->input->post('country'),
-												 $this->EE->input->post('postal_code')
+												 $this->EE->input->post('postal_code'),
+												 $this->EE->input->post('company'),
+												 $this->EE->input->post('phone')
 												);
 				}
 								
@@ -757,7 +761,9 @@ class Membrr {
 						'region_other' => ($this->EE->input->post('region_other')) ? $this->EE->input->post('region_other') : $address['region_other'], 
 						'country' => ($this->EE->input->post('country')) ? $this->EE->input->post('country') : $address['country'],
 						'postal_code' => ($this->EE->input->post('postal_code')) ? $this->EE->input->post('postal_code') : $address['postal_code'],
-						'email' => ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email']
+						'email' => ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email'],
+						'company' => ($this->EE->input->post('company')) ? $this->EE->input->post('company') : $address['company'],
+						'phone' => ($this->EE->input->post('phone')) ? $this->EE->input->post('phone') : $address['phone']
 					);
 					
 		// subscription_id
@@ -886,6 +892,8 @@ class Membrr {
 	*	last_name
 	*	address
 	*	address_2
+	*	company
+	*	phone
 	*	city
 	*	region
 	*	region_other
@@ -1068,7 +1076,9 @@ class Membrr {
 												 $this->EE->input->post('region'),
 												 $this->EE->input->post('region_other'),
 												 $this->EE->input->post('country'),
-												 $this->EE->input->post('postal_code')
+												 $this->EE->input->post('postal_code'),
+												 $this->EE->input->post('company'),
+												 $this->EE->input->post('phone')
 												);
 				}
 								
@@ -1105,7 +1115,9 @@ class Membrr {
 								 'region' => ($this->EE->input->post('region_other') and $this->EE->input->post('region_other') != '') ? $this->EE->input->post('region_other') : $this->EE->input->post('region'),
 								 'country' => $this->EE->input->post('country'),
 								 'postal_code' => $this->EE->input->post('postal_code'),
-								 'email' => ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email']
+								 'email' => ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email'],
+								 'company' => $this->EE->input->post('company'),
+								 'phone' => $this->EE->input->post('phone')
 							);
 							
 				$gateway_id = ($this->EE->input->post('gateway') and $this->EE->input->post('gateway') != '' and $this->EE->input->post('gateway') != '0') ? $this->EE->input->post('gateway') : FALSE;
@@ -1190,7 +1202,9 @@ class Membrr {
 							'region_other' => '',
 							'country' => '',
 							'postal_code' => '',
-							'email' => ''
+							'email' => '',
+							'company' => '',
+							'phone' => ''
 						);
 						
 			$member = array(
@@ -1208,7 +1222,9 @@ class Membrr {
 						'region_other' => ($this->EE->input->post('region_other')) ? $this->EE->input->post('region_other') : $address['region_other'], 
 						'country' => ($this->EE->input->post('country')) ? $this->EE->input->post('country') : $address['country'],
 						'postal_code' => ($this->EE->input->post('postal_code')) ? $this->EE->input->post('postal_code') : $address['postal_code'],
-						'email' => ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email']
+						'email' => ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email'],
+						'company' => ($this->EE->input->post('company')) ? $this->EE->input->post('company') : $address['company'],
+						'phone' => ($this->EE->input->post('phone')) ? $this->EE->input->post('phone') : $address['phone']
 					);
 					
 		// prep credit card fields
@@ -1408,7 +1424,9 @@ class Membrr {
 							'customer_postal_code|Postal Code' => 'empty',
 							'customer_region|Region' => '',
 							'customer_region_other|Region' => '',
-							'customer_email|Email Address' => 'empty|email|trim'
+							'customer_email|Email Address' => 'empty|email|trim',
+							'customer_company|Company' => '',
+							'customer_phone|Phone' => ''
 						);
 						
 			if ($this->EE->input->post('free') != '1' and $free_plan == FALSE) {
@@ -1453,7 +1471,7 @@ class Membrr {
 				$member_id = $this->EE->session->userdata('member_id');
 				
 				// update address book
-				$this->membrr->UpdateAddress($member_id,$values['customer_first_name'],$values['customer_last_name'],$values['customer_address'],$values['customer_address_2'],$values['customer_city'],$values['customer_region'],$values['customer_region_other'],$values['customer_country'],$values['customer_postal_code']);
+				$this->membrr->UpdateAddress($member_id,$values['customer_first_name'],$values['customer_last_name'],$values['customer_address'],$values['customer_address_2'],$values['customer_city'],$values['customer_region'],$values['customer_region_other'],$values['customer_country'],$values['customer_postal_code'],$values['customer_company'],$values['customer_phone']);
 								
 				// prep arrays to send to Membrr_EE class	
 				if ($this->EE->input->post('free') != '1' and $free_plan == FALSE) {			
@@ -1485,7 +1503,9 @@ class Membrr {
 								'region' => (!empty($values['customer_region_other'])) ? $values['customer_region_other'] : $values['customer_region'],
 								'country' => $values['customer_country'],
 								'postal_code' => $values['customer_postal_code'],
-								'email' => $values['customer_email']
+								'email' => $values['customer_email'],
+								'company' => $values['customer_company'],
+								'phone' => $values['customer_phone']
 							);
 							
 				$coupon = ($this->EE->input->post('coupon')) ? $this->EE->input->post('coupon') : FALSE;
@@ -1823,12 +1843,44 @@ class Membrr {
 					
 		// field: customer email address
 					
-		$customer_email = ($this->EE->input->post('customer_email')) ? $this->EE->input->post('customer_email') : $member_id = $this->EE->session->userdata('email');
+		$customer_email = ($this->EE->input->post('customer_email')) ? $this->EE->input->post('customer_email') : $this->EE->session->userdata('email');
 		$return .= '<li class="label">
 						<label for="customer_email">' . $this->EE->lang->line('membrr_order_form_customer_email') . '</label>
 					</li>
 					<li class="field">
-						<input type="text" id="customer_email" name="customer_email" maxlength="100" value="' . $customer_email . '" />
+						<input type="text" id="customer_email" name="customer_email" value="' . $customer_email . '" />
+					</li>';
+					
+		if ($this->EE->input->post('customer_company')) {
+			$customer_company = $this->EE->input->post('customer_company');
+		}
+		elseif (isset($address['company'])) {
+			$customer_company = $address['company'];
+		}
+		else {
+			$customer_company = '';
+		}
+		$return .= '<li class="label">
+						<label for="customer_company">' . $this->EE->lang->line('membrr_order_form_customer_company') . '</label>
+					</li>
+					<li class="field">
+						<input type="text" id="customer_company" name="customer_company" value="' . $customer_company . '" />
+					</li>';
+					
+		if ($this->EE->input->post('customer_phone')) {
+			$customer_phone = $this->EE->input->post('customer_phone');
+		}
+		elseif (isset($address['phone'])) {
+			$customer_phone = $address['phone'];
+		}
+		else {
+			$customer_phone = '';
+		}
+		$return .= '<li class="label">
+						<label for="customer_phone">' . $this->EE->lang->line('membrr_order_form_customer_phone') . '</label>
+					</li>
+					<li class="field">
+						<input type="text" id="customer_phone" name="customer_phone" value="' . $customer_phone . '" />
 					</li>';
 					
 		$return .= '</ul></fieldset>';
