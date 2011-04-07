@@ -953,7 +953,7 @@ if (!class_exists('Membrr_EE')) {
 			$subscription['end_date'] = date('Y-m-d H:i:s',strtotime($subscription['end_date']));
 			
 			// calculate end_date
-			if ($subscription['next_charge_date'] != '0000-00-00' and strtotime($subscription['next_charge_date']) > time()) {
+			if ($subscription['next_charge_date'] != '0000-00-00' and (strtotime($subscription['next_charge_date']) + (60*60*24)) > time()) {
 				// there's a next charge date which won't be renewed, so we'll end it then
 				// we must also account for their signup time
 				$time_created = date('H:i:s',strtotime($subscription['date_created']));
