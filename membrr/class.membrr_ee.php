@@ -334,6 +334,46 @@ if (!class_exists('Membrr_EE')) {
 			return $response;
 		}
 		
+		function UpdateExpiryDate ($subscription_id, $new_expiry) {
+			if (strtotime($new_expiry) < time()) {
+				return FALSE;
+			}
+			
+			// get subscription
+			$subscription = $this->GetSubscription($subscription_id);
+			
+			if (empty($subscription)) {
+				return FALSE;
+			}
+		
+			// format
+			$new_expiry = date('Y-m-d', strtotime($new_expiry));
+		
+			// update locally
+			$this->EE->db->update('exp_membrr_subscriptions',array('end_date' => $new_expiry), array('recurring_id' => $subscription_id));
+			
+			// connect to OG
+			$config = $this->GetConfig();
+			$connect_url = $config['api_url'] . '/api';
+			$opengateway = new OpenGateway;
+			$opengateway->Authenticate($config['api_id'], $config['secret_key'], $connect_url);
+			$opengateway->SetMethod('UpdateRecurring');
+			$opengateway->Param('recurring_id', $subscription_id);
+			$opengateway->Param('end_date', $new_expiry);
+			
+			$response = $opengateway->Process();
+			
+			if (!isset($response['error'])) {
+				return TRUE;
+			}
+			else {
+				// revert
+				$this->EE->db->update('exp_membrr_subscriptions',array('end_date' => $subscription['end_date']), array('recurring_id' => $subscription_id));
+				
+				return FALSE;	
+			}
+		}
+		
 		function UpdateCC ($subscription_id, $credit_card, $plan_id = FALSE) {
 			$config = $this->GetConfig();
 			

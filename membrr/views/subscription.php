@@ -50,7 +50,7 @@ if ($subscription['active'] == '1') {
 	if ($subscription['end_date'] != FALSE) {
 		$this->table->add_row(
 			array('data' => lang('membrr_date_ending'), 'style' => 'width:30%'),
-			$subscription['end_date']
+			$subscription['end_date'] . $change_expiry
 		);
 	}
 }

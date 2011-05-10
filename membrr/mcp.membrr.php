@@ -627,6 +627,11 @@ class Membrr_mcp {
 				
 				if ($subscription['active'] == '1') {
 					$options .= ' | <a href="' . $this->cp_url('update_cc', array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_update_cc') . '</a>';
+					
+					if ($subscription['end_date'] != FALSE) {
+	   					$options .= ' | <a href="' . $this->cp_url('expiry', array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_change_expiration') . '</a>';
+	   				}
+	   				
 					$options .= ' | <a class="confirm" href="' . $this->cp_url('cancel_subscription',array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_cancel') . '</a>';
 				}
 				
@@ -726,11 +731,20 @@ class Membrr_mcp {
 			$end_now = FALSE;
 		}
 		
+		// should we have an expiry mod?
+		if ($subscription['end_date'] != FALSE) {
+			$change_expiry = ' (<a href="' . $this->cp_url('expiry',array('id' => $subscription['id'])) . '">modify expiration date</a>)';
+		}
+		else {
+			$change_expiry = FALSE;
+		}
+		
 		$vars = array();
 		$vars['subscription'] = $subscription;
 		$vars['payments'] = $payments;
 		$vars['config'] = $this->config;
 		$vars['end_now'] = $end_now;
+		$vars['change_expiry'] = $change_expiry;
 	
 		return $this->EE->load->view('subscription',$vars,TRUE);	
 	}
@@ -740,6 +754,79 @@ class Membrr_mcp {
 		
 		$this->EE->functions->redirect(htmlspecialchars_decode($this->cp_url('subscription', array('id' => $this->EE->input->get('id')))));
 		die();
+	}
+	
+	function expiry () {
+		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_change_expiry_title'));
+		
+		$recurring_id = $this->EE->input->get('id');
+		$subscription = $this->membrr->GetSubscription($recurring_id);
+		
+		// end date
+	    $end_date_days = array();
+	    for ($i = 1; $i <= 31; $i++) {
+        	$end_date_days[$i] = $i;
+        }
+        
+        $end_date_months = array();
+	    for ($i = 1; $i <= 12; $i++) {
+        	$end_date_months[$i] = date('m - M',mktime(1, 1, 1, $i, 1, 2010));
+        }
+        
+        $end_date_years = array();
+	    for ($i = date('Y'); $i <= (date('Y') + 3); $i++) {
+        	$end_date_years[$i] = $i;
+        }
+        
+        $subscription['end_date'] = array(
+        								'day' => date('d', strtotime($subscription['end_date'])),
+        								'month' => date('m', strtotime($subscription['end_date'])),
+        								'year' => date('Y', strtotime($subscription['end_date']))
+        							);
+        		
+		// errors
+		$errors = ($this->EE->session->flashdata('errors')) ? $this->EE->session->flashdata('errors') : FALSE;
+		
+		$vars = array();
+		$vars['end_date_days'] = $end_date_days;
+		$vars['end_date_months'] = $end_date_months;
+		$vars['end_date_years'] = $end_date_years;
+		$vars['form_action'] = $this->form_url('post_expiry');
+		$vars['subscription'] = $subscription;
+		$vars['errors'] = $errors;
+		
+		return $this->EE->load->view('expiry',$vars, TRUE);
+	}
+	
+	function post_expiry () {
+		// setup validation
+		$this->EE->load->library('form_validation');
+		$this->EE->form_validation->set_rules('subscription_id','Subscription ID','required');
+											
+		// get subscription
+		$subscription = $this->membrr->GetSubscription($this->EE->input->post('subscription_id'));
+			
+		if ($this->EE->form_validation->run() !== FALSE) {
+			$new_expiry = $this->EE->input->post('end_date_year') . '-' . $this->EE->input->post('end_date_month') . '-' . $this->EE->input->post('end_date_day');
+			
+			$this->membrr->UpdateExpiryDate($subscription['id'], $new_expiry);
+			
+			// success!
+			$this->EE->session->set_flashdata('message_success', 'You have successfully updated this subscription.');
+			
+			// redirect to URL
+			$this->EE->functions->redirect(htmlspecialchars_decode($this->cp_url('subscription', array('id' => $subscription['id']))));
+			
+			die();
+			return TRUE;
+		}
+		else {
+			$this->EE->session->set_flashdata('errors',validation_errors());
+			$this->EE->functions->redirect(htmlspecialchars_decode($this->cp_url('expiry', array('id' => $subscription['id']))));
+			
+			die();
+			return FALSE;
+		}
 	}
 	
 	function update_cc () {

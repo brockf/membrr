@@ -12,13 +12,13 @@
 $this->table->set_template($cp_pad_table_template); // $cp_table_template ?
 
 $this->table->set_heading(
-    array('data' => lang('membrr_id'), 'style' => 'width: 10%;'),
+    array('data' => lang('membrr_id'), 'style' => 'width: 7%;'),
     array('data' => lang('membrr_user'), 'style' => 'width: 20%;'),
     array('data' => lang('membrr_plan_name'), 'style' => 'width: 15%;'),
     array('data' => lang('membrr_amount'), 'style' => 'width: 10%;'),
     array('data' => lang('membrr_next_charge_date'), 'style' => 'width: 17%;'),
     array('data' => lang('membrr_status'), 'style' => 'width: 10%;'),
-    array('data' => '', 'style' => 'width:23%')
+    array('data' => '', 'style' => 'width:26%')
 );
 
 if (!$subscriptions) {
