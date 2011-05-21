@@ -21,8 +21,8 @@ $this->table->add_row(
 	);
 	
 $this->table->add_row(
-		lang('membrr_one_subscription_per_post'),
-		form_checkbox('one_post','1',($one_post == 1) ? TRUE : FALSE)
+		lang('membrr_posts_per_subscription'),
+		form_input(array('name' => 'posts', 'value' => ($channel['posts'] != '0') ? $channel['posts'] : '', 'style' => 'width: 50px')) . ' &nbsp;&nbsp;' . form_checkbox('unlimited_posts','1',($channel['posts'] == '0') ? TRUE : FALSE) . ' ' . lang('membrr_unlimited_posts')
 	);
 
 if (!empty($statuses)) {	

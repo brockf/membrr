@@ -414,7 +414,7 @@ class Membrr_mcp {
 				$insert_vars = array(
 									'channel_id' => $this->EE->input->post('channel_id'),
 									'plans' => $plans,
-									'one_post' => $this->EE->input->post('one_post'),
+									'posts' => ($this->EE->input->post('unlimited_posts') == '1') ? '0' : $this->EE->input->post('posts'),
 									'expiration_status' => $this->EE->input->post('expiration_status'),
 									'order_form' => $this->EE->input->post('order_form')
 								);
@@ -490,7 +490,7 @@ class Membrr_mcp {
 				
 				$update_vars = array(
 									'plans' => $plans,
-									'one_post' => $this->EE->input->post('one_post'),
+									'posts' => ($this->EE->input->post('unlimited_posts') == '1') ? '0' : $this->EE->input->post('posts'),
 									'expiration_status' => $this->EE->input->post('expiration_status'),
 									'order_form' => $this->EE->input->post('order_form')
 								);
@@ -528,7 +528,6 @@ class Membrr_mcp {
         
         // default values
         $plans = ($this->EE->input->post('plans')) ? $this->EE->input->post('plans') : $channel['plans']; 
-        $one_post =  ($this->EE->input->post('one_post')) ? $this->EE->input->post('one_post') : $channel['one_post']; 
         $order_form =  ($this->EE->input->post('order_form')) ? $this->EE->input->post('order_form') : $channel['order_form']; 
         $expiration_status =  ($this->EE->input->post('expiration_status')) ? $this->EE->input->post('expiration_status') : $channel['expiration_status']; 
 		
@@ -540,7 +539,7 @@ class Membrr_mcp {
 		$vars['form_action'] = $this->form_url('edit_channel', array('id' => $channel['id']));
 		$vars['config'] = $this->config;
 		$vars['plans'] = $plans;
-		$vars['one_post'] = $one_post;
+		$vars['posts'] = $channel['posts'];
 		$vars['order_form'] = $order_form;
 		$vars['expiration_status'] = $expiration_status;
 		

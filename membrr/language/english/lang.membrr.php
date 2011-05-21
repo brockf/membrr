@@ -148,7 +148,7 @@ $lang = array(
 	'membrr_protect_this_channel_edit' => 'Edit this Channel Protection',
 	'membrr_you_need_channels' => 'You don\'t have any channels (that aren\'t already protected).',
 	'membrr_select_multiple' => 'Select multiple plans by holding CTRL (PC) or Command (Mac) while clicking on multiple options.',
-	'membrr_one_subscription_per_post' => 'Limit the user to one post per subscription.',
+	'membrr_posts_per_subscription' => '# of Posts per Subscription',
 	'membrr_expiration_status' => 'If the linked subscription expires, set post status to:',
 	'membrr_no_subscription_redirect' => 'Redirection URL if user does not have the required subscription (e.g., to an order form).',
 	'membrr_created_channel' => 'Channel protected successfully.',
@@ -179,5 +179,6 @@ $lang = array(
 	'membrr_no_members' => 'No members in the database matched your search query.',
 	'membrr_add_subscription_to_membrr' => 'Continue Adding Subscription to Selected Membrr',
 	'membrr_end_now' => 'End Subscription Immediately!',
-	'membrr_coupon' => 'Coupon Code'
+	'membrr_coupon' => 'Coupon Code',
+	'membrr_unlimited_posts' => 'Unlimited posts'
 );

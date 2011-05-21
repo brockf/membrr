@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.41';
+	var $version = '1.42';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -66,7 +66,11 @@ class Membrr_upd {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_address_book` ADD COLUMN `company` VARCHAR(250) AFTER `postal_code`');
         	$this->EE->db->query('ALTER TABLE `exp_membrr_address_book` ADD COLUMN `phone` VARCHAR(250) AFTER `company`');
         }
-	
+        
+        if ($current < '1.42') {
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_channels` CHANGE `one_post` `posts` INT(11)');
+        }
+		
 		return TRUE;
 	}
 	
@@ -157,7 +161,7 @@ class Membrr_upd {
 				 `protect_channel_id` INT AUTO_INCREMENT PRIMARY KEY ,
 				 `channel_id` int(11) NOT NULL,
 				 `plans` varchar(250) NOT NULL,
-				 `one_post` INT NOT NULL,
+				 `posts` INT NOT NULL,
 				 `expiration_status` INT NOT NULL,
 				 `order_form` text NOT NULL 
 				 ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ;";

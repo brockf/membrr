@@ -550,7 +550,7 @@ if (!class_exists('Membrr_EE')) {
 								'expiration_status' => $row['expiration_status'],
 								'status_name' => $row['status_name'],
 								'order_form' => $row['order_form'],
-								'one_post' => $row['one_post'],
+								'posts' => $row['posts'],
 								'plans' => explode('|',$row['plans'])
 								);
 			}
@@ -580,7 +580,7 @@ if (!class_exists('Membrr_EE')) {
 							'expiration_status' => $row['expiration_status'],
 							'status_name' => $row['status_name'],
 							'order_form' => $row['order_form'],
-							'one_post' => $row['one_post'],
+							'posts' => $row['posts'],
 							'plans' => explode('|',$row['plans'])
 							);
 			
@@ -593,7 +593,7 @@ if (!class_exists('Membrr_EE')) {
 			return TRUE;
 		}
 		
-		function GetSubscriptionForChannel ($user, $plans, $one_post, $sub_id = FALSE) {
+		function GetSubscriptionForChannel ($channel_id, $user, $plans, $posts, $sub_id = FALSE) {
 			$plans_query = '\'';
 			foreach ($plans as $plan) {
 				$plans_query .= $plan . '\', \'';
@@ -608,22 +608,52 @@ if (!class_exists('Membrr_EE')) {
 				$this->EE->db->where('exp_membrr_subscriptions.recurring_id',$sub_id);
 			}
 			
-			if ($one_post == '0') {
-				$this->EE->db->select('exp_membrr_subscriptions.recurring_id');
-				$this->EE->db->join('exp_membrr_channel_posts','exp_membrr_subscriptions.recurring_id = exp_membrr_channel_posts.recurring_id','left');
-				$this->EE->db->where('exp_membrr_subscriptions.member_id',$user);
-				$this->EE->db->where('`plan_id` IN (' . $plans_query . ')',null,FALSE);
-				$this->EE->db->where('(`exp_membrr_subscriptions`.`end_date` = \'0000-00-00 00:00:00\' OR `exp_membrr_subscriptions`.`end_date` > NOW())',null,FALSE);
-			}
-			elseif ($one_post == '1') {
+			if ($posts == '1') {
 				// subscription mustn't be linked to another post		   
-				$this->EE->db->select('exp_membrr_subscriptions.recurring_id');
-				$this->EE->db->join('exp_membrr_channel_posts','exp_membrr_subscriptions.recurring_id = exp_membrr_channel_posts.recurring_id','left');
-				$this->EE->db->where('exp_membrr_subscriptions.member_id',$user);
-				$this->EE->db->where('(`exp_membrr_channel_posts`.`post_id` IS NULL or `exp_membrr_channel_posts`.`active` != \'1\')',null,FALSE);
-				$this->EE->db->where('`plan_id` IN (' . $plans_query . ')',null,FALSE);
-				$this->EE->db->where('(`exp_membrr_subscriptions`.`end_date` = \'0000-00-00 00:00:00\' OR `exp_membrr_subscriptions`.`end_date` > NOW())',null,FALSE);
-				$this->EE->db->order_by('exp_membrr_channel_posts.active','DESC');
+				$this->EE->db->select('exp_membrr_subscriptions.recurring_id')
+							 ->join('exp_membrr_channel_posts','exp_membrr_subscriptions.recurring_id = exp_membrr_channel_posts.recurring_id','left')
+						 	 ->where('exp_membrr_subscriptions.member_id',$user)
+							 ->where('(`exp_membrr_channel_posts`.`post_id` IS NULL or `exp_membrr_channel_posts`.`active` != \'1\')',null,FALSE)
+						     ->where('`plan_id` IN (' . $plans_query . ')',null,FALSE)
+							 ->where('(`exp_membrr_subscriptions`.`end_date` = \'0000-00-00 00:00:00\' OR `exp_membrr_subscriptions`.`end_date` > NOW())',null,FALSE)
+							 ->order_by('exp_membrr_channel_posts.active','DESC');
+				$result = $this->EE->db->get('exp_membrr_subscriptions');
+				
+				if ($result->num_rows() == 0) {
+					return FALSE;
+				}
+				else {
+					return $result->row()->recurring_id;
+				}
+			}
+			else {
+				// get all subscriptions that match this channel
+				$this->EE->db->select('recurring_id')
+							 ->where('member_id',$user)
+ 							 ->where('`plan_id` IN (' . $plans_query . ')',null,FALSE)
+							 ->where('(`end_date` = \'0000-00-00 00:00:00\' OR `end_date` > NOW())',null,FALSE)
+							 ->order_by('date_created','ASC');
+				$result = $this->EE->db->get('exp_membrr_subscriptions');
+				
+				if ($result->num_rows() == 0) {
+					return FALSE;
+				}
+				else {
+					foreach ($result->result_array() as $subscription) {
+						$this->EE->db->select('recurring_id',$subscription['recurring_id'])
+									 ->where('channel_id',$channel_id)
+									 ->where('active','1');
+									 
+						$result = $this->EE->db->get('exp_membrr_channel_posts');
+						
+						if ($result->num_rows() < $posts) {
+							return $subscription['recurring_id'];
+						}
+						
+						// we must not have found a good subscription
+						return FALSE;									 
+					}
+				}
 			}
 			
 			$result = $this->EE->db->get('exp_membrr_subscriptions');
