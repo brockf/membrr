@@ -811,6 +811,20 @@ class Membrr_mcp {
 			
 			$this->membrr->UpdateExpiryDate($subscription['id'], $new_expiry);
 			
+			// record payment
+			if ($this->EE->input->post('record_payment') == '1') {
+				// connect to OG
+				$this->server->SetMethod('RecordSubscriptionPayment');
+				$this->server->Param('recurring_id', $subscription['id']);
+				$this->server->Param('amount', $this->EE->input->post('payment_amount'));
+				
+				$response = $this->server->Process();
+				
+				if (!isset($response['error'])) {
+					$this->membrr->RecordPayment($subscription['id'], $response['charge_id'], $this->EE->input->post('payment_amount'));
+				}
+			}
+			
 			// success!
 			$this->EE->session->set_flashdata('message_success', 'You have successfully updated this subscription.');
 			

@@ -24,6 +24,11 @@ $this->table->add_row(
 	
 $this->table->add_row(
 		'',
+		'<input type="checkbox" name="record_payment" value="1" /> Record as payment of <input type="text" name="payment_amount" style="width:50px" value="' . $subscription['amount'] . '" />'
+	);	
+	
+$this->table->add_row(
+		'',
 		form_submit('submit_form', $this->lang->line('membrr_update_subscription'))
 	);
 		
