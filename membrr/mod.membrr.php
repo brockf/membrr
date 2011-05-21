@@ -94,7 +94,7 @@ class Membrr {
     	
     	$channel = $this->membrr->GetChannel($channel, $field);
     	
-    	if ($this->membrr->GetSubscriptionForChannel($this->EE->session->userdata('member_id'),$channel['plans'],$channel['one_post'])) {
+    	if ($this->membrr->GetSubscriptionForChannel($channel['id'], $this->EE->session->userdata('member_id'),$channel['plans'],$channel['one_post'])) {
     		$return = $this->EE->TMPL->tagdata;
     	}
     	else {
@@ -129,7 +129,7 @@ class Membrr {
     	
     	$channel = $this->membrr->GetChannel($channel, $field);
     	
-    	if (!$this->membrr->GetSubscriptionForChannel($this->EE->session->userdata['member_id'],$channel['plans'],$channel['one_post'])) {
+    	if (!$this->membrr->GetSubscriptionForChannel($channel['id'], $this->EE->session->userdata['member_id'],$channel['plans'],$channel['one_post'])) {
     		$return = $this->EE->TMPL->tagdata;
     	}
     	else {
