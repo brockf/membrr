@@ -16,6 +16,11 @@ $this->table->add_row(
 		'Subscription ID',
 		$subscription['id']
 	);
+	
+$this->table->add_row(
+		'Member',
+		$subscription['user_screenname']
+	);	
 		
 $this->table->add_row(
 		lang('membrr_subscription_ends'),
@@ -24,7 +29,7 @@ $this->table->add_row(
 	
 $this->table->add_row(
 		'',
-		'<input type="checkbox" name="record_payment" value="1" /> Record as payment of <input type="text" name="payment_amount" style="width:50px" value="' . $subscription['amount'] . '" />'
+		'<input type="checkbox" name="record_payment" value="1" checked="checked" /> Record as payment of <input type="text" name="payment_amount" style="width:50px" value="' . $subscription['amount'] . '" />'
 	);	
 	
 $this->table->add_row(
