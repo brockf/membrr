@@ -669,8 +669,8 @@ class Membrr {
     	
 		// handle potential form submission
 		if ($this->EE->input->post('membrr_update_form')) {
-			// validate email if it is there
-			if ($this->EE->input->post('email')) {
+			// validate email if it is there, or if we're creating an account
+			if ($this->EE->input->post('email') or $this->EE->input->post('password')) {
 				$this->EE->form_validation->set_rules('email','lang:membrr_order_form_customer_email','trim|valid_email');
 			}
 			// and credit card...
@@ -935,8 +935,8 @@ class Membrr {
 			// there's a submission
 			$this->EE->form_validation->set_rules('plan_id','lang:membrr_order_form_select_plan','trim|required');
 			
-			// validate email if it is there
-			if ($this->EE->input->post('email')) {
+			// validate email if it is there, or if we're creating an account
+			if ($this->EE->input->post('email') or $this->EE->input->post('password')) {
 				$this->EE->form_validation->set_rules('email','lang:membrr_order_form_customer_email','trim|valid_email');
 			}
 			// and credit card if they are there
