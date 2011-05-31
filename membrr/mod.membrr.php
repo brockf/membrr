@@ -530,6 +530,13 @@ class Membrr {
 			$filters['active'] = '0';
 		}
 		
+		if ($this->EE->TMPL->fetch_param('status') == 'active') {
+			$filters['active'] = '1';
+		}
+		elseif ($this->EE->TMPL->fetch_param('status') == 'inactive') {
+			$filters['active'] = '0';
+		}
+		
 		if ($this->EE->TMPL->fetch_param('id')) {
 			$filters['id'] = $this->EE->TMPL->fetch_param('id');
 		}
