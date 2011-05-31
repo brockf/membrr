@@ -140,9 +140,121 @@ class Membrr_mcp {
 			reset($payments);
 		}
 		
+		// get plans
+		$plans = $this->membrr->GetPlans();
+		
+		// get monthly reports
+		$result = $this->EE->db->query('SELECT COUNT(recurring_id) AS `new_subscriptions`, MONTH(date_created) AS `date_month`, YEAR(date_created) AS `date_year`
+									    FROM `exp_membrr_subscriptions`
+									    WHERE YEAR(date_created) > 0
+									    GROUP BY YEAR(date_created), MONTH(date_created)
+									    ORDER BY `date_created` DESC');
+			
+		$months = array();							    
+		if ($result->num_rows() > 0) {
+			foreach ($result->result_array() as $month) {
+				$month['date_month'] = str_pad($month['date_month'], 2, '0', STR_PAD_LEFT);
+				
+				$months[$month['date_month'] . $month['date_year']] = array(
+								'code' => $month['date_month'] . $month['date_year'],
+								'year' => $month['date_year'],
+								'month' => date('F', strtotime('2011-' . $month['date_month'] . '-01 12:12:12')),
+								'new_subscribers' => $month['new_subscriptions'],
+								'expirations' => '0',
+								'difference' => '0',
+								'url' => $this->cp_url('index', array('month' => $month['date_month'] . $month['date_year']))
+							);					
+			}
+		}		
+		
+		$result = $this->EE->db->query('SELECT COUNT(recurring_id) AS `expirations`, MONTH(end_date) AS `date_month`, YEAR(end_date) AS `date_year`
+									    FROM `exp_membrr_subscriptions`
+									    WHERE YEAR(end_date) > 0
+									    GROUP BY YEAR(end_date), MONTH(end_date)
+									    ORDER BY `end_date` DESC');					    
+		
+		if ($result->num_rows() > 0) {
+			foreach ($result->result_array() as $month) {
+				$month['date_month'] = str_pad($month['date_month'], 2, '0', STR_PAD_LEFT);
+				
+				if (isset($months[$month['date_month'] . $month['date_year']])) {
+					// we have a report for this, so we'll add this to it
+					$months[$month['date_month'] . $month['date_year']]['expirations'] = $month['expirations'];
+				}
+			}
+		}
+		
+		// calculate difference
+		reset($months);
+		
+		foreach ($months as $key => $month) {
+			$difference = $month['new_subscribers'] - $month['expirations'];
+			if ($difference > 0) {
+				$difference = '+' . $difference;
+			}
+			
+			$months[$key]['difference'] = $difference;
+		}
+		
+		// get specific monthly report
+		reset($months);
+		
+		$first_month = current($months);
+		$current = ($this->EE->input->get('month')) ? $this->EE->input->get('month') : $first_month['code'];
+		
+		$current_month = substr($current,0,2);
+		$current_year = substr($current,2,4);
+		
+		$current = array();
+		$current['month'] = date('F, Y', strtotime($current_year . '-' . $current_month . '-01 12:12:12'));
+		$current['code'] = $current_month . $current_year;
+		
+		$result = $this->EE->db->query('SELECT COUNT(recurring_id) AS `new_subscriptions`
+									    FROM `exp_membrr_subscriptions`
+									    WHERE YEAR(date_created) = \'' . $current_year . '\' and MONTH(date_created) = \'' . $current_month . '\'');
+		
+		$current['new_subscribers'] = $result->row()->new_subscriptions;
+		
+		$result = $this->EE->db->query('SELECT COUNT(recurring_id) AS `expirations`
+									    FROM `exp_membrr_subscriptions`
+									    WHERE YEAR(end_date) = \'' . $current_year . '\' and MONTH(end_date) = \'' . $current_month . '\'');
+		
+		$current['expirations'] = $result->row()->expirations;
+		
+		$result = $this->EE->db->query('SELECT COUNT(recurring_id) AS `cancellations`
+									    FROM `exp_membrr_subscriptions`
+									    WHERE YEAR(date_cancelled) = \'' . $current_year . '\' and MONTH(date_cancelled) = \'' . $current_month . '\'');
+		
+		$current['cancellations'] = $result->row()->cancellations;
+		
+		$result = $this->EE->db->query('SELECT COUNT(payment_id) AS `payments`
+									    FROM `exp_membrr_payments`
+									    WHERE YEAR(date) = \'' . $current_year . '\' and MONTH(date) = \'' . $current_month . '\'');
+		
+		$current['payments'] = $result->row()->payments;
+		
+		$result = $this->EE->db->query('SELECT SUM(amount) AS `revenue`
+									    FROM `exp_membrr_payments`
+									    WHERE YEAR(date) = \'' . $current_year . '\' and MONTH(date) = \'' . $current_month . '\'');
+		
+		$current['revenue'] = $result->row()->revenue;
+		
+		// add javascript for month switcher
+		
+		$this->EE->cp->add_to_head("<script type=\"text/javascript\">
+        								$(document).ready(function() {
+        									$('select[name=\"month\"]').change(function () {
+        										window.location.href = $(this).val();
+        									});
+        								});
+        							</script>");
+		
 		$vars = array();
 		$vars['payments'] = $payments;
 		$vars['config'] = $this->config;
+		$vars['plans'] = $plans;
+		$vars['months'] = $months;
+		$vars['current'] = $current;
 		
 		return $this->EE->load->view('dashboard',$vars, TRUE);
 	}
