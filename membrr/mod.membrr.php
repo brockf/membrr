@@ -980,8 +980,8 @@ class Membrr {
 				$password = preg_replace('#\s#i','',$this->EE->input->post('password'));
 			
 				// does password meet requirements?
-				if (strlen($password) < 6) {
-					$errors[] = 'Your password must be at least 6 characters in length.';
+				if (strlen($password) < $this->EE->config->item('pw_min_len')) {
+					$errors[] = 'Your password must be at least '. $pml = $this->EE->config->item('pw_min_len') .' characters in length.';
 				}
 				
 				// check if passwords match, if there are two passwords
