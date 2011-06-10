@@ -2049,18 +2049,10 @@ class Membrr {
 			$this->membrr->SetNextCharge($this->EE->input->post('recurring_id'),$next_charge_date);					        
 		}
 		elseif ($this->EE->input->post('action') == 'recurring_cancel') {
-			if ($subscription['active'] == '0') {
-		 		die('Already cancelled.');
-		 	}
-		 	
-		 	$this->membrr->CancelSubscription($subscription['id'],FALSE);
+			$this->membrr->CancelSubscription($subscription['id'],FALSE);
 		}
 		elseif ($this->EE->input->post('action') == 'recurring_expire') {
-			if ($subscription['active'] == '0') {
-		 		die('Already expired.');
-		 	}
-		 	
-		 	$this->membrr->CancelSubscription($subscription['id'],FALSE,TRUE);
+			$this->membrr->CancelSubscription($subscription['id'],FALSE,TRUE);
 		}
     }
 }

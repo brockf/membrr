@@ -1021,7 +1021,7 @@ if (!class_exists('Membrr_EE')) {
 		}
 		
 		function CancelSubscription ($sub_id, $make_api_call = TRUE, $expired = FALSE) {
-			if (!$subscription = $this->GetSubscription($sub_id) or $subscription['active'] == '0') {
+			if (!$subscription = $this->GetSubscription($sub_id)) {
 				return FALSE;
 			}
 			
