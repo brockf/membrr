@@ -980,7 +980,7 @@ class Membrr {
 				$password = preg_replace('#\s#i','',$this->EE->input->post('password'));
 			
 				// does password meet requirements?
-				if (strlen($password) < $this->EE->config->item('pw_min_len')) {
+				if (strlen($password) <= $this->EE->config->item('pw_min_len')) {
 					$errors[] = 'Your password must be at least '. $pml = $this->EE->config->item('pw_min_len') .' characters in length.';
 				}
 				
