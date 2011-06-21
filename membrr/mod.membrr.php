@@ -360,6 +360,7 @@ class Membrr {
 			
 			$variables[0] = array(
 								'plan_id' => $plan['id'],
+								'api_plan_id' => $plan['api_id'],
 								'name' => $plan['name'],
 								'description' => $plan['description'],
 								'free_trial' => $plan['free_trial'],
