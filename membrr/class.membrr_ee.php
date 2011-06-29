@@ -21,7 +21,7 @@ if (!class_exists('Membrr_EE')) {
 		public $same_day_every_month = FALSE;
 		
 		// constructor, with maintenance	
-		function Membrr_EE () {	
+		function __construct () {	
 			$this->EE =& get_instance();
 			
 			// deal with channel protection expirations	
@@ -190,16 +190,20 @@ if (!class_exists('Membrr_EE')) {
 				if ($old_sub['active'] == '1') {
 					$recur->Param('renew',$renew_subscription);
 				
-					// get the end date of that subscription
-					$old_sub = $this->GetSubscription($renew_subscription);
-					$old_end_date = strtotime($old_sub['end_date']);
+					// should we delay the start of the new subscription?
 					
-					// postpone the start date of this new subscription from that end_date
-					$difference_in_days = ($old_end_date - time()) / (60*60*24);
-					
-					$recur->Param('start_date', date('Y-m-d', $old_end_date), 'recur');
-					
-					$plan['free_trial'] = $difference_in_days;
+					if (!$this->EE->input->post('renew_immediately','1')) {
+						// get the end date of that subscription
+						$old_sub = $this->GetSubscription($renew_subscription);
+						$old_end_date = strtotime($old_sub['end_date']);
+						
+						// postpone the start date of this new subscription from that end_date
+						$difference_in_days = ($old_end_date - time()) / (60*60*24);
+						
+						$recur->Param('start_date', date('Y-m-d', $old_end_date), 'recur');
+						
+						$plan['free_trial'] = $difference_in_days;
+					}
 				}
 			}
 			
