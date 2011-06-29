@@ -1162,8 +1162,14 @@ class Membrr {
 						$expire = (60*60*24); // 1 day expire
 						
 						$this->EE->functions->set_cookie($this->EE->session->c_expire , time()+$expire, $expire);
-				        $this->EE->functions->set_cookie($this->EE->session->c_uniqueid , $unique_id, $expire);       
-				        $this->EE->functions->set_cookie($this->EE->session->c_password , sha1($password),  $expire);
+						
+						// we have to check for these variables because EE2.2 removed them
+						if (isset($this->EE->session->c_uniqueid)) {
+					        $this->EE->functions->set_cookie($this->EE->session->c_uniqueid , $unique_id, $expire);       
+					    }
+					    if (isset($this->EE->session->c_password)) {
+					    	$this->EE->functions->set_cookie($this->EE->session->c_password , sha1($password),  $expire);
+					    }
 				        
 						$this->EE->session->create_new_session($member_id);
 						$this->EE->session->userdata['username']  = $username;
