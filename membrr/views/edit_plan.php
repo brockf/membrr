@@ -64,6 +64,11 @@ $this->table->add_row(
 	);
 	
 $this->table->add_row(
+		lang('membrr_renewal_option'),
+		form_checkbox(array('name' => 'renewal_extend_from_end', 'value' => '1', 'checked' => $renewal_extend_from_end))
+	);
+	
+$this->table->add_row(
 		lang('membrr_for_sale'),
 		form_dropdown('for_sale', array('1' => 'Yes - this plan is available for purchase', '0' => 'No'), $for_sale)
 	);

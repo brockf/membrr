@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.5';
+	var $version = '1.51';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -70,6 +70,11 @@ class Membrr_upd {
         if ($current < '1.42') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_channels` CHANGE `one_post` `posts` INT(11)');
         }
+        
+        if ($current < '1.51') {
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_plans` ADD COLUMN `plan_renewal_extend_from_end` TINYINT(1) AFTER `plan_redirect_url`');
+        	$this->EE->db->query('UPDATE `exp_membrr_plans` SET `plan_renewal_extend_from_end` = \'1\'');
+        }
 		
 		return TRUE;
 	}
@@ -109,6 +114,7 @@ class Membrr_upd {
 				  `plan_interval` int(11) NOT NULL,
 				  `plan_import_date` datetime NOT NULL,
 				  `plan_redirect_url` varchar(250) NOT NULL,
+				  `plan_renewal_extend_from_end` tinyint(1) NOT NULL,
 				  `plan_member_group` int(11) NOT NULL,
 				  `plan_member_group_expire` int(11) NOT NULL,
 				  `plan_active` tinyint(4) NOT NULL,

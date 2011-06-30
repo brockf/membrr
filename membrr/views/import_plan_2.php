@@ -72,6 +72,11 @@ $this->table->add_row(
 	);
 	
 $this->table->add_row(
+		lang('membrr_renewal_option'),
+		form_checkbox(array('name' => 'renewal_extend_from_end', 'value' => '1', 'checked' => $renewal_extend_from_end))
+	);
+	
+$this->table->add_row(
 		lang('membrr_plan_gateway'),
 		form_dropdown('gateway', $gateways, $selected_gateway)
 	);

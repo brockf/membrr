@@ -1554,6 +1554,7 @@ class Membrr_mcp {
 									'plan_initial_charge' => $this->EE->input->post('initial_charge'),
 									'plan_gateway' => $this->EE->input->post('gateway'),
 									'plan_redirect_url' => $this->EE->input->post('redirect_url'),
+									'plan_renewal_extend_from_end' => ($this->EE->input->post('renewal_extend_from_end')) ? '1' : '0',
 									'plan_member_group' => $this->EE->input->post('member_group'),
 									'plan_member_group_expire' => $this->EE->input->post('member_group_expire'),
 									'plan_active' => $this->EE->input->post('for_sale')
@@ -1587,6 +1588,7 @@ class Membrr_mcp {
 		$new_member_group = ($this->EE->input->post('new_member_group')) ? $this->EE->input->post('new_member_group') : $plan['member_group'];
 		$new_member_group_expire = ($this->EE->input->post('new_member_group_expire')) ? $this->EE->input->post('new_member_group_expire') : $plan['member_group_expire'];
 		$redirect_url = ($this->EE->input->post('redirect_url')) ? $this->EE->input->post('redirect_url') : $plan['redirect_url'];
+		$renewal_extend_from_end = (($this->EE->input->post('plan_name') and !$this->EE->input->post('renewal_extend_from_end')) or empty($plan['renewal_extend_from_end'])) ? FALSE : TRUE;
 		$for_sale = ($this->EE->input->post('for_sale')) ? $this->EE->input->post('for_sale') : $plan['for_sale'];
 		$selected_gateway = ($this->EE->input->post('gateway')) ? $this->EE->input->post('gateway') : $plan['gateway'];
 		
@@ -1624,6 +1626,7 @@ class Membrr_mcp {
 		$vars['new_member_group'] = $new_member_group;
 		$vars['new_member_group_expire'] = $new_member_group_expire;
 		$vars['redirect_url'] = $redirect_url;
+		$vars['renewal_extend_from_end'] = $renewal_extend_from_end;
 		$vars['for_sale'] = $for_sale;
 		$vars['gateways'] = $gateway_options;
 		$vars['selected_gateway'] = $selected_gateway;
@@ -1713,6 +1716,7 @@ class Membrr_mcp {
 									'plan_interval' => $this->EE->input->post('interval'),
 									'plan_import_date' => date('Y-m-d H:i:s'),
 									'plan_redirect_url' => $this->EE->input->post('redirect_url'),
+									'plan_renewal_extend_from_end' => ($this->EE->input->post('renewal_extend_from_end')) ? '1' : '0',
 									'plan_member_group' => $this->EE->input->post('new_member_group'),
 									'plan_member_group_expire' => $this->EE->input->post('new_member_group_expire'),
 									'plan_active' => '1',
@@ -1764,6 +1768,8 @@ class Membrr_mcp {
 		$new_member_group = ($this->EE->input->post('new_member_group')) ? $this->EE->input->post('new_member_group') : '';
 		$new_member_group_expire = ($this->EE->input->post('new_member_group_expire')) ? $this->EE->input->post('new_member_group_expire') : '';
 		$redirect_url = ($this->EE->input->post('redirect_url')) ? $this->EE->input->post('redirect_url') : $this->EE->functions->fetch_site_index();
+		// only don't check if this form has been submitted (i.e., we have a plan name) and this box was left unchecked
+		$renewal_extend_from_end = ($this->EE->input->post('plan_name') and !$this->EE->input->post('renewal_extend_from_end')) ? FALSE : TRUE;
 		$selected_gateway = ($this->EE->input->post('gateway')) ? $this->EE->input->post('gateway') : '';
 		
 		// load possible gateways
@@ -1800,6 +1806,7 @@ class Membrr_mcp {
 		$vars['new_member_group'] = $new_member_group;
 		$vars['new_member_group_expire'] = $new_member_group_expire;
 		$vars['redirect_url'] = $redirect_url;
+		$vars['renewal_extend_from_end'] = $renewal_extend_from_end;
 		$vars['gateways'] = $gateway_options;
 		$vars['selected_gateway'] = $selected_gateway;
 		

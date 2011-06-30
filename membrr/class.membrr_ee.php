@@ -177,7 +177,7 @@ if (!class_exists('Membrr_EE')) {
 				$recur->Amount($plan['price']);
 			}
 			
-			// if different recurring rate?
+			// if different recurring rate? 
 			if ($recurring_charge != FALSE) {
 				$recur->Param('amount', $recurring_charge, 'recur');
 			}
@@ -190,16 +190,29 @@ if (!class_exists('Membrr_EE')) {
 				if ($old_sub['active'] == '1') {
 					$recur->Param('renew',$renew_subscription);
 				
-					// get the end date of that subscription
-					$old_sub = $this->GetSubscription($renew_subscription);
-					$old_end_date = strtotime($old_sub['end_date']);
+					if ($plan['renewal_extend_from_end'] === TRUE) {
+						// we will delay the start of the new subscription until the end of this one
 					
-					// postpone the start date of this new subscription from that end_date
-					$difference_in_days = ($old_end_date - time()) / (60*60*24);
-					
-					$recur->Param('start_date', date('Y-m-d', $old_end_date), 'recur');
-					
-					$plan['free_trial'] = $difference_in_days;
+						$old_sub = $this->GetSubscription($renew_subscription);
+						
+						// calculate real end date
+						$old_end_date = $this->_calculate_end_date($old_sub['end_date'], $old_sub['next_charge_date'], $old_sub['date_created']);
+						
+						// convert to timestamp for calcs
+						$old_end_date = strtotime($old_end_date);
+						
+						// postpone the start date of this new subscription from that end_date
+						$difference_in_days = ($old_end_date - time()) / (60*60*24);
+						
+						$recur->Param('start_date', date('Y-m-d', $old_end_date), 'recur');
+						
+						$plan['free_trial'] = $difference_in_days;
+					}
+					else {
+						// this plan will cancel immediately
+						// let's make CancelSubscription do this
+						$this->EE->db->update('exp_membrr_subscriptions', array('next_charge_date' => '0000-00-00', 'end_date' => date('Y-m-d H:i:s')), array('recurring_id' => $old_sub['id']));
+					}
 				}
 			}
 			
@@ -978,6 +991,7 @@ if (!class_exists('Membrr_EE')) {
 								'import_date' => $row['plan_import_date'],
 								'for_sale' => $row['plan_active'],
 								'redirect_url' => $row['plan_redirect_url'],
+								'renewal_extend_from_end' => (empty($row['plan_renewal_extend_from_end'])) ? FALSE : TRUE,
 								'member_group' => $row['plan_member_group'],
 								'member_group_expire' => $row['plan_member_group_expire'],
 								'num_subscribers' => (empty($row['num_active_subscribers'])) ? '0' : $row['num_active_subscribers'],
@@ -1024,26 +1038,9 @@ if (!class_exists('Membrr_EE')) {
 			if (!$subscription = $this->GetSubscription($sub_id)) {
 				return FALSE;
 			}
-			
-			$subscription['next_charge_date'] = date('Y-m-d',strtotime($subscription['next_charge_date']));
-			$subscription['end_date'] = date('Y-m-d H:i:s',strtotime($subscription['end_date']));
-			
+						
 			// calculate end_date
-			if ($subscription['next_charge_date'] != '0000-00-00' and (strtotime($subscription['next_charge_date']) + (60*60*24)) > time()) {
-				// there's a next charge date which won't be renewed, so we'll end it then
-				// we must also account for their signup time
-				$time_created = date('H:i:s',strtotime($subscription['date_created']));
-				$end_date = $subscription['next_charge_date'] . ' ' . $time_created;
-			}
-			elseif ($subscription['end_date'] != '0000-00-00 00:00:00') {
-				// there is a set end_date
-				$end_date = $subscription['end_date'];
-			}
-			else {
-				// for some reason, neither a next_charge_date or an end_date exist
-				// let's end this now
-				$end_date = date('Y-m-d H:i:s');
-			}
+			$end_date = $this->_calculate_end_date($subscription['end_date'], $subscription['next_charge_date'], $subscription['date_created']);
 			
 			// nullify next charge
 			$next_charge_date = '0000-00-00';
@@ -1091,6 +1088,29 @@ if (!class_exists('Membrr_EE')) {
 			} 
 					
 			return TRUE;
+		}
+		
+		function _calculate_end_date ($end_date, $next_charge_date, $start_date) {
+			$next_charge_date = date('Y-m-d',strtotime($next_charge_date));
+			$end_date = date('Y-m-d H:i:s',strtotime($end_date));
+
+			if ($next_charge_date != '0000-00-00' and (strtotime($next_charge_date) + (60*60*24)) > time()) {
+				// there's a next charge date which won't be renewed, so we'll end it then
+				// we must also account for their signup time
+				$time_created = date('H:i:s',strtotime($start_date));
+				$end_date = $next_charge_date . ' ' . $time_created;
+			}
+			elseif ($end_date != '0000-00-00 00:00:00') {
+				// there is a set end_date
+				$end_date = $end_date['end_date'];
+			}
+			else {
+				// for some reason, neither a next_charge_date or an end_date exist
+				// let's end this now
+				$end_date = date('Y-m-d H:i:s');
+			}
+			
+			return $end_date;
 		}
 		
 		function GetSubscribersByPlan ($plan_id) {		      
