@@ -287,7 +287,9 @@ if (!class_exists('Membrr_EE')) {
 				// success!
 				
 				// perform renewing subscription maintenance
-				$this->RenewalMaintenance($renew_subscription, $response['recurring_id']);
+				if (!empty($renew_subscription)) {
+					$this->RenewalMaintenance($renew_subscription, $response['recurring_id']);
+				}
 				
 				// calculate payment amount
 				$recur_payment = $response['recur_amount'];
