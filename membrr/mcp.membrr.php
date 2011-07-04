@@ -338,16 +338,19 @@ class Membrr_mcp {
 					if (isset($api_plan['plan'])) {
 						$api_plan = $api_plan['plan'];
 						
-						$plan_active = ($api_plan['status'] == 'deleted') ? '0' : '1';
-						
 						$update_array = array(	
-												'plan_active' => $plan_active,
 												'plan_interval' => $api_plan['interval'],
 												'plan_free_trial' => $api_plan['free_trial'],
 												'plan_occurrences' => $api_plan['occurrences'],
 												'plan_interval' => $api_plan['interval'],
 												'plan_price' => $api_plan['amount']
 											);
+											
+						// if the plan is deleted at OG, we'll set it to "not for sale"
+						if ($api_plan['status'] == 'deleted') {
+							$update_array['plan_active'] = '0';
+						}											
+											
 						$this->EE->db->where('plan_id',$plan['id']);
 						$this->EE->db->update('exp_membrr_plans',$update_array);
 						
