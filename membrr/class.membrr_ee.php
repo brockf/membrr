@@ -258,6 +258,12 @@ if (!class_exists('Membrr_EE')) {
 				$action_id = $action_id['action_id'];
 			 	$return_url = $this->EE->functions->create_url('?ACT=' . $action_id . '&member=' . $member_id . '&plan_id=' . $plan_id, 0);
 			 	
+			 	// if we are renewing, we will append this to the $return_url so that we can cancel old subscriptions
+			 	// and update channel entries to the new recurring_id for external gateways like PayPal EC
+			 	if (!empty($renew_subscription)) {
+			 		$return_url .= '&renew_recurring_id=' . $renew_subscription;
+			 	}
+			 	
 			 	// sometimes, with query strings, we get index.php?/?ACT=26...
 			 	$return_url = str_replace('?/?','?', $return_url);
 			}
@@ -280,18 +286,8 @@ if (!class_exists('Membrr_EE')) {
 			if (isset($response['response_code']) and $response['response_code'] == '100') {
 				// success!
 				
-				// if this subscription is linked to weblog posts and we're renewing, let's update those
-				if (!empty($renew_subscription)) {
-					$result = $this->EE->db->select('*')->from('exp_membrr_channel_posts')->where('recurring_id',$old_sub['id'])->get();
-					
-					if ($result->num_rows() > 0) {
-						$this->EE->db->update('exp_membrr_channel_posts',array('recurring_id' => $response['recurring_id']), array('recurring_id' => $old_sub['id']));
-					}
-					
-					// we should also cancel the old subscription
-					// cancel the existing subscription
-					$this->CancelSubscription($renew_subscription, FALSE, FALSE);
-				}
+				// perform renewing subscription maintenance
+				$this->RenewalMaintenance($renew_subscription, $response['recurring_id']);
 				
 				// calculate payment amount
 				$recur_payment = $response['recur_amount'];
@@ -341,7 +337,7 @@ if (!class_exists('Membrr_EE')) {
 					$this->RecordPayment($response['recurring_id'], $response['charge_id'], $payment);
 				}
 				
-				$this->RecordSubscription($response['recurring_id'], $member_id, $plan_id, $next_charge_date, $end_date, $recur_payment, $renew_subscription); 
+				$this->RecordSubscription($response['recurring_id'], $member_id, $plan_id, $next_charge_date, $end_date, $recur_payment); 
 			}
 			
 			return $response;
@@ -440,11 +436,25 @@ if (!class_exists('Membrr_EE')) {
 			return $response;
 		}
 		
-		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment, $renew_subscription = FALSE) {
-			if (!empty($renew_subscription)) {
-				$this->EE->db->update('exp_membrr_subscriptions', array('renewed_recurring_id' => $recurring_id), array('recurring_id' => $renew_subscription));
-			}
+		function RenewalMaintenance ($old_subscription, $new_subscription) {
+			// we should also cancel the old subscription
+			// cancel the existing subscription
+			$this->CancelSubscription($old_subscription, FALSE, FALSE);
+			
+			// mark as renewed
+			$this->EE->db->update('exp_membrr_subscriptions', array('renewed_recurring_id' => $new_subscription), array('recurring_id' => $old_subscription));
 		
+			// if this subscription is linked to weblog posts and we're renewing, let's update those
+			$result = $this->EE->db->select('*')->from('exp_membrr_channel_posts')->where('recurring_id',$old_subscription)->get();
+			
+			if ($result->num_rows() > 0) {
+				$this->EE->db->update('exp_membrr_channel_posts',array('recurring_id' => $new_subscription), array('recurring_id' => $old_subscription));
+			}
+			
+			return TRUE;
+		}
+		
+		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment) {
 			// create subscription record
 			$insert_array = array(
 								'recurring_id' => $recurring_id,
