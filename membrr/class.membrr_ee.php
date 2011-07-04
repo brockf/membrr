@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
 =====================================================
  Membrr for EE
 -----------------------------------------------------
@@ -18,9 +18,18 @@
 if (!class_exists('Membrr_EE')) {
 	class Membrr_EE {
 		var $cache;
+		
+		// this variable, when set to TRUE, will make all PayPal EC subscriptions
+		// renew on the same day each month.  It won't work with other gateways.
 		public $same_day_every_month = FALSE;
 		
-		// constructor, with maintenance	
+		/**
+		* Constructor
+		*
+		* Deal with expirations, load EE superobject
+		*
+		* @return void
+		*/
 		function __construct () {	
 			$this->EE =& get_instance();
 			
@@ -345,6 +354,16 @@ if (!class_exists('Membrr_EE')) {
 			return $response;
 		}
 		
+		/**
+		* Update Expiry Date
+		*
+		* Modify the expiration (end) date of a subscription
+		*
+		* @param int $subscription_id
+		* @param date $new_expiry
+		*
+		* @return boolean
+		*/
 		function UpdateExpiryDate ($subscription_id, $new_expiry) {
 			if (strtotime($new_expiry) < time()) {
 				return FALSE;
@@ -385,6 +404,15 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 		
+		/**
+		* Update Credit Card
+		*
+		* @param int $subscription_id
+		* @param array $credit_card with keys 'number', 'name', 'expiry_year', 'expiry_month', 'security_code'
+		* @param int $plan_id (optional, only if changing plans)
+		*
+		* @return boolean
+		*/
 		function UpdateCC ($subscription_id, $credit_card, $plan_id = FALSE) {
 			$config = $this->GetConfig();
 			
@@ -438,6 +466,16 @@ if (!class_exists('Membrr_EE')) {
 			return $response;
 		}
 		
+		/**
+		* Renewal Maintenance
+		*
+		* Link renewals to original subscriptions
+		*
+		* @param int $old_subscription
+		* @param int $new_subscription
+		*
+		* @return boolean
+		*/
 		function RenewalMaintenance ($old_subscription, $new_subscription) {
 			// we should also cancel the old subscription
 			// cancel the existing subscription
@@ -456,6 +494,18 @@ if (!class_exists('Membrr_EE')) {
 			return TRUE;
 		}
 		
+		/**
+		* Record Subscription
+		*
+		* @param int $recurring_id
+		* @param int $member_id
+		* @param int $plan_id
+		* @param date $next_charge_date
+		* @param date $end_date
+		* @param float $payment
+		*
+		* @return boolean
+		*/
 		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment) {
 			// create subscription record
 			$insert_array = array(
@@ -496,6 +546,15 @@ if (!class_exists('Membrr_EE')) {
 			return TRUE;
 		}
 		
+		/**
+		* Record Payment
+		*
+		* @param int $subscription_id
+		* @param int $charge_id
+		* @param float $amount
+		*
+		* @return boolean
+		*/
 		function RecordPayment ($subscription_id, $charge_id, $amount) {
 			$insert_array = array(
 								'charge_id' => $charge_id,
@@ -517,6 +576,13 @@ if (!class_exists('Membrr_EE')) {
 			return TRUE;
 		}
 		
+		/**
+		* Refund Payment
+		*
+		* @param int $charge_id
+		*
+		* @return array
+		*/
 		function Refund ($charge_id) {
 			$config = $this->GetConfig();
 			$connect_url = $config['api_url'] . '/api';
@@ -540,11 +606,13 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 		
-		/*
+		/**
 		* Set Next Charge
 		*
 		* @param int $subscription_id The subscription ID #
 		* @param string $next_charge_date YYYY-MM-DD format of the next charge date
+		*
+		* @return boolean
 		*/
 		function SetNextCharge ($subscription_id, $next_charge_date) {
 			$this->EE->db->update('exp_membrr_subscriptions',array('next_charge_date' => $next_charge_date),array('recurring_id' => $subscription_id));
@@ -552,6 +620,13 @@ if (!class_exists('Membrr_EE')) {
 			return TRUE;
 		}
 		
+		/**
+		* Get Channels
+		*
+		* Load array with protected channels
+		*
+		* @return array
+		*/
 		function GetChannels () {		
 			$this->EE->db->select('exp_membrr_channels.*');
 			$this->EE->db->select('exp_channels.channel_name');
@@ -583,6 +658,16 @@ if (!class_exists('Membrr_EE')) {
 			return $channels;
 		}
 		
+		/**
+		* Get Channel
+		*
+		* Load information about a specific protected channel
+		*
+		* @param int $id
+		* @param string $field (the field to match the ID to)
+		*
+		* @return array
+		*/
 		function GetChannel ($id, $field = 'exp_membrr_channels.protect_channel_id') {		
 			$this->EE->db->select('exp_membrr_channels.*');
 			$this->EE->db->select('exp_channels.channel_name');
@@ -612,12 +697,34 @@ if (!class_exists('Membrr_EE')) {
 			return $channel;
 		}
 		
+		/**
+		* Delete Channel
+		*
+		* Unprotect a channel
+		*
+		* @param int $id
+		*
+		* @return boolean
+		*/
 		function DeleteChannel ($id) {	
 			$this->EE->db->delete('exp_membrr_channels',array('protect_channel_id' => $id));	
 			
 			return TRUE;
 		}
 		
+		/**
+		* Get Subscription for Channel
+		*
+		* Retrieve a subscription_id for a protected channel, if available
+		*
+		* @param int $channel_id
+		* @param int $user
+		* @param array $plans
+		* @param int $posts How many posts can be linked to one sub?
+		* @param int $sub_id Only try and match a specific sub
+		*
+		* @return int $recurring_id
+		*/
 		function GetSubscriptionForChannel ($channel_id, $user, $plans, $posts, $sub_id = FALSE) {
 			$plans_query = '\'';
 			foreach ($plans as $plan) {
@@ -698,6 +805,26 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 		
+		/**
+		* Update Address
+		*
+		* Update the address_book table and send an updated address to OG to update the customer's record
+		*
+		* @param int $member_id
+		* @param string $first_name
+		* @param string $last_name
+		* @param string $street_address
+		* @param string $address_2
+		* @param string $city
+		* @param string $region
+		* @param string $region_other
+		* @param string $country
+		* @param string $postal_code
+		* @param string $company (optional)
+		* @param string $phone (optional)
+		*
+		* @return boolean
+		*/
 		function UpdateAddress ($member_id, $first_name, $last_name, $street_address, $address_2, $city, $region, $region_other, $country, $postal_code, $company = '', $phone = '') {
 			$this->EE->db->select('address_id');
 			$this->EE->db->where('member_id',$member_id);
@@ -783,6 +910,15 @@ if (!class_exists('Membrr_EE')) {
 			return TRUE;
 		}
 		
+		/**
+		* Get Address
+		*
+		* Retrieve the address from the local address book
+		*
+		* @param int $member_id
+		*
+		* @return array
+		*/
 		function GetAddress ($member_id) {
 			$this->EE->db->where('member_id',$member_id);
 			$result = $this->EE->db->get('exp_membrr_address_book');
@@ -807,6 +943,19 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 		
+		/**
+		* Get Payments
+		*
+		* Retrieve payment records matching filters
+		*
+		* @param int $offset
+		* @param int $limit
+		* @param int $filters['subscription_id']
+		* @param int $filters['member_id']
+		* @param int $filters['id']
+		*
+		* @return array
+		*/
 		function GetPayments ($offset = 0, $limit = 50, $filters = false) {
 			if ($filters != false and !empty($filters) and is_array($filters)) {
 				if (isset($filters['subscription_id'])) {
@@ -865,13 +1014,18 @@ if (!class_exists('Membrr_EE')) {
 		/**
 		* Get Subscriptions
 		*
+		* Retrieve array of subscriptions matching filters
+		*
 		* @param int $offset The offset for which to load subscriptions
 		* @param array $filters Filter the results
 		* @param int $filters['member_id'] The EE member ID
 		* @param int $filters['id'] The subscription ID
 		* @param int $filters['active'] Set to "1" to retrieve only active subscriptions and "0" only ended subs
+		* @param int $filters['plan_id'] The plan ID
+		* @param string $filters['search'] searches usernames, screen names, emails, prices, and plan names
+		*
+		* @return array
 		*/
-		
 		function GetSubscriptions ($offset = FALSE, $limit = 50, $filters = array()) {		
 			if ($filters != false and !empty($filters) and is_array($filters)) {
 				if (isset($filters['member_id'])) {
@@ -947,6 +1101,13 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 		
+		/**
+		* Get Subscription
+		*
+		* @param int $subscription_id
+		*
+		* @return array
+		*/
 		function GetSubscription ($subscription_id) {		
 			$subscriptions = $this->GetSubscriptions(FALSE, 1, array('id' => $subscription_id));
 	
@@ -957,6 +1118,17 @@ if (!class_exists('Membrr_EE')) {
 			return FALSE;
 		}	
 	
+		/**
+		* Get Plans
+		*
+		* Retrieve an array of plans
+		*
+		* @param int $filters['id']
+		* @param array $filters['ids']
+		* @param int $filters['active']
+		*
+		* @return array
+		*/
 		function GetPlans ($filters = array()) {
 			if ($filters != false and !empty($filters) and is_array($filters)) {
 				if (isset($filters['id'])) {
@@ -1019,6 +1191,13 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 		
+		/**
+		* Get Plan
+		*
+		* @param int $id
+		*
+		* @return array
+		*/
 		function GetPlan ($id) {
 			$plans = $this->GetPlans(array('id' => $id));
 			
@@ -1029,6 +1208,15 @@ if (!class_exists('Membrr_EE')) {
 			return FALSE;
 		}
 		
+		/**
+		* Delete Plan
+		*
+		* Delete a plan, and cancel all of its subscriptions
+		*
+		* @param int $plan_id
+		*
+		* @return boolean
+		*/
 		function DeletePlan ($plan_id) {
 			$this->EE->db->update('exp_membrr_plans',array('plan_deleted' => '1','plan_active' => '0'),array('plan_id' => $plan_id));
 			
@@ -1038,7 +1226,7 @@ if (!class_exists('Membrr_EE')) {
 			if ($subscribers) {
 				foreach ($subscribers as $subscriber) {
 					if (!$this->CancelSubscription($subscriber['recurring_id'])) {
-						return false;
+						return FALSE;
 					}
 				}
 			}
@@ -1046,6 +1234,15 @@ if (!class_exists('Membrr_EE')) {
 			return true;
 		}
 		
+		/**
+		* Cancel Subscription
+		*
+		* @param int $sub_id
+		* @param boolean $make_api_call (default: FALSE) Shall we tell OG?
+		* @param boolean $expired (default: FALSE) Is this expiring?
+		*
+		* @return boolean
+		*/
 		function CancelSubscription ($sub_id, $make_api_call = TRUE, $expired = FALSE) {
 			if (!$subscription = $this->GetSubscription($sub_id)) {
 				return FALSE;
@@ -1102,6 +1299,17 @@ if (!class_exists('Membrr_EE')) {
 			return TRUE;
 		}
 		
+		/**
+		* Calculate End Date
+		*
+		* Calculate the end date for a subscription based on its current state
+		*
+		* @param datetime $end_date
+		* @param date $next_charge_date
+		* @param datetime $start_date
+		*
+		* @return datetime $end_date
+		*/
 		function _calculate_end_date ($end_date, $next_charge_date, $start_date) {
 			$next_charge_date = date('Y-m-d',strtotime($next_charge_date));
 			$end_date = date('Y-m-d H:i:s',strtotime($end_date));
@@ -1125,6 +1333,15 @@ if (!class_exists('Membrr_EE')) {
 			return $end_date;
 		}
 		
+		/**
+		* Get Subscribers by Plan
+		* 
+		* Retrive subscriptions based on the plan_id filter
+		*
+		* @param int $plan_id
+		*
+		* @return array
+		*/
 		function GetSubscribersByPlan ($plan_id) {		      
 			$this->EE->db->where('plan_id',$plan_id);
 			$result = $this->EE->db->get('exp_membrr_subscriptions');
@@ -1143,12 +1360,28 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 		
+		/**
+		* End Now
+		*
+		* Mark a subscription as ending right now, so that the expiry processing will occur in the constructor
+		*
+		* @param int $recurring_id
+		*
+		* @return boolean
+		*/
 		function EndNow ($recurring_id) {
 			$this->EE->db->update('exp_membrr_subscriptions', array('end_date' => date('Y-m-d H:i:s')), array('recurring_id' => $recurring_id));
 			
 			return TRUE;
 		}
 		
+		/**
+		* Get Config
+		*
+		* Retrieve the names/values in the config table
+		*
+		* @return array
+		*/
 		function GetConfig () {
 			$result = $this->EE->db->get('exp_membrr_config');
 			
@@ -1160,27 +1393,13 @@ if (!class_exists('Membrr_EE')) {
 			}
 		}
 		
-		function CountRows ($table) {
-			$this->EE->db->get($table);
-			
-			return $result->num_rows();
-		}
-		
-		function get_channel_id ($numeric_id) {
-	    	if (isset($this->cache[$numeric_id])) {
-	    		return $this->cache[$numeric_id];
-	    	}
-	    	
-	    	$this->EE->db->get('blog_name');
-	    	$this->EE->db->where('channel_id',$numeric_id);
-			$result = $this->EE->db->get('exp_channels');
-	    	$row = $result->row_array();
-	    	
-	    	$this->cache[$numeric_id] = $row['blog_name'];
-	    	
-	    	return $row['blog_name'];
-	    }
-		
+		/**
+		* Get Regions
+		*
+		* Return an array of all regions and their shortcodes
+		*
+		* @return array
+		*/
 		function GetRegions () {
 			return array(
 					'AL' => 'Alabama',
@@ -1250,6 +1469,13 @@ if (!class_exists('Membrr_EE')) {
 				);
 		}
 		
+		/**
+		* Get Countries
+		*
+		* Return an array of all countries and their shortcodes
+		*
+		* @return array
+		*/
 		function GetCountries () {
 	    	return array(
 	    				'US' => 'United States',
@@ -1503,93 +1729,96 @@ if (!class_exists('Membrr_EE')) {
 		}
 	
 	}
+}
+
+/**
+* Define money_format
+*/
+if (!function_exists("money_format")) {
+	function money_format($format, $number)
+	{
+	    $regex  = '/%((?:[\^!\-]|\+|\(|\=.)*)([0-9]+)?'.
+	              '(?:#([0-9]+))?(?:\.([0-9]+))?([in%])/';
+	    if (setlocale(LC_MONETARY, 0) == 'C') {
+	        setlocale(LC_MONETARY, '');
+	    }
+	    $locale = localeconv();
+	    preg_match_all($regex, $format, $matches, PREG_SET_ORDER);
+	    foreach ($matches as $fmatch) {
+	        $value = floatval($number);
+	        $flags = array(
+	            'fillchar'  => preg_match('/\=(.)/', $fmatch[1], $match) ?
+	                           $match[1] : ' ',
+	            'nogroup'   => preg_match('/\^/', $fmatch[1]) > 0,
+	            'usesignal' => preg_match('/\+|\(/', $fmatch[1], $match) ?
+	                           $match[0] : '+',
+	            'nosimbol'  => preg_match('/\!/', $fmatch[1]) > 0,
+	            'isleft'    => preg_match('/\-/', $fmatch[1]) > 0
+	        );
+	        $width      = trim($fmatch[2]) ? (int)$fmatch[2] : 0;
+	        $left       = trim($fmatch[3]) ? (int)$fmatch[3] : 0;
+	        $right      = trim($fmatch[4]) ? (int)$fmatch[4] : $locale['int_frac_digits'];
+	        $conversion = $fmatch[5];
 	
-	if (!function_exists("money_format")) {
-		function money_format($format, $number)
-		{
-		    $regex  = '/%((?:[\^!\-]|\+|\(|\=.)*)([0-9]+)?'.
-		              '(?:#([0-9]+))?(?:\.([0-9]+))?([in%])/';
-		    if (setlocale(LC_MONETARY, 0) == 'C') {
-		        setlocale(LC_MONETARY, '');
-		    }
-		    $locale = localeconv();
-		    preg_match_all($regex, $format, $matches, PREG_SET_ORDER);
-		    foreach ($matches as $fmatch) {
-		        $value = floatval($number);
-		        $flags = array(
-		            'fillchar'  => preg_match('/\=(.)/', $fmatch[1], $match) ?
-		                           $match[1] : ' ',
-		            'nogroup'   => preg_match('/\^/', $fmatch[1]) > 0,
-		            'usesignal' => preg_match('/\+|\(/', $fmatch[1], $match) ?
-		                           $match[0] : '+',
-		            'nosimbol'  => preg_match('/\!/', $fmatch[1]) > 0,
-		            'isleft'    => preg_match('/\-/', $fmatch[1]) > 0
-		        );
-		        $width      = trim($fmatch[2]) ? (int)$fmatch[2] : 0;
-		        $left       = trim($fmatch[3]) ? (int)$fmatch[3] : 0;
-		        $right      = trim($fmatch[4]) ? (int)$fmatch[4] : $locale['int_frac_digits'];
-		        $conversion = $fmatch[5];
-		
-		        $positive = true;
-		        if ($value < 0) {
-		            $positive = false;
-		            $value  *= -1;
-		        }
-		        $letter = $positive ? 'p' : 'n';
-		
-		        $prefix = $suffix = $cprefix = $csuffix = $signal = '';
-		
-		        $signal = $positive ? $locale['positive_sign'] : $locale['negative_sign'];
-		        switch (true) {
-		            case $locale["{$letter}_sign_posn"] == 1 && $flags['usesignal'] == '+':
-		                $prefix = $signal;
-		                break;
-		            case $locale["{$letter}_sign_posn"] == 2 && $flags['usesignal'] == '+':
-		                $suffix = $signal;
-		                break;
-		            case $locale["{$letter}_sign_posn"] == 3 && $flags['usesignal'] == '+':
-		                $cprefix = $signal;
-		                break;
-		            case $locale["{$letter}_sign_posn"] == 4 && $flags['usesignal'] == '+':
-		                $csuffix = $signal;
-		                break;
-		            case $flags['usesignal'] == '(':
-		            case $locale["{$letter}_sign_posn"] == 0:
-		                $prefix = '(';
-		                $suffix = ')';
-		                break;
-		        }
-		        if (!$flags['nosimbol']) {
-		            $currency = $cprefix .
-		                        ($conversion == 'i' ? $locale['int_curr_symbol'] : $locale['currency_symbol']) .
-		                        $csuffix;
-		        } else {
-		            $currency = '';
-		        }
-		        $space  = $locale["{$letter}_sep_by_space"] ? ' ' : '';
-		
-		        $value = number_format($value, $right, $locale['mon_decimal_point'],
-		                 $flags['nogroup'] ? '' : $locale['mon_thousands_sep']);
-		        $value = @explode($locale['mon_decimal_point'], $value);
-		
-		        $n = strlen($prefix) + strlen($currency) + strlen($value[0]);
-		        if ($left > 0 && $left > $n) {
-		            $value[0] = str_repeat($flags['fillchar'], $left - $n) . $value[0];
-		        }
-		        $value = implode($locale['mon_decimal_point'], $value);
-		        if ($locale["{$letter}_cs_precedes"]) {
-		            $value = $prefix . $currency . $space . $value . $suffix;
-		        } else {
-		            $value = $prefix . $value . $space . $currency . $suffix;
-		        }
-		        if ($width > 0) {
-		            $value = str_pad($value, $width, $flags['fillchar'], $flags['isleft'] ?
-		                     STR_PAD_RIGHT : STR_PAD_LEFT);
-		        }
-		
-		        $format = str_replace($fmatch[0], $value, $format);
-		    }
-		    return $format;
-		} 
-	}
+	        $positive = true;
+	        if ($value < 0) {
+	            $positive = false;
+	            $value  *= -1;
+	        }
+	        $letter = $positive ? 'p' : 'n';
+	
+	        $prefix = $suffix = $cprefix = $csuffix = $signal = '';
+	
+	        $signal = $positive ? $locale['positive_sign'] : $locale['negative_sign'];
+	        switch (true) {
+	            case $locale["{$letter}_sign_posn"] == 1 && $flags['usesignal'] == '+':
+	                $prefix = $signal;
+	                break;
+	            case $locale["{$letter}_sign_posn"] == 2 && $flags['usesignal'] == '+':
+	                $suffix = $signal;
+	                break;
+	            case $locale["{$letter}_sign_posn"] == 3 && $flags['usesignal'] == '+':
+	                $cprefix = $signal;
+	                break;
+	            case $locale["{$letter}_sign_posn"] == 4 && $flags['usesignal'] == '+':
+	                $csuffix = $signal;
+	                break;
+	            case $flags['usesignal'] == '(':
+	            case $locale["{$letter}_sign_posn"] == 0:
+	                $prefix = '(';
+	                $suffix = ')';
+	                break;
+	        }
+	        if (!$flags['nosimbol']) {
+	            $currency = $cprefix .
+	                        ($conversion == 'i' ? $locale['int_curr_symbol'] : $locale['currency_symbol']) .
+	                        $csuffix;
+	        } else {
+	            $currency = '';
+	        }
+	        $space  = $locale["{$letter}_sep_by_space"] ? ' ' : '';
+	
+	        $value = number_format($value, $right, $locale['mon_decimal_point'],
+	                 $flags['nogroup'] ? '' : $locale['mon_thousands_sep']);
+	        $value = @explode($locale['mon_decimal_point'], $value);
+	
+	        $n = strlen($prefix) + strlen($currency) + strlen($value[0]);
+	        if ($left > 0 && $left > $n) {
+	            $value[0] = str_repeat($flags['fillchar'], $left - $n) . $value[0];
+	        }
+	        $value = implode($locale['mon_decimal_point'], $value);
+	        if ($locale["{$letter}_cs_precedes"]) {
+	            $value = $prefix . $currency . $space . $value . $suffix;
+	        } else {
+	            $value = $prefix . $value . $space . $currency . $suffix;
+	        }
+	        if ($width > 0) {
+	            $value = str_pad($value, $width, $flags['fillchar'], $flags['isleft'] ?
+	                     STR_PAD_RIGHT : STR_PAD_LEFT);
+	        }
+	
+	        $format = str_replace($fmatch[0], $value, $format);
+	    }
+	    return $format;
+	} 
 }
