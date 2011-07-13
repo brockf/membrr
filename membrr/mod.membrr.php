@@ -1132,6 +1132,29 @@ class Membrr {
 				
 				$coupon = ($this->EE->input->post('coupon')) ? $this->EE->input->post('coupon') : FALSE;
 							
+				// we log the user in before passing them off, so that PayPal Standard stays logged in
+				if ($member_created == TRUE) {
+					// let's log the user in						
+					$this->EE->session->userdata['ip_address'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+					$this->EE->session->userdata['user_agent'] = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
+					
+					$expire = (60*60*24); // 1 day expire
+					
+					$this->EE->functions->set_cookie($this->EE->session->c_expire , time()+$expire, $expire);
+					
+					// we have to check for these variables because EE2.2 removed them
+					if (isset($this->EE->session->c_uniqueid)) {
+				        $this->EE->functions->set_cookie($this->EE->session->c_uniqueid , $unique_id, $expire);       
+				    }
+				    if (isset($this->EE->session->c_password)) {
+				    	$this->EE->functions->set_cookie($this->EE->session->c_password , sha1($password),  $expire);
+				    }
+			        
+					$this->EE->session->create_new_session($member_id);
+					$this->EE->session->userdata['username']  = $username;
+				}
+					
+				// subscribe!			
 				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, FALSE, FALSE, FALSE, '', '', $gateway_id, $renew_subscription, $coupon);
 							
 				if (isset($response['error'])) {
@@ -1148,32 +1171,13 @@ class Membrr {
 					// delete the member we just created if we created one
 					if ($member_created == TRUE) {
 						$this->EE->db->delete('exp_members', array('member_id' => $member_id));
+						
+						// log them out
+						$this->EE->session->destroy();
 					}
 				}
 				else {
 					// success!
-					error_reporting(E_ALL);
-					ini_set('display_errors','On');
-					if ($member_created == TRUE) {
-						// let's log the user in						
-						$this->EE->session->userdata['ip_address'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
-						$this->EE->session->userdata['user_agent'] = (isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : '';
-						
-						$expire = (60*60*24); // 1 day expire
-						
-						$this->EE->functions->set_cookie($this->EE->session->c_expire , time()+$expire, $expire);
-						
-						// we have to check for these variables because EE2.2 removed them
-						if (isset($this->EE->session->c_uniqueid)) {
-					        $this->EE->functions->set_cookie($this->EE->session->c_uniqueid , $unique_id, $expire);       
-					    }
-					    if (isset($this->EE->session->c_password)) {
-					    	$this->EE->functions->set_cookie($this->EE->session->c_password , sha1($password),  $expire);
-					    }
-				        
-						$this->EE->session->create_new_session($member_id);
-						$this->EE->session->userdata['username']  = $username;
-					}
 					
 					// redirect to URL
 					if (!empty($plan['redirect_url'])) {
