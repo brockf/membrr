@@ -1066,6 +1066,10 @@ class Membrr {
 			
 			$plan = (is_numeric($this->EE->input->post('plan_id'))) ? $this->membrr->GetPlan($this->EE->input->post('plan_id')) : FALSE;
 			
+			if (empty($plan)) {
+				$errors[] = 'Invalid plan ID selected.';
+			}
+			
 			if ($this->EE->form_validation->run() != FALSE and isset($member_id) and !empty($member_id) and !empty($plan) and empty($errors)) {								
 				$plan_id = $plan['id'];
 				
