@@ -1186,6 +1186,8 @@ class Membrr_mcp {
 			$this->EE->form_validation->set_rules('first_charge_rate','lang:membrr_custom_first_charge_rate','');
 												
 			// if not free, we require CC info and billing address
+			/*
+			* no need to require this for everyone
 			if ($this->EE->input->post('free') != '1') {
 				$this->EE->form_validation->set_rules('first_name','lang:membrr_order_form_customer_first_name','trim|required');
 				$this->EE->form_validation->set_rules('last_name','lang:membrr_order_form_customer_last_name','trim|required');
@@ -1194,6 +1196,7 @@ class Membrr_mcp {
 				$this->EE->form_validation->set_rules('country','lang:membrr_order_form_customer_country','trim|required');
 				$this->EE->form_validation->set_rules('postal_code','lang:membrr_order_form_customer_postal_code','trim|required');
 			}
+			*/
 			
 			// if not lasting forever, we require an end date
 			if ($this->EE->input->post('never_ends') != '1') {
