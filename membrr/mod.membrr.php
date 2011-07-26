@@ -34,7 +34,6 @@
 * @version 1.41
 * @author Electric Function, Inc.
 * @package OpenGateway
-
 */
 
 class Membrr {
@@ -94,7 +93,7 @@ class Membrr {
     	
     	$channel = $this->membrr->GetChannel($channel, $field);
     	
-    	if ($this->membrr->GetSubscriptionForChannel($channel['id'], $this->EE->session->userdata('member_id'),$channel['plans'],$channel['one_post'])) {
+    	if ($this->membrr->GetSubscriptionForChannel($channel['id'], $this->EE->session->userdata('member_id'),$channel['plans'],$channel['posts'])) {
     		$return = $this->EE->TMPL->tagdata;
     	}
     	else {
@@ -129,7 +128,7 @@ class Membrr {
     	
     	$channel = $this->membrr->GetChannel($channel, $field);
     	
-    	if (!$this->membrr->GetSubscriptionForChannel($channel['id'], $this->EE->session->userdata['member_id'],$channel['plans'],$channel['one_post'])) {
+    	if (!$this->membrr->GetSubscriptionForChannel($channel['id'], $this->EE->session->userdata['member_id'],$channel['plans'],$channel['posts'])) {
     		$return = $this->EE->TMPL->tagdata;
     	}
     	else {
@@ -945,7 +944,7 @@ class Membrr {
 			
 			// validate email if it is there, or if we're creating an account
 			if ($this->EE->input->post('email') or $this->EE->input->post('password')) {
-				$this->EE->form_validation->set_rules('email','lang:membrr_order_form_customer_email','trim|valid_email');
+				$this->EE->form_validation->set_rules('email','lang:membrr_order_form_customer_email','trim|required|valid_email');
 			}
 			// and credit card if they are there
 			if ($this->EE->input->post('cc_number')) {
