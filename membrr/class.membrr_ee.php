@@ -1085,7 +1085,7 @@ if (!class_exists('Membrr_EE')) {
 								'date_cancelled' => (!strstr($row['date_cancelled'],'0000-00-00')) ? date('M j, Y h:i a',strtotime($row['date_cancelled'])) : FALSE,
 								'next_charge_date' => ($row['next_charge_date'] != '0000-00-00') ? date('M j, Y',strtotime($row['next_charge_date'])) : FALSE,
 								'end_date' => ($row['end_date'] == '0000-00-00 00:00:00') ? FALSE : date('M j, Y h:i a',strtotime($row['end_date'])),
-								'active' => ($row['active'] == '1' and strtotime($row['next_charge_date']) > time()) ? '1' : '0',
+								'active' => ($row['active'] == '1') ? '1' : '0',
 								'cancelled' => $row['cancelled'],
 								'expired' => $row['expired'],
 								'renewed' => (empty($row['renewed_recurring_id'])) ? FALSE : TRUE,
