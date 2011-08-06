@@ -1176,7 +1176,9 @@ class Membrr {
 						$this->EE->db->delete('exp_members', array('member_id' => $member_id));
 						
 						// log them out
-						$this->EE->session->destroy();
+						if (isset($this->EE->session) and method_exists($this->EE->session, 'destroy')) {
+							$this->EE->session->destroy();
+						}
 					}
 				}
 				else {
