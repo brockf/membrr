@@ -1188,6 +1188,15 @@ class Membrr {
 						die();
 					}
 				}
+			}
+			else {
+				// delete the member we just created if we created one
+				if ($member_created == TRUE) {
+					$this->EE->db->delete('exp_members', array('member_id' => $member_id));
+					
+					// log them out
+					$this->EE->session->destroy();
+				}
 			}	
 		}
 		
