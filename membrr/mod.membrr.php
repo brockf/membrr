@@ -1191,11 +1191,13 @@ class Membrr {
 			}
 			else {
 				// delete the member we just created if we created one
-				if ($member_created == TRUE) {
+				if (isset($member_created) and $member_created == TRUE) {
 					$this->EE->db->delete('exp_members', array('member_id' => $member_id));
 					
 					// log them out
-					$this->EE->session->destroy();
+					if (isset($this->EE->session) and method_exists($this->EE->session, 'destroy')) {
+						$this->EE->session->destroy();
+					}
 				}
 			}	
 		}
