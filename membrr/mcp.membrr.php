@@ -521,7 +521,7 @@ class Membrr_mcp {
 		// check for a form submission
 		if ($this->EE->input->post('expiration_status')) {
 			$this->EE->form_validation->set_rules('plans[]','lang:membrr_required_subscription','trim|required');
-			$this->EE->form_validation->set_rules('order_form','lang:membrr_no_subscription_redirect','trim|prep_url|empty');
+			$this->EE->form_validation->set_rules('order_form','lang:membrr_no_subscription_redirect','trim|empty');
 											
 			if ($this->EE->form_validation->run() != FALSE) {
 				$plans = implode('|',$this->EE->input->post('plans'));
@@ -598,7 +598,7 @@ class Membrr_mcp {
 		// check for a form submission
 		if ($this->EE->input->post('expiration_status')) {			
 			$this->EE->form_validation->set_rules('plans[]','lang:membrr_required_subscription','trim|required');
-			$this->EE->form_validation->set_rules('order_form','lang:membrr_no_subscription_redirect','trim|prep_url|empty');
+			$this->EE->form_validation->set_rules('order_form','lang:membrr_no_subscription_redirect','trim|empty');
 												
 			if ($this->EE->form_validation->run() != FALSE) {
 				$plans = implode('|',$this->EE->input->post('plans'));
@@ -1551,7 +1551,7 @@ class Membrr_mcp {
 			$this->EE->form_validation->set_rules('plan_name','lang:membrr_display_name','trim|required');
 			$this->EE->form_validation->set_rules('initial_charge','lang:membrr_initial_charge','trim|required');
 			$this->EE->form_validation->set_rules('plan_description','lang:membrr_description','trim|required');
-			$this->EE->form_validation->set_rules('redirect_url','lang:membrr_redirect_url','trim|prep_url|empty');
+			$this->EE->form_validation->set_rules('redirect_url','lang:membrr_redirect_url','trim|empty');
 												
 			if ($this->EE->form_validation->run() != FALSE) {
 				$update_vars = array(
@@ -1701,7 +1701,7 @@ class Membrr_mcp {
 		if ($this->EE->input->post('api_plan_id')) {
 			$this->EE->form_validation->set_rules('plan_name','lang:membrr_display_name','trim|required');
 			$this->EE->form_validation->set_rules('plan_description','lang:membrr_description','trim|required');
-			$this->EE->form_validation->set_rules('redirect_url','lang:membrr_redirect_url','trim|prep_url|empty');
+			$this->EE->form_validation->set_rules('redirect_url','lang:membrr_redirect_url','trim|empty');
 												
 			if ($this->EE->form_validation->run() != FALSE) {
 				// set notification_url on Membrr account to this URL	
