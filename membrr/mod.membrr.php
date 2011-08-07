@@ -677,7 +677,7 @@ class Membrr {
 		// handle potential form submission
 		if ($this->EE->input->post('membrr_update_form')) {
 			// validate email if it is there, or if we're creating an account
-			if ($this->EE->input->post('email') or $this->EE->input->post('password')) {
+			if ($this->EE->input->post('email')) {
 				$this->EE->form_validation->set_rules('email','lang:membrr_order_form_customer_email','trim|valid_email');
 			}
 			// and credit card...
@@ -706,7 +706,8 @@ class Membrr {
 												 $this->EE->input->post('country'),
 												 $this->EE->input->post('postal_code'),
 												 $this->EE->input->post('company'),
-												 $this->EE->input->post('phone')
+												 $this->EE->input->post('phone'),
+												 $this->EE->input->post('email')
 												);
 				}
 								

@@ -822,10 +822,11 @@ if (!class_exists('Membrr_EE')) {
 		* @param string $postal_code
 		* @param string $company (optional)
 		* @param string $phone (optional)
+		* @param string $email (optional)
 		*
 		* @return boolean
 		*/
-		function UpdateAddress ($member_id, $first_name, $last_name, $street_address, $address_2, $city, $region, $region_other, $country, $postal_code, $company = '', $phone = '') {
+		function UpdateAddress ($member_id, $first_name, $last_name, $street_address, $address_2, $city, $region, $region_other, $country, $postal_code, $company = '', $phone = '', $email = '') {
 			$this->EE->db->select('address_id');
 			$this->EE->db->where('member_id',$member_id);
 			$result = $this->EE->db->get('exp_membrr_address_book');
@@ -848,6 +849,11 @@ if (!class_exists('Membrr_EE')) {
 									'company' => $company,
 									'phone' => $phone
 								);
+								
+				if (!empty($email)) {
+					$update_array['email'] = $email;
+				}								
+								
 				$this->EE->db->update('exp_membrr_address_book',$update_array, array('address_id' => $address['address_id']));
 				
 				// update OpenGateway customer record

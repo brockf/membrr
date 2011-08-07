@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.56';
+	var $version = '1.57';
 	var $EE;
 	
 	function Membrr_upd () {
