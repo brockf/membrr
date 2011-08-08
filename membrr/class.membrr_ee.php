@@ -848,11 +848,7 @@ if (!class_exists('Membrr_EE')) {
 									'postal_code' => $postal_code,
 									'company' => $company,
 									'phone' => $phone
-								);
-								
-				if (!empty($email)) {
-					$update_array['email'] = $email;
-				}								
+								);								
 								
 				$this->EE->db->update('exp_membrr_address_book',$update_array, array('address_id' => $address['address_id']));
 				
@@ -888,6 +884,11 @@ if (!class_exists('Membrr_EE')) {
 					$server->Param('postal_code', $postal_code);
 					$server->Param('company',$company);
 					$server->Param('phone',$phone);
+					
+					if (!empty($email)) {
+						$server->Param('email', $email);
+					}
+					
 					$response = $server->Process();
 				}
 				else {
