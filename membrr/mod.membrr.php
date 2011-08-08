@@ -709,6 +709,11 @@ class Membrr {
 												 $this->EE->input->post('phone'),
 												 $this->EE->input->post('email')
 												);
+												
+					// update email
+					if ($this->EE->input->post('email')) {
+						$this->EE->db->update('exp_members', array('email' => $this->EE->input->post('email')), array('member_id' => $member['member_id']));
+					}												
 				}
 								
 				// prep arrays to send to Membrr_EE class	
