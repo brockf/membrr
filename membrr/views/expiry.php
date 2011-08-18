@@ -29,7 +29,7 @@ $this->table->add_row(
 	
 $this->table->add_row(
 		'',
-		'<input type="checkbox" name="record_payment" value="1" checked="checked" /> Record as payment of <input type="text" name="payment_amount" style="width:50px" value="' . $subscription['amount'] . '" />'
+		'<input type="checkbox" name="record_payment" value="1" checked="checked" /> Record as payment of <input type="text" name="payment_amount" style="width:50px" value="' . $subscription['amount'] . '" /> (Payment will be recorded as a charge on the next charge date and the next charge date will be advanced by one interval).'
 	);	
 	
 $this->table->add_row(
