@@ -936,6 +936,8 @@ class Membrr_mcp {
 				
 				if (!isset($response['error'])) {
 					$this->membrr->RecordPayment($subscription['id'], $response['charge_id'], $this->EE->input->post('payment_amount'));
+					
+					$this->EE->db->update('exp_membrr_subscriptions', array('next_charge_date' => $response['next_charge'], 'end_date' => $response['end_date']), array('recurring_id' => $subscription['id']));
 				}
 			}
 			
