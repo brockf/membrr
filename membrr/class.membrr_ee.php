@@ -59,7 +59,8 @@ if (!class_exists('Membrr_EE')) {
 				$this->EE->db->select('exp_membrr_subscriptions.recurring_id');
 				$this->EE->db->select('exp_membrr_subscriptions.renewed_recurring_id');
 				$this->EE->db->select('exp_membrr_subscriptions.plan_id');
-				$this->EE->db->select('exp_membrr_plans.plan_member_group_expire');				 
+				$this->EE->db->select('exp_membrr_plans.plan_member_group_expire');	
+				$this->EE->db->select('exp_membrr_plans.plan_member_group');			 
 				$this->EE->db->where('(`end_date` <= NOW() and `end_date` != \'0000-00-00 00:00:00\')',NULL,FALSE);
 				$this->EE->db->where('exp_membrr_subscriptions.expiry_processed','0');
 				$this->EE->db->join('exp_membrr_plans','exp_membrr_plans.plan_id = exp_membrr_subscriptions.plan_id','LEFT');
@@ -67,12 +68,23 @@ if (!class_exists('Membrr_EE')) {
 				
 				foreach ($query->result_array() AS $row) {
 					$perform_expiration = TRUE;
-					// is there an active renewal for this?
-					if (!empty($row['renewed_recurring_id'])) {
-						$renewing = $this->GetSubscription($row['renewed_recurring_id']);
-						
-						if ($renewing['active'] == '1') {
-							$perform_expiration = FALSE;
+					// is there an active plan that promotes the user to this group?
+					$filters = array(
+									'member_id' => $row['member_id'],
+									'active' => '1'
+								);
+					$subscriptions = $this->GetSubscriptions(0, 50, $filters);
+					if (!empty($subscriptions)) {
+						foreach ($subscriptions as $sub) {
+							$plan_result = $this->EE->db->select('plan_member_group')
+									  ->where('plan_id',$sub['plan_id'])
+									  ->get('exp_membrr_plans');
+									  
+							if ($plan_result->num_rows() > 0) {
+								if ($plan_result->row()->plan_member_group == $row['plan_member_group']) {
+									$perform_expiration = FALSE;
+								}
+							}									  
 						}
 					}
 				
