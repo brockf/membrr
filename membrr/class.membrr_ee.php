@@ -330,7 +330,15 @@ if (!class_exists('Membrr_EE')) {
 						$end_date = '0000-00-00 00:00:00';
 					}
 					else {
-						$end_date = date('Y-m-d H:i:s',time() + ($free_trial * 86400) + ($plan['occurrences'] * $plan['interval'] * 86400));
+						$time_to_calculate_end = time();
+						
+						if (!empty($renew_subscription)) {
+							$subscription = $this->GetSubscription($renew_subscription);
+							
+							$time_to_calculate_end = strtotime($subscription['end_date']);
+						}
+						
+						$end_date = date('Y-m-d H:i:s',$time_to_calculate_end + ($free_trial * 86400) + ($plan['occurrences'] * $plan['interval'] * 86400));
 					}
 				}
 				
