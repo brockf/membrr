@@ -470,8 +470,9 @@ class Membrr {
 						'plan_id' => $payment['plan_id'],
 						'plan_description' => $payment['plan_description'],
 						'channel' => $payment['channel'],
-						'entry_id' => $payment['entry_id']
-							);
+						'entry_id' => $payment['entry_id'],
+						'refunded' => (empty($payment['refunded'])) ? FALSE : TRUE
+					);
 			
 			// swap in the variables
 			$sub_return = $this->EE->TMPL->parse_variables($sub_return, $variables);
