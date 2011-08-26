@@ -2098,7 +2098,7 @@ class Membrr {
 		elseif ($this->EE->input->post('action') == 'recurring_cancel') {
 			$this->membrr->CancelSubscription($subscription['id'],FALSE);
 		}
-		elseif ($this->EE->input->post('action') == 'recurring_expire') {
+		elseif ($this->EE->input->post('action') == 'recurring_expire' or $this->EE->input->post('action') == 'recurring_fail') {
 			$this->membrr->CancelSubscription($subscription['id'],FALSE,TRUE);
 		}
     }
