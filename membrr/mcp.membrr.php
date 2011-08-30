@@ -342,7 +342,6 @@ class Membrr_mcp {
 												'plan_interval' => $api_plan['interval'],
 												'plan_free_trial' => $api_plan['free_trial'],
 												'plan_occurrences' => $api_plan['occurrences'],
-												'plan_interval' => $api_plan['interval'],
 												'plan_price' => $api_plan['amount']
 											);
 											
