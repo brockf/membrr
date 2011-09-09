@@ -594,14 +594,7 @@ if (!class_exists('Membrr_EE')) {
 			}
 			
 			// set receipt cookie
-			$cookie = array(
-			    'name'   => 'membrr_charge_id',
-			    'value'  => $charge_id,
-			    'expire' => '86400',
-			    'secure' => TRUE
-			);
-
-			$this->EE->input->set_cookie($cookie); 
+			$this->EE->functions->set_cookie('membrr_charge_id', $charge_id, 86400); 
 			
 			return TRUE;
 		}
@@ -1006,10 +999,11 @@ if (!class_exists('Membrr_EE')) {
 				}
 			}
 			
-			$this->EE->db->select('exp_membrr_payments.*, exp_members.*, exp_membrr_plans.*,  exp_membrr_channel_posts.channel_entry_id AS `entry_id`, exp_channels.channel_name  AS `channel`', FALSE);
+			$this->EE->db->select('exp_membrr_payments.*, exp_membrr_address_book.*,  exp_members.*, exp_membrr_plans.*,  exp_membrr_channel_posts.channel_entry_id AS `entry_id`, exp_channels.channel_name  AS `channel`', FALSE);
 			$this->EE->db->join('exp_membrr_subscriptions','exp_membrr_subscriptions.recurring_id = exp_membrr_payments.recurring_id','left');
 			$this->EE->db->join('exp_members','exp_membrr_subscriptions.member_id = exp_members.member_id','left');
 			$this->EE->db->join('exp_membrr_plans','exp_membrr_subscriptions.plan_id = exp_membrr_plans.plan_id','left');
+			$this->EE->db->join('exp_membrr_address_book','exp_membrr_address_book.member_id = exp_members.member_id','left');
 			$this->EE->db->join('exp_membrr_channel_posts','exp_membrr_subscriptions.recurring_id = exp_membrr_channel_posts.recurring_id','left');
 			$this->EE->db->join('exp_channels','exp_membrr_channel_posts.channel_id = exp_channels.channel_id','left');
 			$this->EE->db->group_by('exp_membrr_payments.charge_id');
@@ -1036,7 +1030,18 @@ if (!class_exists('Membrr_EE')) {
 								'date' => date('M j, Y h:i a',strtotime($row['date'])),
 								'refunded' => $row['refunded'],
 								'entry_id' => (empty($row['entry_id'])) ? FALSE : $row['entry_id'],
-								'channel' => (empty($row['entry_id'])) ? FALSE : $row['channel']
+								'channel' => (empty($row['entry_id'])) ? FALSE : $row['channel'],
+								'first_name' => $row['first_name'],
+								'last_name' => $row['last_name'],
+								'address' => $row['address'],
+								'address_2' => $row['address_2'],
+								'city' => $row['city'],
+								'region' => $row['region'],
+								'region_other' => $row['region_other'],
+								'country' => $row['country'],
+								'postal_code' => $row['postal_code'],
+								'company' => $row['company'],
+								'phone' => $row['phone']
 							);
 			}
 			
