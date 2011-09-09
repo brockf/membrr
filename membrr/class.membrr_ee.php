@@ -591,7 +591,17 @@ if (!class_exists('Membrr_EE')) {
             
     			 $this->EE->extensions->call('membrr_payment', $subscription['member_id'], $subscription_id, $subscription['plan_id'], $charge_id, $subscription['next_charge_date']);
     			 if ($this->EE->extensions->end_script === TRUE) return $response;
-			} 
+			}
+			
+			// set receipt cookie
+			$cookie = array(
+			    'name'   => 'membrr_charge_id',
+			    'value'  => $charge_id,
+			    'expire' => '86400',
+			    'secure' => TRUE
+			);
+
+			$this->EE->input->set_cookie($cookie); 
 			
 			return TRUE;
 		}

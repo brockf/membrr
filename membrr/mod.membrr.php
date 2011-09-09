@@ -30,8 +30,8 @@
 *	- {exp:membrr:cancel id="X"}{/exp:membrr:cancel} (returns {if cancelled} and {if failed} to tagdata)
 *	- {exp:membrr:has_subscription_for_channel channel="ad_posts"}<!-- HTML -->{/exp...channel} or {exp:membrr:has_subscription_for_channel channel="22"}<!-- HTML -->{/exp...channel} 
 *	- {exp:membrr:no_subscription_for_channel channel="ad_posts"}<!-- HTML -->{/exp...channel} or {exp:membrr:no_subscription_for_channel channel="22"}<!-- HTML -->{/exp...channel}
+*	- {exp:eedonations:receipt}{/exp:eedonations:receipt}
 *
-* @version 1.41
 * @author Electric Function, Inc.
 * @package OpenGateway
 */
@@ -368,6 +368,114 @@ class Membrr {
 								'price' => money_format("%!^i",$plan['price']),
 								'total_subscribers' => $plan['num_subscribers']
 							);
+			
+			// swap in the variables
+			$sub_return = $this->EE->TMPL->parse_variables($sub_return, $variables);
+			
+			// add to return HTML
+			$return .= $sub_return;
+			
+			unset($sub_return);
+		}
+		
+		$this->return_data = $return;
+		
+		return $return;
+	}
+	
+	/**
+    * Displays a receipt for the latest payment
+    * 
+    * For each payment, replaces tags:
+    *	- {charge_id}
+    *	- {subscription_id} (if applicable)
+    *	- {member_id} (if applicable)
+    *	- {amount}
+    *	- {date}
+    *	- {billing_first_name}
+    *	- {billing_last_name}
+    *	- {billing_address}
+    *	- {billing_address_2}
+    * 	- {billing_city}
+    *	- {billing_region}
+    *	- {billing_country}
+    *	- {billing_postal_code}
+    *	- {billing_company}
+    *	- {billing_phone}
+    *
+    * ... and, if it's a subscription...
+    *
+    *	- {next_charge_date}
+    *	- {plan_name}
+    *
+    * Conditionals
+    *	- All above tags
+    *
+    * e.g.  {exp:eedonations:receipt date_format="M d, Y"}
+    *
+    * @param string $date_format The PHP format of dates
+    *
+    * @return string The latest payment, if available, for that user
+	*/
+	function receipt () {
+		$charge_id = $this->EE->input->cookie('membrr_charge_id');
+	
+		if (empty($charge_id)) {
+			return '<!-- no receipt available -->';
+		}
+	
+		$filters = array(
+						'id' => $charge_id
+					);
+		
+		$payments = $this->membrr->GetPayments(0, 1, $filters);
+		
+		if (empty($payments)) {
+			// no payments matching parameters
+			return '<!-- invalid receipt ID -->';
+		}
+		
+		$return = '';
+		
+		foreach ($payments as $payment) {
+			// get the return format
+			$sub_return = $this->EE->TMPL->tagdata;
+			
+			if ($this->EE->TMPL->fetch_param('date_format')) {
+				$payment['date'] = (!empty($payment['date'])) ? date($this->EE->TMPL->fetch_param('date_format'),strtotime($payment['date'])) : FALSE;
+			}
+			
+			$variables = array();
+			$variables[0] = array(
+						'charge_id' =>  $payment['id'],
+						'subscription_id' =>  $payment['recurring_id'],
+						'amount' =>  $payment['amount'],
+						'date' => $payment['date'],
+						'member_id' => $payment['member_id'],
+						'billing_first_name' => $payment['first_name'],
+						'billing_last_name' => $payment['last_name'],
+						'billing_address' => $payment['address'],
+						'billing_address_2' => $payment['address_2'],
+						'billing_city' => $payment['city'],
+						'billing_region' => (!empty($payment['region_other'])) ? $payment['region_other'] : $payment['region'],
+						'billing_country' => $payment['country'],
+						'billing_postal_code' => $payment['postal_code'],
+						'billing_company' => $payment['company'],
+						'billing_phone' => $payment['phone']
+					);
+			
+			if (!empty($payment['recurring_id'])) {		
+				$subscription = $this->membrr->GetSubscription($payment['recurring_id']);
+				
+				if ($this->EE->TMPL->fetch_param('date_format')) {
+					$subscription['next_charge_date'] = (!empty($subscription['next_charge_date'])) ? date($this->EE->TMPL->fetch_param('date_format'),strtotime($subscription['next_charge_date'])) : FALSE;
+				}
+				
+				$variables[0] = array_merge($variables[0], array( 
+															'plan_name' => $subscription['plan_name'],
+															'next_charge_date' => $subscription['next_charge_date']
+													));
+			}
 			
 			// swap in the variables
 			$sub_return = $this->EE->TMPL->parse_variables($sub_return, $variables);
