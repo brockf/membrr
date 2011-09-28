@@ -1005,7 +1005,8 @@ if (!class_exists('Membrr_EE')) {
 			$this->EE->db->join('exp_membrr_plans','exp_membrr_subscriptions.plan_id = exp_membrr_plans.plan_id','left');
 			$this->EE->db->join('exp_membrr_address_book','exp_membrr_address_book.member_id = exp_members.member_id','left');
 			$this->EE->db->join('exp_membrr_channel_posts','exp_membrr_subscriptions.recurring_id = exp_membrr_channel_posts.recurring_id','left');
-			$this->EE->db->join('exp_channels','exp_membrr_channel_posts.channel_id = exp_channels.channel_id','left');
+			$this->EE->db->join('exp_membrr_channels','exp_membrr_channel_posts.channel_id = exp_membrr_channels.protect_channel_id','left');
+			$this->EE->db->join('exp_channels','exp_membrr_channels.channel_id = exp_channels.channel_id','left');
 			$this->EE->db->group_by('exp_membrr_payments.charge_id');
 			$this->EE->db->order_by('exp_membrr_payments.date','DESC');
 			$this->EE->db->where('exp_membrr_payments.charge_id >','0');
@@ -1101,11 +1102,12 @@ if (!class_exists('Membrr_EE')) {
 			$this->EE->db->join('exp_members','exp_membrr_subscriptions.member_id = exp_members.member_id','left');
 			$this->EE->db->join('exp_membrr_plans','exp_membrr_subscriptions.plan_id = exp_membrr_plans.plan_id','left');
 			$this->EE->db->join('exp_membrr_channel_posts','exp_membrr_subscriptions.recurring_id = exp_membrr_channel_posts.recurring_id','left');
-			$this->EE->db->join('exp_channels','exp_membrr_channel_posts.channel_id = exp_channels.channel_id','left');
+			$this->EE->db->join('exp_membrr_channels','exp_membrr_channel_posts.channel_id = exp_membrr_channels.protect_channel_id','left');
+			$this->EE->db->join('exp_channels','exp_membrr_channels.channel_id = exp_channels.channel_id','left');
 			$this->EE->db->group_by('exp_membrr_subscriptions.recurring_id');
 			$this->EE->db->order_by('exp_membrr_subscriptions.date_created','DESC');
 			$this->EE->db->limit($limit, $offset);
-			
+
 			$result = $this->EE->db->get('exp_membrr_subscriptions');
 			
 			$subscriptions = array();
