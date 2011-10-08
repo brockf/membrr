@@ -334,9 +334,9 @@ if (!class_exists('Membrr_EE')) {
 						
 						if (!empty($renew_subscription)) {
 							$subscription = $this->GetSubscription($renew_subscription);
-							$end_date = $this->_calculate_end_date($subscription['end_date'], $subscription['next_charge_date'], $subscription['date_created']);
+							$old_end_date = $this->_calculate_end_date($subscription['end_date'], $subscription['next_charge_date'], $subscription['date_created']);
 							
-							$time_to_calculate_end = strtotime($end_date);
+							$time_to_calculate_end = strtotime($old_end_date);
 						}
 						
 						$end_date = date('Y-m-d H:i:s',$time_to_calculate_end + ($free_trial * 86400) + ($plan['occurrences'] * $plan['interval'] * 86400));
