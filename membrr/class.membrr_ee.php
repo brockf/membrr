@@ -1367,7 +1367,7 @@ if (!class_exists('Membrr_EE')) {
 			}
 			elseif ($end_date != '0000-00-00 00:00:00') {
 				// there is a set end_date
-				$end_date = $end_date['end_date'];
+				$end_date = $end_date;
 			}
 			else {
 				// for some reason, neither a next_charge_date or an end_date exist

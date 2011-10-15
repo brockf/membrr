@@ -411,7 +411,7 @@ class Membrr {
     * Conditionals
     *	- All above tags
     *
-    * e.g.  {exp:eedonations:receipt date_format="M d, Y"}
+    * e.g.  {exp:membrr:receipt date_format="M d, Y"}
     *
     * @param string $date_format The PHP format of dates
     *
