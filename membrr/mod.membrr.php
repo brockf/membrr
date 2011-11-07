@@ -1158,6 +1158,24 @@ class Membrr {
 					
 					$this->EE->load->model('member_model');
 					$member_id = $this->EE->member_model->create_member($member_data);
+					
+					// handle custom fields passed in POST
+					$result = $this->EE->db->get('exp_member_fields');
+					$fields = array();
+					if ($result->num_rows() > 0) {
+						foreach ($result->result_array() as $field) {
+							$fields[$field['m_field_name']] = 'm_field_id_' . $field['m_field_id'];
+						}
+						
+						$update_fields = array();
+						
+						foreach ($fields as $name => $column) {
+							$update_fields[$column] = ($this->EE->input->post($name)) ? $this->EE->input->post($name) : '';
+						}
+						
+						$this->EE->member_model->update_member_data($member_id, $update_fields);
+					}
+					// end custom fields	
 						
 					if (empty($member_id)) {
 						$errors[] = 'Member account could not be created.';
