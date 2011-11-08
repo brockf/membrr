@@ -1159,6 +1159,10 @@ class Membrr {
 					$this->EE->load->model('member_model');
 					$member_id = $this->EE->member_model->create_member($member_data);
 					
+					// call member_member_register hook
+					$edata = $this->EE->extensions->call('member_member_register', $member_data, $member_id);
+					if ($this->EE->extensions->end_script === TRUE) return;
+					
 					// handle custom fields passed in POST
 					$result = $this->EE->db->get('exp_member_fields');
 					$fields = array();
