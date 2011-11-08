@@ -364,12 +364,12 @@ if (!class_exists('Membrr_EE')) {
 					$next_charge_date = date('Y-m-d',$next_charge_date);
 				}
 				 
+				$this->RecordSubscription($response['recurring_id'], $member_id, $plan_id, $next_charge_date, $end_date, $recur_payment); 
+				
 				if (empty($free_trial) and isset($response['charge_id'])) {
 					// create payment record               						  
 					$this->RecordPayment($response['recurring_id'], $response['charge_id'], $payment);
 				}
-				
-				$this->RecordSubscription($response['recurring_id'], $member_id, $plan_id, $next_charge_date, $end_date, $recur_payment); 
 			}
 			
 			return $response;
