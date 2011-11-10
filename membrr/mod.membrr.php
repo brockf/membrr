@@ -2122,18 +2122,6 @@ class Membrr {
 						$end_date = date('Y-m-d H:i:s',strtotime($recurring['end_date']));
 						$next_charge_date = date('Y-m-d H:i:s',strtotime($recurring['next_charge_date']));
 						
-						// get the first charge
-						$server->SetMethod('GetCharges');
-						$server->Param('recurring_id',$recurring['id']);
-						$charge = $server->Process();
-						
-						// if there was an initial payment, charge should be an array, but there shouldn't be multiple charges!
-						if (!empty($charge) and isset($charge['charges']) and is_array($charge['charges']) and !isset($charge['charges']['charge'][0])) {
-							$charge = $charge['charges']['charge'];
-							$payment = $charge['amount'];
-							$this->membrr->RecordPayment($recurring['id'], $charge['id'], $payment);
-						}
-						
 						// do we need to perform some maintenance for renewals?
 						if ($this->EE->input->get('renew_recurring_id')) {
 							// validate old subscription
@@ -2148,6 +2136,18 @@ class Membrr {
 						}
 						
 						$this->membrr->RecordSubscription($recurring['id'], $this->EE->input->get('member'), $plan['id'], $next_charge_date, $end_date, $recurring['amount']);
+						
+						// get the first charge
+						$server->SetMethod('GetCharges');
+						$server->Param('recurring_id',$recurring['id']);
+						$charge = $server->Process();
+						
+						// if there was an initial payment, charge should be an array, but there shouldn't be multiple charges!
+						if (!empty($charge) and isset($charge['charges']) and is_array($charge['charges']) and !isset($charge['charges']['charge'][0])) {
+							$charge = $charge['charges']['charge'];
+							$payment = $charge['amount'];
+							$this->membrr->RecordPayment($recurring['id'], $charge['id'], $payment);
+						}
 						
 						// redirect
 						header('Location: ' . $plan['redirect_url']);
