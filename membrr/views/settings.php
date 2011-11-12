@@ -54,7 +54,7 @@ if ($gateways) {
 }
 
 $this->table->add_row(
-		lang('eedonations_available_countries'),
+		lang('membrr_available_countries'),
 		$countries_text
 	);
 
