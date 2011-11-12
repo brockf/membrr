@@ -54,6 +54,11 @@ if ($gateways) {
 }
 
 $this->table->add_row(
+		lang('eedonations_available_countries'),
+		$countries_text
+	);
+
+$this->table->add_row(
 		'',
 		form_submit('submit_form', $this->lang->line('membrr_save_configuration'))
 	);

@@ -189,5 +189,6 @@ $lang = array(
 	'membrr_current_cancellations' => 'Cancellations',
 	'membrr_current_payments' => 'Payments',
 	'membrr_current_revenue' => 'Total Revenue',
-	'membrr_renewal_option' => 'When renewing this plan, extend the subscription from the end of the current billing period'
+	'membrr_renewal_option' => 'When renewing this plan, extend the subscription from the end of the current billing period',
+	'membrr_available_countries' => 'Available Countries'
 );

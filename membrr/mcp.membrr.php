@@ -1476,6 +1476,10 @@ class Membrr_mcp {
 				$gateway_options[$gateway['id']] = $gateway['gateway'];
 			}
 		}
+		
+		// countries
+		$countries = $this->EE->db->where('available','1')->get('exp_membrr_countries')->num_rows();
+		$countries_text = '<a href="' . $this->cp_url('countries') . '">' . $countries . ' countries</a>';
 				
 		// load view
 		$vars = array();
@@ -1487,9 +1491,47 @@ class Membrr_mcp {
 		$vars['currency_symbol'] = $currency_symbol;
 		$vars['gateway'] = $default_gateway;
 		$vars['gateways'] = (isset($gateway_options)) ? $gateway_options : FALSE;
+		$vars['countries_text'] = $countries_text;
 		$vars['failed_to_connect'] = isset($failed_to_connect) ? $failed_to_connect : FALSE;
 		
 		return $this->EE->load->view('settings',$vars,TRUE);
+	}
+	
+	function countries () {
+		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_available_countries'));
+		
+		 $this->EE->cp->add_to_head('<script type="text/javascript">
+        								function uncheck_countries () {
+        									$(\'input.countries\').attr(\'checked\',false);
+        								}
+        								
+        								function check_countries () {
+        									$(\'input.countries\').attr(\'checked\',\'checked\');
+        								}
+        							</script>');
+        							
+		$countries = $this->EE->db->get('exp_membrr_countries');
+		
+		$vars = array();
+		$vars['countries'] = $countries;
+		$vars['form_action'] = $this->form_url('set_countries');
+		
+		return $this->EE->load->view('countries', $vars, TRUE);
+	}
+	
+	function set_countries () {
+		$countries = $this->EE->db->get('exp_membrr_countries');
+		
+		foreach ($countries->result_array() as $country) {
+			if ($country['available'] == '1' and !isset($_POST['country_' . $country['country_id']])) {
+				$this->EE->db->update('exp_membrr_countries', array('available' => '0'), array('country_id' => $country['country_id']));
+			}
+			elseif ($country['available'] == '0' and isset($_POST['country_' . $country['country_id']]) and $_POST['country_' . $country['country_id']] == '1') {
+				$this->EE->db->update('exp_membrr_countries', array('available' => '1'), array('country_id' => $country['country_id']));
+			}
+		}
+		
+		return $this->EE->functions->redirect(htmlspecialchars_decode($this->cp_url('settings')));
 	}
 	
 	function validate_api ($api_url, $api_id, $secret_key) {
