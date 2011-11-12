@@ -1522,7 +1522,7 @@ if (!class_exists('Membrr_EE')) {
 		* @return array
 		*/
 		function GetCountries () {
-	    	$countries = $this->EE->db->where('available','1')->get('exp_eedonations_countries');
+	    	$countries = $this->EE->db->where('available','1')->get('exp_membrr_countries');
 	    	
 	    	$return = array();
 	    	
