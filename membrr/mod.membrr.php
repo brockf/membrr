@@ -30,7 +30,7 @@
 *	- {exp:membrr:cancel id="X"}{/exp:membrr:cancel} (returns {if cancelled} and {if failed} to tagdata)
 *	- {exp:membrr:has_subscription_for_channel channel="ad_posts"}<!-- HTML -->{/exp...channel} or {exp:membrr:has_subscription_for_channel channel="22"}<!-- HTML -->{/exp...channel} 
 *	- {exp:membrr:no_subscription_for_channel channel="ad_posts"}<!-- HTML -->{/exp...channel} or {exp:membrr:no_subscription_for_channel channel="22"}<!-- HTML -->{/exp...channel}
-*	- {exp:eedonations:receipt}{/exp:eedonations:receipt}
+*	- {exp:membrr:receipt}{/exp:membrr:receipt}
 *
 * @author Electric Function, Inc.
 * @package OpenGateway
