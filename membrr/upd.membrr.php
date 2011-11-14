@@ -446,6 +446,7 @@ class Membrr_upd {
 								  `iso2` varchar(2) NOT NULL,
 								  `iso3` varchar(3) NOT NULL,
 								  `name` varchar(255) NOT NULL,
+								  `available` tinyint(1) NOT NULL,
 								  PRIMARY KEY  (`country_id`)
 								) ENGINE=MyISAM DEFAULT CHARSET=utf8;';
 								
