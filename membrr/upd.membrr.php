@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.65';
+	var $version = '1.66';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -334,6 +334,13 @@ class Membrr_upd {
 								(887,'YE','YEM','Yemen','1'),
 								(894,'ZM','ZMB','Zambia','1'),
 								(716,'ZW','ZWE','Zimbabwe','1');");	
+        }
+        
+        if ($current < '1.66') {
+        	$this->EE->db->query('INSERT INTO `countries` (`country_id`, `iso2`, `iso3`, `name`)
+				VALUES
+					(895, \'CW\', \'CW\', \'Curaçao\'),
+					(896, \'SX\', \'SX\', \'Sint Maarten\');');
         }
 		
 		return TRUE;
