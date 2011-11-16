@@ -1510,7 +1510,7 @@ class Membrr_mcp {
         								}
         							</script>');
         							
-		$countries = $this->EE->db->get('exp_membrr_countries');
+		$countries = $this->EE->db->order_by('name')->get('exp_membrr_countries');
 		
 		$vars = array();
 		$vars['countries'] = $countries;
