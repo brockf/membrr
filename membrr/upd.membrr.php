@@ -706,6 +706,11 @@ class Membrr_upd {
 								(894,'ZM','ZMB','Zambia','1'),
 								(716,'ZW','ZWE','Zimbabwe','1');";					 
     
+    	$sql[] = 'INSERT INTO `countries` (`country_id`, `iso2`, `iso3`, `name`)
+				VALUES
+					(895, \'CW\', \'CW\', \'Curaçao\'),
+					(896, \'SX\', \'SX\', \'Sint Maarten\');';
+    
     	$sql[] = "INSERT INTO `exp_actions` (action_id, 
                                            class, 
                                            method) 
