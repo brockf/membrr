@@ -337,10 +337,10 @@ class Membrr_upd {
         }
         
         if ($current < '1.66') {
-        	$this->EE->db->query('INSERT INTO `countries` (`country_id`, `iso2`, `iso3`, `name`)
+        	$this->EE->db->query('INSERT INTO `exp_membrr_countries` (`country_id`, `iso2`, `iso3`, `name`, `available`)
 				VALUES
-					(895, \'CW\', \'CW\', \'Curaçao\'),
-					(896, \'SX\', \'SX\', \'Sint Maarten\');');
+					(895, \'CW\', \'CW\', \'Curaçao\', \'1\'),
+					(896, \'SX\', \'SX\', \'Sint Maarten\', \'1\');');
         }
 		
 		return TRUE;
@@ -706,10 +706,10 @@ class Membrr_upd {
 								(894,'ZM','ZMB','Zambia','1'),
 								(716,'ZW','ZWE','Zimbabwe','1');";					 
     
-    	$sql[] = 'INSERT INTO `countries` (`country_id`, `iso2`, `iso3`, `name`)
+    	$sql[] = 'INSERT INTO `exp_membrr_countries` (`country_id`, `iso2`, `iso3`, `name`)
 				VALUES
-					(895, \'CW\', \'CW\', \'Curaçao\'),
-					(896, \'SX\', \'SX\', \'Sint Maarten\');';
+					(895, \'CW\', \'CW\', \'Curaçao\', \'1\'),
+					(896, \'SX\', \'SX\', \'Sint Maarten\', \'1\');';
     
     	$sql[] = "INSERT INTO `exp_actions` (action_id, 
                                            class, 
