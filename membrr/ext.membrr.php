@@ -128,6 +128,7 @@ class Membrr_ext
     		$sub_id = (isset($_POST['subscription_id']) and !empty($_POST['subscription_id']) and is_numeric($_POST['subscription_id'])) ? $_POST['subscription_id'] : FALSE;
     		if (!$recurring_id = $this->membrr->GetSubscriptionForChannel($channel['id'], $this->EE->session->userdata('member_id'),$channel['plans'],$channel['posts'], $sub_id)) {
     			// nope, redirect to order form
+    			
     			return $channel['order_form'];
     		}
     		else {

@@ -484,6 +484,18 @@ if (!class_exists('Membrr_EE')) {
 				}
 			}
 			
+			$member_id = $subscription['member_id'];
+			$new_recurring_id = $response['recurring_id'];
+			$old_recurring_id = $subscription_id;
+			
+			// call "membrr_update_cc" hook with: $member_id, $old_recurring_id, $new_recurring_id
+			
+			if ($this->EE->extensions->active_hook('membrr_update_cc') == TRUE)
+			{
+				$this->EE->extensions->call('membrr_update_cc', $member_id, $old_recurring_id, $new_recurring_id);
+			    if ($this->EE->extensions->end_script === TRUE) return FALSE;
+			}
+			
 			return $response;
 		}
 		
