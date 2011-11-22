@@ -347,6 +347,9 @@ if (!class_exists('Membrr_EE')) {
 				if (!empty($free_trial)) {
 					$next_charge_date = time() + ($free_trial * 86400);
 				}
+				elseif (!empty($start_date) and strtotime($start_date) > (time() + 84600)) {
+					$next_charge_date = strtotime($start_date);
+				}
 				else {
 					if ($this->same_day_every_month == TRUE and $plan['interval'] % 30 === 0) {
 						$months = $plan['interval'] / 30;
