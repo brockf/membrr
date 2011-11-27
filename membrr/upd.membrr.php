@@ -717,7 +717,7 @@ class Membrr_upd {
                                            VALUES 
                                            ('', 
                                            'Membrr',
-                                           'post_notify')";
+                                           'post_notify');";
                                            
         foreach ($sql as $query)
         {
