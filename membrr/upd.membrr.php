@@ -457,6 +457,14 @@ class Membrr_upd {
 								  PRIMARY KEY  (`country_id`)
 								) ENGINE=MyISAM DEFAULT CHARSET=utf8;';
 								
+		$sql[] = "INSERT INTO `exp_actions` (action_id, 
+                                           class, 
+                                           method) 
+                                           VALUES 
+                                           ('', 
+                                           'Membrr',
+                                           'post_notify');";								
+								
 		$sql[] = "INSERT INTO `exp_membrr_countries` (`country_id`, `iso2`, `iso3`, `name`, `available`)
 									VALUES
 								(4,'AF','AFG','Afghanistan','1'),
@@ -710,14 +718,6 @@ class Membrr_upd {
 				VALUES
 					(895, \'CW\', \'CW\', \'Curaçao\', \'1\'),
 					(896, \'SX\', \'SX\', \'Sint Maarten\', \'1\');';
-    
-    	$sql[] = "INSERT INTO `exp_actions` (action_id, 
-                                           class, 
-                                           method) 
-                                           VALUES 
-                                           ('', 
-                                           'Membrr',
-                                           'post_notify');";
                                            
         foreach ($sql as $query)
         {
