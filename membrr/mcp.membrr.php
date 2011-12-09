@@ -1272,8 +1272,10 @@ class Membrr_mcp {
 				}
 										
 				$coupon = ($this->EE->input->post('coupon')) ? $this->EE->input->post('coupon') : FALSE;					
+
+				$gateway_id = $this->EE->input->post('gateway');										
 										
-				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, $end_date, $first_charge_rate, $recurring_rate, FALSE, FALSE, FALSE, FALSE, $coupon);
+				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, $end_date, $first_charge_rate, $recurring_rate, FALSE, FALSE, $gateway_id, FALSE, $coupon);
 				
 				if (!is_array($response) or isset($response['error'])) {
 					$failed_transaction = $this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['error_text'] . ' (#' . $response['error'] . ')';
@@ -1345,6 +1347,28 @@ class Membrr_mcp {
 			$country_options[$country_code] = $country;
 		}
 		
+		// get gateways
+		$this->server->SetMethod('GetGateways');
+		$response = $this->server->Process();
+		
+		// we may get one gateway or many
+		$gateways = isset($response['gateways']) ? $response['gateways'] : FALSE;
+		
+		// hold our list of available options
+		$gateway_options = array();
+		$gateway_options[''] = 'Default Gateway';
+		
+		if (is_array($gateways) and isset($gateways['gateway'][0])) {
+			foreach ($gateways['gateway'] as $gateway) {
+				$gateway_options[$gateway['id']] = $gateway['gateway'];
+			}
+		}
+		elseif (is_array($gateways)) {
+			$gateway = $gateways['gateway'];
+			
+			$gateway_options[$gateway['id']] = $gateway['gateway'];
+		}
+		
 		// add a little JavaScript
 	    $this->EE->cp->add_to_head("<script type=\"text/javascript\">
         								$(document).ready(function() {
@@ -1367,6 +1391,7 @@ class Membrr_mcp {
 		$vars['countries'] = $country_options;
 		$vars['address'] = $address;
 		$vars['failed_transaction'] = (isset($failed_transaction)) ? $failed_transaction : FALSE;
+		$vars['gateways'] = $gateway_options;
 		
 		return $this->EE->load->view('add_subscription_2',$vars, TRUE);
 	}

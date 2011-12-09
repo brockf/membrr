@@ -132,6 +132,15 @@ $this->table->add_row(
 	);
 	
 $this->table->add_row(
+		array('data' => '<b>' . lang('membrr_options') . '</b>', 'colspan' => '2')
+	);	
+	
+$this->table->add_row(
+		lang('membrr_gateway'),
+		form_dropdown('gateway', $gateways, '')
+	);	
+	
+$this->table->add_row(
 		'',
 		form_submit('submit_form', $this->lang->line('membrr_process'))
 	);
