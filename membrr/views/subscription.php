@@ -35,6 +35,13 @@ $this->table->add_row(
 		$config['currency_symbol'] . money_format("%!^i",$subscription['total_amount'])
 	);
 	
+if (!empty($subscription['coupon'])) {	
+	$this->table->add_row(
+			array('data' => lang('membrr_coupon_code'), 'style' => 'width:30%'),
+			$subscription['coupon']
+		);
+}
+	
 $this->table->add_row(
 		array('data' => lang('membrr_start_date'), 'style' => 'width:30%'),
 		$subscription['date_created']

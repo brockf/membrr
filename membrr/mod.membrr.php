@@ -2135,7 +2135,9 @@ class Membrr {
 							}
 						}
 						
-						$this->membrr->RecordSubscription($recurring['id'], $this->EE->input->get('member'), $plan['id'], $next_charge_date, $end_date, $recurring['amount']);
+						$coupon = $this->EE->input->cookie('membrr_coupon');
+						
+						$this->membrr->RecordSubscription($recurring['id'], $this->EE->input->get('member'), $plan['id'], $next_charge_date, $end_date, $recurring['amount'], $coupon);
 						
 						// get the first charge
 						$server->SetMethod('GetCharges');

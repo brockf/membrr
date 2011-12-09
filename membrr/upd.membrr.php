@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.66';
+	var $version = '1.67';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -342,6 +342,10 @@ class Membrr_upd {
 					(895, \'CW\', \'CW\', \'Curaçao\', \'1\'),
 					(896, \'SX\', \'SX\', \'Sint Maarten\', \'1\');');
         }
+        
+        if ($current < '1.67') { 
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` ADD COLUMN `coupon` VARCHAR(250)');
+        }
 		
 		return TRUE;
 	}
@@ -402,7 +406,8 @@ class Membrr_upd {
 				 `cancelled` TINYINT NOT NULL ,
 				 `active` TINYINT NOT NULL ,
 				 `renewed_recurring_id` INT(11) NOT NULL,
-				 `expiry_processed` TINYINT NOT NULL
+				 `expiry_processed` TINYINT NOT NULL,
+				 `coupon` VARCHAR(250) NOT NULL
 				 ) ENGINE = MYISAM DEFAULT CHARSET=latin1 ;";
 				 
 		$sql[] = "CREATE TABLE IF NOT EXISTS `exp_membrr_payments` (

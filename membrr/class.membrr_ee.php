@@ -182,6 +182,9 @@ if (!class_exists('Membrr_EE')) {
 			
 			// coupon?
 			if ($coupon != FALSE) {
+				// may be using PayPal, so we should store this
+				$this->EE->functions->set_cookie('membrr_coupon', $coupon, 86400); 
+				
 				$recur->Coupon($coupon);
 			}
 			
@@ -367,7 +370,7 @@ if (!class_exists('Membrr_EE')) {
 					$next_charge_date = date('Y-m-d',$next_charge_date);
 				}
 				 
-				$this->RecordSubscription($response['recurring_id'], $member_id, $plan_id, $next_charge_date, $end_date, $recur_payment); 
+				$this->RecordSubscription($response['recurring_id'], $member_id, $plan_id, $next_charge_date, $end_date, $recur_payment, $coupon); 
 				
 				if (empty($free_trial) and isset($response['charge_id'])) {
 					// create payment record               						  
@@ -539,10 +542,11 @@ if (!class_exists('Membrr_EE')) {
 		* @param date $next_charge_date
 		* @param date $end_date
 		* @param float $payment
+		* @param string|boolean $coupon
 		*
 		* @return boolean
 		*/
-		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment) {
+		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment, $coupon) {
 			// create subscription record
 			$insert_array = array(
 								'recurring_id' => $recurring_id,
@@ -557,7 +561,8 @@ if (!class_exists('Membrr_EE')) {
 								'cancelled' => '0',
 								'active' => '1',
 								'renewed_recurring_id' => '0',
-								'expiry_processed' => '0'
+								'expiry_processed' => '0',
+								'coupon' => (!empty($coupon)) ? $coupon : ''
 							);
 
 			$this->EE->db->insert('exp_membrr_subscriptions',$insert_array);
@@ -1149,7 +1154,8 @@ if (!class_exists('Membrr_EE')) {
 								'cancelled' => $row['cancelled'],
 								'expired' => $row['expired'],
 								'renewed' => (empty($row['renewed_recurring_id'])) ? FALSE : TRUE,
-								'renewed_recurring_id' => $row['renewed_recurring_id']
+								'renewed_recurring_id' => $row['renewed_recurring_id'],
+								'coupon' => $row['coupon']
 							);
 			}
 			
