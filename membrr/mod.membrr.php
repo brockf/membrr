@@ -1159,10 +1159,6 @@ class Membrr {
 					$this->EE->load->model('member_model');
 					$member_id = $this->EE->member_model->create_member($member_data);
 					
-					// call member_member_register hook
-					$edata = $this->EE->extensions->call('member_member_register', $member_data, $member_id);
-					if ($this->EE->extensions->end_script === TRUE) return;
-					
 					// handle custom fields passed in POST
 					$result = $this->EE->db->get('exp_member_fields');
 					$fields = array();
@@ -1179,7 +1175,11 @@ class Membrr {
 						
 						$this->EE->member_model->update_member_data($member_id, $update_fields);
 					}
-					// end custom fields	
+					// end custom fields
+					
+					// call member_member_register hook
+					$edata = $this->EE->extensions->call('member_member_register', $member_data, $member_id);
+					if ($this->EE->extensions->end_script === TRUE) return;	
 						
 					if (empty($member_id)) {
 						$errors[] = 'Member account could not be created.';
