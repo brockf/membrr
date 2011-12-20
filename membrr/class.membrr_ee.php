@@ -524,10 +524,14 @@ if (!class_exists('Membrr_EE')) {
 			$this->EE->db->update('exp_membrr_subscriptions', array('renewed_recurring_id' => $new_subscription), array('recurring_id' => $old_subscription));
 		
 			// if this subscription is linked to weblog posts and we're renewing, let's update those
-			$result = $this->EE->db->select('*')->from('exp_membrr_channel_posts')->where('recurring_id',$old_subscription)->get();
+			$result = $this->EE->db->where('recurring_id',$old_subscription)
+								   ->get('exp_membrr_channel_posts');
 			
 			if ($result->num_rows() > 0) {
-				$this->EE->db->update('exp_membrr_channel_posts',array('recurring_id' => $new_subscription), array('recurring_id' => $old_subscription));
+				$this->EE->db->update('exp_membrr_channel_posts', array(
+														'recurring_id' => $new_subscription,
+														'active' => '1'
+														), array('recurring_id' => $old_subscription));
 			}
 			
 			return TRUE;
