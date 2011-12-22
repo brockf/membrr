@@ -19,8 +19,8 @@
 * Membrr Module
 *
 * Enables frontend template tags:
-*   - {exp:membrr:update_form}
-*	- {exp:membrr:order_form}
+*   - {exp:membrr:update_form redirect_url="/test"}
+*	- {exp:membrr:order_form redirect_url="/test"}
 *	- {exp:membrr:quick_order_form} e.g., {exp:membrr:quick_order_form button="Subscribe Now!" plan_id="X"}
 *	- {exp:membrr:subscriptions}{/exp:membrr:subscriptions} e.g. {exp:membrr:subscriptions id="X" date_format="Y-m-d"}
 *	- {exp:membrr:subscribed plan="X"}{/exp:membrr:subscribed}
@@ -1341,137 +1341,196 @@ class Membrr {
 			}	
 		}
 		
-		if (validation_errors()) {
-			// neat little hack to get an array of errors
-			$form_errors = validation_errors('', '[|]');
-			$form_errors = explode('[|]',$form_errors);
+		$variables = array();
+		
+		error_reporting(E_ALL);
+		ini_set('display_errors','On');
+		
+		// get content of templates
+    	$sub_return = $this->EE->TMPL->tagdata;
+
+		
+		// have we been passed $variables already?
+		if ($this->EE->session->flashdata('membrr_variables')) {
+			$temp_data = $this->membrr->GetTempData($this->EE->session->flashdata('membrr_variables'));
 			
-			foreach ($form_errors as $form_error) {
-				$errors[] = $form_error;
+			$temp_data = @unserialize($temp_data);
+			
+			if (is_array($temp_data)) {
+				$variables = $temp_data;
 			}
 		}
-    	
-    	// get content of templates
-    	$sub_return = $this->EE->TMPL->tagdata;
+		
+		if (empty($variables)) {
+			if (validation_errors()) {
+				// neat little hack to get an array of errors
+				$form_errors = validation_errors('', '[|]');
+				$form_errors = explode('[|]',$form_errors);
+				
+				foreach ($form_errors as $form_error) {
+					$errors[] = $form_error;
+				}
+			}
 			
-		if ($this->EE->session->userdata('member_id')) {	
-			// get customer information
-			$address = $this->membrr->GetAddress($this->EE->session->userdata('member_id'));
-			
-			$this->EE->load->model('member_model');
-		    $member = $this->EE->member_model->get_member_data($this->EE->session->userdata('member_id'));
-		    $member = $member->row_array();
-		}
-		else {
-			$address = array(
-							'first_name' => '',
-							'last_name' => '',
-							'address' => '',
-							'address_2' => '',
-							'city' => '',
-							'region' => '',
-							'region_other' => '',
-							'country' => '',
-							'postal_code' => '',
-							'email' => '',
-							'company' => '',
-							'phone' => ''
-						);
-						
-			$member = array(
-							'email' => ''
-						);	
-		}
-		
-		$variables = array(
-						'first_name' => ($this->EE->input->post('first_name')) ? $this->EE->input->post('first_name') : $address['first_name'], 
-						'last_name' => ($this->EE->input->post('last_name')) ? $this->EE->input->post('last_name') : $address['last_name'],
-						'address' => ($this->EE->input->post('address')) ? $this->EE->input->post('address') : $address['address'],
-						'address_2' => ($this->EE->input->post('address_2')) ? $this->EE->input->post('address_2') : $address['address_2'],
-						'city' => ($this->EE->input->post('city')) ? $this->EE->input->post('city') : $address['city'],
-						'region' => ($this->EE->input->post('region')) ? $this->EE->input->post('region') : $address['region'],
-						'region_other' => ($this->EE->input->post('region_other')) ? $this->EE->input->post('region_other') : $address['region_other'], 
-						'country' => ($this->EE->input->post('country')) ? $this->EE->input->post('country') : $address['country'],
-						'postal_code' => ($this->EE->input->post('postal_code')) ? $this->EE->input->post('postal_code') : $address['postal_code'],
-						'email' => ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email'],
-						'company' => ($this->EE->input->post('company')) ? $this->EE->input->post('company') : $address['company'],
-						'phone' => ($this->EE->input->post('phone')) ? $this->EE->input->post('phone') : $address['phone']
-					);
-					
-		// prep credit card fields
-		
-		// prep expiry month options
-		$months = '';
-		for ($i = 1; $i <= 12; $i++) {
-	       $month = str_pad($i, 2, "0", STR_PAD_LEFT);
-	       $month_text = date('M',strtotime('2010-' . $month . '-01'));
-	       
-	       $months .= '<option value="' . $month . '">' . $month . ' - ' . $month_text . '</option>' . "\n";
-	    }
-	    
-	    $variables['cc_expiry_month_options'] = $months;
-	    
-	    // prep same for years
-	    
-	    $years = '';
-		$now = date('Y');
-		$future = $now + 10;
-		for ($i = $now; $i <= $future; $i++) {
-			$years .= '<option value="' . $i . '">' . $i . '</option>';
-		}
-	    
-	    $variables['cc_expiry_year_options'] = $years;
-	    
-	    // prep regions
-	    $regions = $this->membrr->GetRegions();
-		
-		if ($this->EE->input->post('region')) {
-			$customer_region = $this->EE->input->post('region');
-		}
-		elseif (isset($address['region'])) {
-			$customer_region = $address['region'];
-		}
-		else {
-			$customer_region = '';
-		}
-		
-		$return = '';
-		foreach ($regions as $region_code => $region) {
-			$selected = ($customer_region == $region_code) ? ' selected="selected"' : '';
-			$return .= '<option value="' . $region_code . '"' . $selected . '>' . $region . '</option>';
-		}
-		
-		$region_options = $return;
-		
-		$variables['region_options'] = $region_options;
-		reset($regions);
-		$variables['region_raw_options'] = $regions;
+			// prep errors
+		    $variables['errors_array'] = $errors;
+		    
+		    $error_string = '';
+		    foreach ($errors as $error) {
+		    	$error_string .= '<div>' . $error . '</div>';
+		    }
+		    $variables['errors'] = $error_string;
+				
+			if ($this->EE->session->userdata('member_id')) {	
+				// get customer information
+				$address = $this->membrr->GetAddress($this->EE->session->userdata('member_id'));
+				
+				$this->EE->load->model('member_model');
+			    $member = $this->EE->member_model->get_member_data($this->EE->session->userdata('member_id'));
+			    $member = $member->row_array();
+			}
+			else {
+				$address = array(
+								'first_name' => '',
+								'last_name' => '',
+								'address' => '',
+								'address_2' => '',
+								'city' => '',
+								'region' => '',
+								'region_other' => '',
+								'country' => '',
+								'postal_code' => '',
+								'email' => '',
+								'company' => '',
+								'phone' => ''
+							);
 							
-		// field: customer country
-		$countries = $this->membrr->GetCountries();
-		
-		if ($this->EE->input->post('country')) {
-			$customer_country = $this->EE->input->post('country');
+				$member = array(
+								'email' => ''
+							);	
+			}
+			
+			$variables = array_merge($variables, array(
+							'first_name' => ($this->EE->input->post('first_name')) ? $this->EE->input->post('first_name') : $address['first_name'], 
+							'last_name' => ($this->EE->input->post('last_name')) ? $this->EE->input->post('last_name') : $address['last_name'],
+							'address' => ($this->EE->input->post('address')) ? $this->EE->input->post('address') : $address['address'],
+							'address_2' => ($this->EE->input->post('address_2')) ? $this->EE->input->post('address_2') : $address['address_2'],
+							'city' => ($this->EE->input->post('city')) ? $this->EE->input->post('city') : $address['city'],
+							'region' => ($this->EE->input->post('region')) ? $this->EE->input->post('region') : $address['region'],
+							'region_other' => ($this->EE->input->post('region_other')) ? $this->EE->input->post('region_other') : $address['region_other'], 
+							'country' => ($this->EE->input->post('country')) ? $this->EE->input->post('country') : $address['country'],
+							'postal_code' => ($this->EE->input->post('postal_code')) ? $this->EE->input->post('postal_code') : $address['postal_code'],
+							'email' => ($this->EE->input->post('email')) ? $this->EE->input->post('email') : $member['email'],
+							'company' => ($this->EE->input->post('company')) ? $this->EE->input->post('company') : $address['company'],
+							'phone' => ($this->EE->input->post('phone')) ? $this->EE->input->post('phone') : $address['phone'],
+							'username' => ($this->EE->input->post('username')) ? $this->EE->input->post('username') : '',
+							'screen_name' => ($this->EE->input->post('screen_name')) ? $this->EE->input->post('screen_name') : ''
+						));
+						
+			// pre-populate member custom fields
+			$result = $this->EE->db->get('exp_member_fields');
+			$fields = array();
+			if ($result->num_rows() > 0) {
+				foreach ($result->result_array() as $field) {
+					$variables[$field['m_field_name']] = ($this->EE->input->post($field['m_field_name'])) ? $this->EE->input->post($field['m_field_name']) : '';
+				}
+			}
+						
+						
+			// prep credit card fields
+			
+			// prep expiry month options
+			$months = '';
+			for ($i = 1; $i <= 12; $i++) {
+		       $month = str_pad($i, 2, "0", STR_PAD_LEFT);
+		       $month_text = date('M',strtotime('2010-' . $month . '-01'));
+		       
+		       $selected = ($this->EE->input->post('cc_expiry_month') and $this->EE->input->post('cc_expiry_month') == $month) ? ' selected="selected"' : '';
+		       
+		       $months .= '<option value="' . $month . '"' . $selected . '>' . $month . ' - ' . $month_text . '</option>' . "\n";
+		    }
+		    
+		    $variables['cc_expiry_month_options'] = $months;
+		    
+		    // prep same for years
+		    
+		    $years = '';
+			$now = date('Y');
+			$future = $now + 10;
+			for ($i = $now; $i <= $future; $i++) {
+				$selected = ($this->EE->input->post('cc_expiry_year') and $this->EE->input->post('cc_expiry_year') == $i) ? ' selected="selected"' : '';
+				
+				$years .= '<option value="' . $i . '"' . $selected . '>' . $i . '</option>';
+			}
+		    
+		    $variables['cc_expiry_year_options'] = $years;
+		    
+		    // prep regions
+		    $regions = $this->membrr->GetRegions();
+			
+			if ($this->EE->input->post('region')) {
+				$customer_region = $this->EE->input->post('region');
+			}
+			elseif (isset($address['region'])) {
+				$customer_region = $address['region'];
+			}
+			else {
+				$customer_region = '';
+			}
+			
+			$return = '';
+			foreach ($regions as $region_code => $region) {
+				$selected = ($customer_region == $region_code) ? ' selected="selected"' : '';
+				$return .= '<option value="' . $region_code . '"' . $selected . '>' . $region . '</option>';
+			}
+			
+			$region_options = $return;
+			
+			$variables['region_options'] = $region_options;
+			reset($regions);
+			$variables['region_raw_options'] = $regions;
+								
+			// field: customer country
+			$countries = $this->membrr->GetCountries();
+			
+			if ($this->EE->input->post('country')) {
+				$customer_country = $this->EE->input->post('country');
+			}
+			elseif (isset($address['country'])) {
+				$customer_country = $address['country'];
+			}
+			else {
+				$customer_country = '';
+			}
+			
+			$return = '';
+			foreach ($countries as $country_code => $country) {
+				$selected = ($customer_country == $country_code) ? ' selected="selected"' : '';
+				$return .= '<option value="' . $country_code . '"' . $selected . '>' . $country . '</option>';
+			}
+	
+			$country_options = $return;
+			
+			$variables['country_options'] = $country_options;
+			reset($countries);
+			$variables['country_raw_options'] = $countries;
+			
+			// If the form was just submitted, we actually don't want to just display it again.
+		    // This is because, if a user account was just created, EE thinks the user is logged in (but
+		    // we just deleted their account, so they really aren't!)
+		    // Let's save all the $variables we just prepped and reload the page
+		    if ($this->EE->input->post('membrr_order_form')) {	
+		    	$this->EE->load->helper('url');
+		    	
+		    	// save data
+		    	$temp_data_id = $this->membrr->SaveTempData(serialize($variables));
+		    	
+			    $this->EE->session->set_flashdata('membrr_variables', $temp_data_id);
+			    header('Location: ' . current_url());
+			    die();
+			}
 		}
-		elseif (isset($address['country'])) {
-			$customer_country = $address['country'];
-		}
-		else {
-			$customer_country = '';
-		}
-		
-		$return = '';
-		foreach ($countries as $country_code => $country) {
-			$selected = ($customer_country == $country_code) ? ' selected="selected"' : '';
-			$return .= '<option value="' . $country_code . '"' . $selected . '>' . $country . '</option>';
-		}
-
-		$country_options = $return;
-		
-		$variables['country_options'] = $country_options;
-		reset($countries);
-		$variables['country_raw_options'] = $countries;
-		
+			
 		// prep gateway options
 		require(dirname(__FILE__) . '/opengateway.php');
 		$this->server = new OpenGateway;
@@ -1508,15 +1567,6 @@ class Membrr {
 	    // prep form action
 	    $variables['form_action'] = ($_SERVER["SERVER_PORT"] == "443") ? str_replace('http://','https://',$this->EE->functions->fetch_current_uri()) : $this->EE->functions->fetch_current_uri();
 	    $variables['form_method'] = 'POST';
-	    
-	    // prep errors
-	    $variables['errors_array'] = $errors;
-	    
-	    $error_string = '';
-	    foreach ($errors as $error) {
-	    	$error_string .= '<div>' . $error . '</div>';
-	    }
-	    $variables['errors'] = $error_string;
 	    
 	    // parse the tag content with our new variables
 	    $var_data = array();

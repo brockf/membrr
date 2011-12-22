@@ -1446,6 +1446,42 @@ if (!class_exists('Membrr_EE')) {
 		}
 		
 		/**
+		* Save Data
+		*
+		* Save some temporary data
+		*
+		* @param string $data
+		*
+		* @return int $id
+		*/
+		function SaveTempData ($string) {
+			$this->EE->db->insert('exp_membrr_temp', array('temp_data' => $string));
+			
+			return $this->EE->db->insert_id();
+		}
+		
+		/**
+		* Get Data
+		*
+		* Retrieve some data
+		*
+		* @param int $id
+		*
+		* @return string $data
+		*/
+		function GetTempData ($id) {
+			$result = $this->EE->db->where('temp_id', $id)
+								   ->get('exp_membrr_temp');
+								   
+			if ($result->num_rows() !== 1) {
+				return FALSE;
+			}				
+			else {
+				return $result->row()->temp_data;
+			}				   
+		}
+		
+		/**
 		* Get Config
 		*
 		* Retrieve the names/values in the config table

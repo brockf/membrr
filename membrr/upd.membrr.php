@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.67';
+	var $version = '1.68';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -345,6 +345,14 @@ class Membrr_upd {
         
         if ($current < '1.67') { 
         	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` ADD COLUMN `coupon` VARCHAR(250)');
+        }
+        
+        if ($current < '1.68') {
+        	$this->EE->db->query('CREATE TABLE `exp_membrr_temp` (
+									  `temp_id` int(11) unsigned NOT NULL auto_increment,
+									  `temp_data` text,
+									  PRIMARY KEY  (`temp_id`)
+									) ENGINE=MyISAM DEFAULT CHARSET=utf8;');
         }
 		
 		return TRUE;
@@ -723,6 +731,12 @@ class Membrr_upd {
 				VALUES
 					(895, \'CW\', \'CW\', \'Curaçao\', \'1\'),
 					(896, \'SX\', \'SX\', \'Sint Maarten\', \'1\');';
+					
+		$sql[] = 'CREATE TABLE `exp_membrr_temp` (
+					  `temp_id` int(11) unsigned NOT NULL auto_increment,
+					  `temp_data` text,
+					  PRIMARY KEY  (`temp_id`)
+					) ENGINE=MyISAM DEFAULT CHARSET=utf8;';					
                                            
         foreach ($sql as $query)
         {
