@@ -1294,6 +1294,9 @@ class Membrr {
 					$this->EE->session->userdata['username']  = $username;
 				}
 					
+				// they may be getting passed to external checkout... so let's save the redirect_url
+				$this->EE->functions->set_cookie('membrr_redirect_url', $this->EE->TMPL->fetch_param('redirect_url'), 86400); 	
+					
 				// subscribe!			
 				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, FALSE, FALSE, FALSE, '', '', $gateway_id, $renew_subscription, $coupon);
 							
@@ -1322,10 +1325,15 @@ class Membrr {
 					// success!
 					
 					// redirect to URL
-					if (!empty($plan['redirect_url'])) {
-						header('Location: ' . $plan['redirect_url']);
-						die();
+					if ($this->EE->TMPL->fetch_param('redirect_url')) {
+						$redirect_url = $this->EE->TMPL->fetch_param('redirect_url');
 					}
+					elseif (!empty($plan['redirect_url'])) {
+						$redirect_url = $plan['redirect_url'];
+					}
+					
+					header('Location: ' . $redirect_url);
+					die();
 				}
 			}
 			else {
@@ -2202,7 +2210,16 @@ class Membrr {
 						}
 						
 						// redirect
-						header('Location: ' . $plan['redirect_url']);
+						$cookie = $this->EE->input->cookie('membrr_redirect_url');
+						
+						if (!empty($cookie)) {
+							$redirect_url = $cookie;
+						}
+						else {
+							$redirect_url = $plan['redirect_url'];
+						}
+						
+						header('Location: ' . $redirect_url);
 						die();
 					}
 				}
