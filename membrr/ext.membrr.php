@@ -167,7 +167,7 @@ class Membrr_ext
     }
     
     /**
-    * update_email
+    * Hook: update_email
     *
     * Update a customer's record at OG when they edit their profile
 	* with Solspace's User module.
