@@ -1414,6 +1414,7 @@ class Membrr_mcp {
 				$post_key = $this->EE->input->post('secret_key');
 				$post_currency_symbol = $this->EE->input->post('currency_symbol');
 				$post_gateway = $this->EE->input->post('gateway');
+				$update_email = ($this->EE->input->post('update_email')) ? '1' : '0';
 				
 				$post_url = rtrim($post_url, '/');
 				
@@ -1434,7 +1435,8 @@ class Membrr_mcp {
 								         'api_id' => $post_id,
 								         'secret_key' => $post_key,
 								         'currency_symbol' => $post_currency_symbol,
-								         'gateway' => $post_gateway
+								         'gateway' => $post_gateway,
+								         'update_email' => $update_email
 										);
 										
 						$this->EE->db->update('exp_membrr_config',$update_vars);
@@ -1445,7 +1447,8 @@ class Membrr_mcp {
 								         'api_id' => $post_id,
 								         'secret_key' => $post_key,
 								         'currency_symbol' => $post_currency_symbol,
-								         'gateway' => '0'
+								         'gateway' => '0',
+								         'update_email' => $update_email
 				 					);
 				 		
 				 		$this->EE->db->insert('exp_membrr_config', $insert_vars);
@@ -1469,6 +1472,7 @@ class Membrr_mcp {
 			$secret_key = ($this->EE->input->post('secret_key')) ? $this->EE->input->post('secret_key') : $this->config['secret_key'];
 			$currency_symbol = ($this->EE->input->post('currency_symbol')) ? $this->EE->input->post('currency_symbol') : $this->config['currency_symbol'];
 			$default_gateway = ($this->EE->input->post('gateway')) ? $this->EE->input->post('gateway') : $this->config['gateway'];
+			$update_email = ($this->EE->input->post('update_email')) ? TRUE : $this->config['update_email'];
 		}
 		else {
 			$api_url = ($this->EE->input->post('api_url')) ? $this->EE->input->post('api_url') : 'https://www.yourdomain.com/opengateway'; 
@@ -1476,6 +1480,7 @@ class Membrr_mcp {
 			$secret_key = ($this->EE->input->post('secret_key')) ? $this->EE->input->post('secret_key') : '';
 			$currency_symbol = ($this->EE->input->post('currency_symbol')) ? $this->EE->input->post('currency_symbol') : '$';
 			$default_gateway = ($this->EE->input->post('gateway')) ? $this->EE->input->post('gateway') : '';
+			$update_email = ($this->EE->input->post('update_email')) ? TRUE : FALSE;
 		}
 		
 		// load possible gateways
@@ -1518,6 +1523,7 @@ class Membrr_mcp {
 		$vars['gateways'] = (isset($gateway_options)) ? $gateway_options : FALSE;
 		$vars['countries_text'] = $countries_text;
 		$vars['failed_to_connect'] = isset($failed_to_connect) ? $failed_to_connect : FALSE;
+		$vars['update_email'] = $update_email;
 		
 		return $this->EE->load->view('settings',$vars,TRUE);
 	}

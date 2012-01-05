@@ -1495,7 +1495,11 @@ if (!class_exists('Membrr_EE')) {
 				return FALSE;
 			}
 			else {
-				return $result->row_array();
+				$settings = $result->row_array();
+				
+				$settings['update_email'] = (empty($settings['update_email'])) ? FALSE : TRUE;
+				
+				return $settings;
 			}
 		}
 		

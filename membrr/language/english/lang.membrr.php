@@ -193,5 +193,6 @@ $lang = array(
 	'membrr_available_countries' => 'Available Countries',
 	'membrr_coupon_code' => 'Coupon',
 	'membrr_gateway' => 'Gateway',
-	'membrr_options' => 'Options'
+	'membrr_options' => 'Options',
+	'membrr_update_email' => 'Update email in billing records when user updates profile (requires Solspace\'s User module)'
 );

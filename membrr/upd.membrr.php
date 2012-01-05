@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.68';
+	var $version = '1.69';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -354,6 +354,10 @@ class Membrr_upd {
 									  PRIMARY KEY  (`temp_id`)
 									) ENGINE=MyISAM DEFAULT CHARSET=utf8;');
         }
+        
+        if ($current < '1.69') {
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_config` ADD COLUMN `update_email` TINYINT(1) NOT NULL');
+        }
 		
 		return TRUE;
 	}
@@ -377,6 +381,7 @@ class Membrr_upd {
 				  `secret_key` varchar(80) NOT NULL,
 				  `currency_symbol` varchar(10) NOT NULL,
 				  `gateway` varchar(25) NOT NULL,
+				  `update_email` TINYINT(1) NOT NULL
 				  PRIMARY KEY  (`api_url`)
 				  ) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
 				  

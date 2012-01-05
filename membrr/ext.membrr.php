@@ -23,7 +23,7 @@ class Membrr_ext
 {
 	var $ext_class		= "Membrr_ext";
 	var $name			= "Membrr";
-	var $version		= "1.2";
+	var $version		= "1.3";
 	var $description	= "Part of the Membrr for EE module for subscription memberships.";
 	var $settings_exist	= "n";
 	var $docs_url		= "";
@@ -66,6 +66,18 @@ class Membrr_ext
 						'enabled'      => 'y'
 					);
 		$this->EE->db->insert('exp_extensions',$insert_vars);
+		
+		$data = array(
+				        'class'     => $this->ext_class,
+				        'method'    => 'update_email',
+				        'hook'      => 'user_edit_end',
+				        'settings'  => '',
+				        'priority'  => 10,
+				        'version'   => $this->version,
+				        'enabled'   => 'y'
+				    );
+		
+		$this->EE->db->insert('exp_extensions', $data);
 	}
 	
 	//	End activate
@@ -79,6 +91,20 @@ class Membrr_ext
 		if ($current == '' OR $current == $this->version)
 		{
 			return FALSE;
+		}
+		
+		if ($current < '1.3') {
+			$data = array(
+		        'class'     => $this->ext_class,
+		        'method'    => 'update_email',
+		        'hook'      => 'user_edit_end',
+		        'settings'  => '',
+		        'priority'  => 10,
+		        'version'   => $this->version,
+		        'enabled'   => 'y'
+		    );
+		
+		    $this->EE->db->insert('exp_extensions', $data);
 		}
 		
 		$this->EE->db->update('exp_extensions',array('version' => $this->version),array('class' => $this->ext_class));
@@ -139,6 +165,45 @@ class Membrr_ext
     	
     	return $orig_loc;
     }
+    
+    /**
+    * update_email
+    *
+    * Update a customer's record at OG when they edit their profile
+	* with Solspace's User module.
+	*/
+    function update_email ($member_id, $member_data, $custom_data) 
+	{
+	  	$config = $this->membrr->GetConfig();
+		
+		if ($config['update_email'] == FALSE) {
+			return FALSE;
+		}
+		
+		if (!class_exists('OpenGateway')) {
+			require(dirname(__FILE__) . '/opengateway.php');
+		}
+		
+		$connect_url = $config['api_url'] . '/api';
+		$server = new OpenGateway;
+		$server->Authenticate($config['api_id'], $config['secret_key'], $connect_url);
+		
+		$server->SetMethod('GetCustomers');
+		$server->Param('internal_id', $member_id);
+		$response = $server->Process();
+		
+		if ($response['total_results'] > 0) {	
+			// there is already a customer record here
+			$customer = (!isset($response['customers']['customer'][0])) ? $response['customers']['customer'] : $response['customers']['customer'][0];
+			
+		  	$server->SetMethod('UpdateCustomer');
+			$server->Param('customer_id',$customer['id']);
+			$server->Param('email', $member_data['email']);
+			$response = $server->Process();
+		}
+		
+		return TRUE;
+	}
 }
 
 //	End class
