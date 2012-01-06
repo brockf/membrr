@@ -23,7 +23,7 @@ class Membrr_ext
 {
 	var $ext_class		= "Membrr_ext";
 	var $name			= "Membrr";
-	var $version		= "1.3";
+	var $version		= "1.31";
 	var $description	= "Part of the Membrr for EE module for subscription memberships.";
 	var $settings_exist	= "n";
 	var $docs_url		= "";
@@ -78,6 +78,18 @@ class Membrr_ext
 				    );
 		
 		$this->EE->db->insert('exp_extensions', $data);
+		
+		$data = array(
+				        'class'     => $this->ext_class,
+				        'method'    => 'member_after_update',
+				        'hook'      => 'member_after_update',
+				        'settings'  => '',
+				        'priority'  => 10,
+				        'version'   => $this->version,
+				        'enabled'   => 'y'
+				    );
+		
+		$this->EE->db->insert('exp_extensions', $data);
 	}
 	
 	//	End activate
@@ -98,6 +110,20 @@ class Membrr_ext
 		        'class'     => $this->ext_class,
 		        'method'    => 'update_email',
 		        'hook'      => 'user_edit_end',
+		        'settings'  => '',
+		        'priority'  => 10,
+		        'version'   => $this->version,
+		        'enabled'   => 'y'
+		    );
+		
+		    $this->EE->db->insert('exp_extensions', $data);
+		}
+		
+		if ($current < '1.31') {
+			$data = array(
+		        'class'     => $this->ext_class,
+		        'method'    => 'member_after_update',
+		        'hook'      => 'member_after_update',
 		        'settings'  => '',
 		        'priority'  => 10,
 		        'version'   => $this->version,
@@ -203,6 +229,15 @@ class Membrr_ext
 		}
 		
 		return TRUE;
+	}
+	
+	/**
+	* member_after_update
+	*
+	* Handle this hook call and pass above.
+	*/
+	function member_after_update ($member_id, $member_data) {
+		return $this->update_email($member_id, $member_data, array());
 	}
 }
 
