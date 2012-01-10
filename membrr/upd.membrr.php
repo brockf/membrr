@@ -381,7 +381,7 @@ class Membrr_upd {
 				  `secret_key` varchar(80) NOT NULL,
 				  `currency_symbol` varchar(10) NOT NULL,
 				  `gateway` varchar(25) NOT NULL,
-				  `update_email` TINYINT(1) NOT NULL
+				  `update_email` TINYINT(1) NOT NULL,
 				  PRIMARY KEY  (`api_url`)
 				  ) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
 				  
