@@ -194,5 +194,5 @@ $lang = array(
 	'membrr_coupon_code' => 'Coupon',
 	'membrr_gateway' => 'Gateway',
 	'membrr_options' => 'Options',
-	'membrr_update_email' => 'Update email in billing records when user updates profile (requires Solspace\'s User module or EE 2.5)'
+	'membrr_update_email' => 'Update email in billing records when user updates profile (requires Solspace\'s User module, Zoospace Visitor, or EE 2.5)'
 );
