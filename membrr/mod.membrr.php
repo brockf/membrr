@@ -1156,6 +1156,16 @@ class Membrr {
 										'password' => sha1($password)	
 									);
 					
+					// Handle other, less used, fields
+					if ($this->EE->input->post('url')) $member_data['url'] = $this->EE->input->post('url');
+					if ($this->EE->input->post('location')) $member_data['location'] = $this->EE->input->post('location');
+					if ($this->EE->input->post('occupation')) $member_data['occupation'] = $this->EE->input->post('occupation');
+					if ($this->EE->input->post('interests')) $member_data['url'] = $this->EE->input->post('interests');	
+					if ($this->EE->input->post('bday_d')) $member_data['bday_d'] = $this->EE->input->post('bday_d');
+					if ($this->EE->input->post('bday_m')) $member_data['bday_m'] = $this->EE->input->post('bday_m');
+					if ($this->EE->input->post('bday_y')) $member_data['bday_y'] = $this->EE->input->post('bday_y');
+					if ($this->EE->input->post('bio')) $member_data['bio'] = $this->EE->input->post('bio');
+					
 					$this->EE->load->model('member_model');
 					$member_id = $this->EE->member_model->create_member($member_data);
 					
