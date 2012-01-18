@@ -228,7 +228,7 @@ class Membrr_ext
 	{
 	  	$config = $this->membrr->GetConfig();
 		
-		if ($config['update_email'] == FALSE) {
+		if ($config['update_email'] == FALSE or !isset($member_data['email'])) {
 			return FALSE;
 		}
 		
