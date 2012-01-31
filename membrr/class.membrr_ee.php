@@ -81,7 +81,7 @@ if (!class_exists('Membrr_EE')) {
 									  ->get('exp_membrr_plans');
 									  
 							if ($plan_result->num_rows() > 0) {
-								if ($plan_result->row()->plan_member_group == $row['plan_member_group']) {
+								if ($plan_result->row()->plan_member_group != 0) {
 									$perform_expiration = FALSE;
 								}
 							}									  
