@@ -1360,10 +1360,7 @@ class Membrr {
 		}
 		
 		$variables = array();
-		
-		error_reporting(E_ALL);
-		ini_set('display_errors','On');
-		
+				
 		// get content of templates
     	$sub_return = $this->EE->TMPL->tagdata;
 
