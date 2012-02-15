@@ -63,9 +63,9 @@ if (!class_exists('OpenGateway')) {
 		*/
 	    public function Param($name, $value, $parent = FALSE)  {
 	        if($parent) {
-	       	   $this->params->$parent->$name = (string)$value;
+	       	   $this->params->$parent->$name = htmlspecialchars((string)$value, null, 'UTF-8');
 	        } else {
-	      	   $this->params->$name = (string)$value;
+	      	   $this->params->$name = htmlspecialchars((string)$value, null, 'UTF-8');
 	        }
 	        
 	        return true;
@@ -139,7 +139,6 @@ if (!class_exists('OpenGateway')) {
 	        	
 	        	return true;
 		    }
-		     
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE); 
 			curl_setopt($ch, CURLOPT_URL, $this->post_url);
