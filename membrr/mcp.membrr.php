@@ -1914,7 +1914,12 @@ class Membrr_mcp {
 	function get_notification_url () {
 		$action_id = $this->EE->cp->fetch_action_id('Membrr', 'post_notify');
 		
-		return $this->EE->functions->create_url('?ACT=' . $action_id, 0);
+		$url = $this->EE->functions->create_url('?ACT=' . $action_id, 0);
+		
+		// fix an issue that pops up with force_query_strings ON
+		$url = str_replace('/?/?','/?',$url);
+		
+		return $url;
 	}
 }
 
