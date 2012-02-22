@@ -62,10 +62,11 @@ if (!class_exists('OpenGateway')) {
 		* @return bool true;
 		*/
 	    public function Param($name, $value, $parent = FALSE)  {
+	    
 	        if($parent) {
 	       	   $this->params->$parent->$name = htmlspecialchars((string)$value, null, 'UTF-8');
 	        } else {
-	      	   $this->params->$name = htmlspecialchars((string)$value, null, 'UTF-8');
+	      	   $this->params->$name = ($name != 'return_url' && $name != 'cancel_url') ? htmlspecialchars((string)$value, null, 'UTF-8') : $value;
 	        }
 	        
 	        return true;
@@ -147,7 +148,6 @@ if (!class_exists('OpenGateway')) {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $xml); 
 			
 			$data = curl_exec($ch);
-			
 			if (curl_errno($ch)) {
 			    print curl_error($ch);
 			}
@@ -191,6 +191,7 @@ if (!class_exists('OpenGateway')) {
 		* @return array PHP array
 		*/
 		private function toArray($xml) {
+
 	        if (is_string($xml)) $xml = new SimpleXMLElement($xml);
 	        $children = $xml->children();
 	        if ( !$children ) return (string) $xml;
