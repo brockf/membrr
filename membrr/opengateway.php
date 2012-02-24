@@ -66,7 +66,7 @@ if (!class_exists('OpenGateway')) {
 	        if($parent) {
 	       	   $this->params->$parent->$name = htmlspecialchars((string)$value, null, 'UTF-8');
 	        } else {
-	      	   $this->params->$name = ($name != 'return_url' && $name != 'cancel_url') ? htmlspecialchars((string)$value, null, 'UTF-8') : $value;
+	      	   $this->params->$name = htmlspecialchars((string)$value, null, 'UTF-8');
 	        }
 	        
 	        return true;
