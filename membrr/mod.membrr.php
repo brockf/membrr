@@ -375,6 +375,7 @@ class Membrr {
 								'interval' => $plan['interval'],
 								'occurrences' => $plan['occurrences'],
 								'price' => money_format("%!^i",$plan['price']),
+								'initial_charge' => money_format("%!^i",$plan['initial_charge']),
 								'total_subscribers' => $plan['num_subscribers']
 							);
 			
