@@ -826,7 +826,8 @@ if (!class_exists('Membrr_EE')) {
 							return $subscription['recurring_id'];
 						}
 					
-						$this->EE->db->select('recurring_id',$subscription['recurring_id'])
+						$this->EE->db->select('recurring_id')
+									 ->where('recurring_id',$subscription['recurring_id'])
 									 ->where('channel_id',$channel_id)
 									 ->where('active','1');
 									 
