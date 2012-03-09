@@ -792,6 +792,7 @@ if (!class_exists('Membrr_EE')) {
 				// subscription mustn't be linked to another post		   
 				$this->EE->db->select('exp_membrr_subscriptions.recurring_id')
 							 ->join('exp_membrr_channel_posts','exp_membrr_subscriptions.recurring_id = exp_membrr_channel_posts.recurring_id','left')
+							 ->join('exp_channel_data','exp_channel_data.entry_id = exp_membrr_channel_posts.channel_entry_id','inner')
 						 	 ->where('exp_membrr_subscriptions.member_id',$user)
 							 ->where('(`exp_membrr_channel_posts`.`post_id` IS NULL or `exp_membrr_channel_posts`.`active` != \'1\')',null,FALSE)
 						     ->where('`plan_id` IN (' . $plans_query . ')',null,FALSE)
@@ -829,7 +830,8 @@ if (!class_exists('Membrr_EE')) {
 						$this->EE->db->select('recurring_id')
 									 ->where('recurring_id',$subscription['recurring_id'])
 									 ->where('channel_id',$channel_id)
-									 ->where('active','1');
+									 ->where('active','1')
+									 ->join('exp_channel_data','exp_channel_data.entry_id = exp_membrr_channel_posts.channel_entry_id','inner');
 									 
 						$result = $this->EE->db->get('exp_membrr_channel_posts');
 						
