@@ -2202,7 +2202,7 @@ class Membrr {
 							// validate old subscription
 							$result = $this->EE->db->where('member_id', $this->EE->input->get('member'))
 												   ->where('recurring_id', $this->EE->input->get('renew_recurring_id'))
-												   ->where('active','1')
+												   ->where('end_date <',date('Y-m-d H:i:s'))
 												   ->get('exp_membrr_subscriptions');
 								
 							if ($result->num_rows() > 0) {
