@@ -51,24 +51,13 @@ if (!class_exists('OpenGateway')) {
 			return true;
 		}
 		
-		/**
-		* Set a Parameter
-		*
-		* Sets a parameter for the request
-		*
-		* @param string $name Name of the parameter
-		* @param string $value The Value
-		* @param string $parent The parent node name (optional)
-		* @return bool true;
-		*/
-	    public function Param($name, $value, $parent = FALSE)  {
-	    
+		public function Param($name, $value, $parent = FALSE)  {
 	        if($parent) {
-	       	   $this->params->$parent->$name = htmlspecialchars((string)$value, null, 'UTF-8');
+	           $this->params->$parent->$name = htmlspecialchars((string)$value, null, 'UTF-8');
 	        } else {
-	      	   $this->params->$name = htmlspecialchars((string)$value, null, 'UTF-8');
+	           $this->params->$name = ($name != 'return_url' && $name != 'cancel_url') ? htmlspecialchars((string)$value, null, 'UTF-8') : $value;
 	        }
-	        
+	
 	        return true;
 	    }
 	
