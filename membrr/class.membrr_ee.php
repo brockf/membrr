@@ -829,7 +829,7 @@ if (!class_exists('Membrr_EE')) {
 					
 						$this->EE->db->select('recurring_id')
 									 ->where('recurring_id',$subscription['recurring_id'])
-									 ->where('channel_id',$channel_id)
+									 ->where('exp_membrr_channel_posts.channel_id',$channel_id)
 									 ->where('active','1')
 									 ->join('exp_channel_data','exp_channel_data.entry_id = exp_membrr_channel_posts.channel_entry_id','inner');
 									 
