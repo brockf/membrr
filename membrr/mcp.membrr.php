@@ -19,7 +19,7 @@ class Membrr_mcp {
 	var $membrr; // Membrr_EE Class
 	var $EE;	 // EE SuperObject
 	var $server; // OpenGateway
-	var $per_page = 50;
+	var $per_page = 10;
 	
 	function Membrr_mcp () {
 		// load EE superobject	
@@ -766,7 +766,7 @@ class Membrr_mcp {
 	
 		// pass the relevant data to the paginate class so it can display the "next page" links
 		$this->EE->load->library('pagination');
-		$p_config = $this->pagination_config('subscriptions', $total);
+		$p_config = $this->pagination_config('subscriptions&search=' . $this->EE->input->get('search'), $total);
 	
 		$this->EE->pagination->initialize($p_config);
 		
