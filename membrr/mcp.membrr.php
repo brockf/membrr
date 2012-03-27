@@ -19,7 +19,7 @@ class Membrr_mcp {
 	var $membrr; // Membrr_EE Class
 	var $EE;	 // EE SuperObject
 	var $server; // OpenGateway
-	var $per_page = 10;
+	var $per_page = 50;
 	
 	function Membrr_mcp () {
 		// load EE superobject	
