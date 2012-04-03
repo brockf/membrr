@@ -869,7 +869,7 @@ class Membrr {
 			$form_errors = explode('[|]',$form_errors);
 			
 			foreach ($form_errors as $form_error) {
-				$errors[] = $form_error;
+				$errors[] = strip_tags($form_error);
 			}
 		}
     	
@@ -1393,7 +1393,7 @@ class Membrr {
 				$form_errors = explode('[|]',$form_errors);
 				
 				foreach ($form_errors as $form_error) {
-					$errors[] = $form_error;
+					$errors[] = strip_tags($form_error);
 				}
 			}
 			
