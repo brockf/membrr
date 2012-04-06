@@ -1049,6 +1049,9 @@ class Membrr {
     function order_form () {
     	$this->EE->load->helper('form');
 		$this->EE->load->library('form_validation');
+		
+		// load configuration
+		$this->config = $this->membrr->GetConfig();
 			    	
     	// store all errors in here
     	$errors = array();
@@ -1099,6 +1102,26 @@ class Membrr {
 			}
 			else {
 				$renew_subscription = FALSE;
+			}
+			
+			// check CAPTCHA
+			if ($this->config['use_captcha'] == TRUE) {
+				// only show to logged out users, or if we show CAPTCHA to everyone
+				if ($this->EE->config->item('captcha_require_members') == 'y' OR $this->EE->session->userdata['member_id'] == 0) {				
+					$query = $this->EE->db->query("SELECT COUNT(*) AS count FROM exp_captcha WHERE word='".$this->EE->db->escape_str($_POST['captcha'])."' AND ip_address = '".$this->EE->input->ip_address()."' AND date > UNIX_TIMESTAMP()-7200");
+		
+					if ($query->row('count') == 0)
+					{
+						$errors[] = 'The CAPTCHA text you entered was incorrect.  Please try again.';
+					}
+					else {
+						// they got it right...
+						// continue...
+					}
+
+					// clear old CAPTCHA
+					$this->EE->db->query("DELETE FROM exp_captcha WHERE (ip_address = '".$this->EE->input->ip_address()."') OR date < UNIX_TIMESTAMP()-7200");
+				}
 			}
 			
 			if ($this->EE->input->post('password')) {
@@ -1373,7 +1396,6 @@ class Membrr {
 				
 		// get content of templates
     	$sub_return = $this->EE->TMPL->tagdata;
-
 		
 		// have we been passed $variables already?
 		if ($this->EE->session->flashdata('membrr_variables')) {
@@ -1559,7 +1581,6 @@ class Membrr {
 		// prep gateway options
 		require(dirname(__FILE__) . '/opengateway.php');
 		$this->server = new OpenGateway;
-		$this->config = $this->membrr->GetConfig();
 		$this->server->Authenticate($this->config['api_id'], $this->config['secret_key'], $this->config['api_url'] . '/api');
 		$this->server->SetMethod('GetGateways');
 		$response = $this->server->Process();
@@ -1588,6 +1609,24 @@ class Membrr {
 		$variables['gateway_options'] = $gateway_options;
 		reset($gateway_raw_options);
 		$variables['gateway_raw_options'] = $gateway_raw_options;
+	    
+	    // require a CAPTCHA
+	   	if ($this->config['use_captcha'] == TRUE) {
+	   		// only show to logged out users?
+	   		if ($this->EE->config->item('captcha_require_members') == 'y' OR $this->EE->session->userdata['member_id'] == 0) {
+		    	$variables['captcha'] = $this->EE->functions->create_captcha();
+		    	
+		    	if (empty($variables['captcha'])) {
+		    		return 'Error generating CAPTCHA.  Please verify CAPTCHA settings in Admin > Security &amp; Privacy > CAPTCHA Preferences or disable CAPTCHA in Membrr > Settings.';
+		    	}
+		    }
+		    else {
+		    	$variables['captcha'] = FALSE;
+		    }
+	    }
+	    else {
+	    	$variables['captcha'] = FALSE;
+	    }
 	    
 	    // prep form action
 	    $variables['form_action'] = ($_SERVER["SERVER_PORT"] == "443") ? str_replace('http://','https://',$this->EE->functions->fetch_current_uri()) : $this->EE->functions->fetch_current_uri();

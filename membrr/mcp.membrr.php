@@ -1415,6 +1415,7 @@ class Membrr_mcp {
 				$post_currency_symbol = $this->EE->input->post('currency_symbol');
 				$post_gateway = $this->EE->input->post('gateway');
 				$update_email = ($this->EE->input->post('update_email')) ? '1' : '0';
+				$use_captcha = ($this->EE->input->post('use_captcha')) ? '1' : '0';
 				
 				$post_url = rtrim($post_url, '/');
 				
@@ -1436,7 +1437,8 @@ class Membrr_mcp {
 								         'secret_key' => $post_key,
 								         'currency_symbol' => $post_currency_symbol,
 								         'gateway' => $post_gateway,
-								         'update_email' => $update_email
+								         'update_email' => $update_email,
+								         'use_captcha' => $use_captcha
 										);
 										
 						$this->EE->db->update('exp_membrr_config',$update_vars);
@@ -1448,7 +1450,8 @@ class Membrr_mcp {
 								         'secret_key' => $post_key,
 								         'currency_symbol' => $post_currency_symbol,
 								         'gateway' => '0',
-								         'update_email' => $update_email
+								         'update_email' => $update_email,
+								         'use_captcha' => $use_captcha
 				 					);
 				 		
 				 		$this->EE->db->insert('exp_membrr_config', $insert_vars);
@@ -1473,6 +1476,7 @@ class Membrr_mcp {
 			$currency_symbol = ($this->EE->input->post('currency_symbol')) ? $this->EE->input->post('currency_symbol') : $this->config['currency_symbol'];
 			$default_gateway = ($this->EE->input->post('gateway')) ? $this->EE->input->post('gateway') : $this->config['gateway'];
 			$update_email = ($this->EE->input->post('update_email')) ? TRUE : $this->config['update_email'];
+			$use_captcha = ($this->EE->input->post('use_captcha')) ? TRUE : $this->config['use_captcha'];
 		}
 		else {
 			$api_url = ($this->EE->input->post('api_url')) ? $this->EE->input->post('api_url') : 'https://www.yourdomain.com/opengateway'; 
@@ -1481,6 +1485,7 @@ class Membrr_mcp {
 			$currency_symbol = ($this->EE->input->post('currency_symbol')) ? $this->EE->input->post('currency_symbol') : '$';
 			$default_gateway = ($this->EE->input->post('gateway')) ? $this->EE->input->post('gateway') : '';
 			$update_email = ($this->EE->input->post('update_email')) ? TRUE : FALSE;
+			$use_captcha = ($this->EE->input->post('use_captcha')) ? TRUE : FALSE;
 		}
 		
 		// load possible gateways
@@ -1524,6 +1529,7 @@ class Membrr_mcp {
 		$vars['countries_text'] = $countries_text;
 		$vars['failed_to_connect'] = isset($failed_to_connect) ? $failed_to_connect : FALSE;
 		$vars['update_email'] = $update_email;
+		$vars['use_captcha'] = $use_captcha;
 		
 		return $this->EE->load->view('settings',$vars,TRUE);
 	}

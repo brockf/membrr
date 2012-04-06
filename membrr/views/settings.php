@@ -53,12 +53,15 @@ if ($gateways) {
 	);
 }
 
-if ($gateways) {
-	$this->table->add_row(
-		lang('membrr_update_email'),
-		form_checkbox('update_email','1',$update_email)
-	);
-}
+$this->table->add_row(
+	lang('membrr_update_email'),
+	form_checkbox('update_email','1',$update_email)
+);
+
+$this->table->add_row(
+	lang('membrr_use_captcha'),
+	form_checkbox('use_captcha','1',$use_captcha)
+);
 
 $this->table->add_row(
 		lang('membrr_available_countries'),

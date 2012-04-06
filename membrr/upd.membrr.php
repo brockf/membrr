@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.70';
+	var $version = '1.71';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -358,6 +358,10 @@ class Membrr_upd {
         if ($current < '1.69') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_config` ADD COLUMN `update_email` TINYINT(1) NOT NULL');
         }
+        
+        if ($current < '1.71') {
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_config` ADD COLUMN `use_captcha` TINYINT(1) NOT NULL');
+        }
 		
 		return TRUE;
 	}
@@ -382,6 +386,7 @@ class Membrr_upd {
 				  `currency_symbol` varchar(10) NOT NULL,
 				  `gateway` varchar(25) NOT NULL,
 				  `update_email` TINYINT(1) NOT NULL,
+				  `use_captcha` TINYINT(1) NOT NULL,
 				  PRIMARY KEY  (`api_url`)
 				  ) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
 				  
@@ -741,8 +746,8 @@ class Membrr_upd {
 					  `temp_id` int(11) unsigned NOT NULL auto_increment,
 					  `temp_data` text,
 					  PRIMARY KEY  (`temp_id`)
-					) ENGINE=MyISAM DEFAULT CHARSET=utf8;';					
-                                           
+					) ENGINE=MyISAM DEFAULT CHARSET=utf8;';
+					                                           
         foreach ($sql as $query)
         {
             $this->EE->db->query($query);

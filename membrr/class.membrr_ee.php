@@ -1501,6 +1501,7 @@ if (!class_exists('Membrr_EE')) {
 				$settings = $result->row_array();
 				
 				$settings['update_email'] = (empty($settings['update_email'])) ? FALSE : TRUE;
+				$settings['use_captcha'] = (empty($settings['use_captcha'])) ? FALSE : TRUE;
 				
 				return $settings;
 			}

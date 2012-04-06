@@ -194,5 +194,6 @@ $lang = array(
 	'membrr_coupon_code' => 'Coupon',
 	'membrr_gateway' => 'Gateway',
 	'membrr_options' => 'Options',
-	'membrr_update_email' => 'Update email in billing records when user updates profile (requires Solspace\'s User module, Zoospace Visitor, or EE 2.5)'
+	'membrr_update_email' => 'Update email in billing records when user updates profile (requires Solspace\'s User module, Zoospace Visitor, or EE 2.5)',
+	'membrr_use_captcha' => 'Require a CAPTCHA (<a href="http://en.wikipedia.org/wiki/CAPTCHA" target="_blank">?</a>) to be completed when subscribing'
 );
