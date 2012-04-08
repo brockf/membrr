@@ -566,7 +566,7 @@ if (!class_exists('Membrr_EE')) {
 		*
 		* @return boolean
 		*/
-		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment, $coupon, $credit_card) {
+		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment, $coupon = FALSE, $credit_card = array()) {
 			// get last 4 CC numbers
 			if (is_array($credit_card) and isset($credit_card['number']) and !empty($credit_card['number'])) {
 				$credit_card['number'] = trim(preg_replace('/[^0-9]/i','',$credit_card['number']));
