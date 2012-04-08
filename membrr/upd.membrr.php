@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.71';
+	var $version = '1.72';
 	var $EE;
 	
 	function Membrr_upd () {
@@ -362,6 +362,10 @@ class Membrr_upd {
         if ($current < '1.71') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_config` ADD COLUMN `use_captcha` TINYINT(1) NOT NULL');
         }
+        
+        if ($current < '1.72') {
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` ADD COLUMN `card_last_four` INT(11) NOT NULL AFTER `next_charge_date`');
+        }
 		
 		return TRUE;
 	}
@@ -420,6 +424,7 @@ class Membrr_upd {
 				 `date_cancelled` DATETIME NOT NULL ,
 				 `end_date` DATETIME NOT NULL ,
 				 `next_charge_date` DATE NOT NULL ,
+				 `card_last_four` INT(11) NOT NULL ,
 				 `expired` TINYINT NOT NULL ,
 				 `cancelled` TINYINT NOT NULL ,
 				 `active` TINYINT NOT NULL ,

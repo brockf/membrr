@@ -41,6 +41,13 @@ if (!empty($subscription['coupon'])) {
 			$subscription['coupon']
 		);
 }
+
+if (!empty($subscription['card_last_four'])) {	
+	$this->table->add_row(
+			array('data' => lang('membrr_credit_card'), 'style' => 'width:30%'),
+			'**** ' . str_pad($subscription['card_last_four'],4,"0",STR_PAD_LEFT)
+		);
+}
 	
 $this->table->add_row(
 		array('data' => lang('membrr_start_date'), 'style' => 'width:30%'),

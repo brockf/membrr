@@ -730,22 +730,40 @@ class Membrr_mcp {
 			$filters = array();
 		}
 		
+		// add JavaScript for options dropdown
+		$this->EE->cp->add_to_head("<script type=\"text/javascript\">
+        								$(document).ready(function() {
+        									$('select.sub_options').click(function () {
+        										if ($(this).val() != '') {
+        											window.location.href = $(this).val();
+        										}
+        									});
+        								});
+        							</script>");
+		
 		// get latest payments
 		$subscriptions = $this->membrr->GetSubscriptions($offset,$this->per_page, $filters);
 		
 		if (is_array($subscriptions)) {
 			// append $options links
 			foreach ($subscriptions as $key => $subscription) {
-				$options = '<a href="' . $this->cp_url('subscription', array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_view') . '</a>';
+				$options = array();
+				$options[$this->EE->lang->line('membrr_view')] = $this->cp_url('subscription', array('id' => $subscription['id']));
+				
+				if (empty($subscription['renewed'])) {
+					$options[$this->EE->lang->line('membrr_renew')] = $this->cp_url('renew_subscription',array('id' => $subscription['id']));
+				}
 				
 				if ($subscription['active'] == '1') {
-					$options .= ' | <a href="' . $this->cp_url('update_cc', array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_update_cc') . '</a>';
-					
+					if (!empty($subscription['card_last_four'])) {
+						$options[$this->EE->lang->line('membrr_update_cc')] = $this->cp_url('update_cc', array('id' => $subscription['id']));
+					}
+				
 					if ($subscription['end_date'] != FALSE) {
-	   					$options .= ' | <a href="' . $this->cp_url('expiry', array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_change_expiration') . '</a>';
-	   				}
-	   				
-					$options .= ' | <a class="confirm" href="' . $this->cp_url('cancel_subscription',array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_cancel') . '</a>';
+						$options[$this->EE->lang->line('membrr_change_expiration')] = $this->cp_url('expiry', array('id' => $subscription['id']));
+					}
+					
+					$options[$this->EE->lang->line('membrr_cancel')] = $this->cp_url('cancel_subscription',array('id' => $subscription['id']));
 				}
 				
 				$subscriptions[$key]['options'] = $options;	
@@ -816,6 +834,10 @@ class Membrr_mcp {
 		if ($subscription['active'] == '1') {
 			$status = $this->EE->lang->line('membrr_active');
 			$status .= ' | <a href="' . $this->cp_url('cancel_subscription',array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_cancel') . '</a>';
+			
+			if (!empty($subscription['card_last_four'])) {
+				$status .= ' | <a href="' . $this->cp_url('update_cc',array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_update_cc') . '</a>';
+			}
 		}	
 		elseif ($subscription['expired'] == '1') {
 			$status = $this->EE->lang->line('membrr_expired');
@@ -828,6 +850,10 @@ class Membrr_mcp {
 		}
 		else {
 			$status = 'Unknown';
+		}
+		
+		if (empty($subscription['renewed'])) {
+			$status .= ' | <a href="' . $this->cp_url('renew_subscription',array('id' => $subscription['id'])) . '">' . $this->EE->lang->line('membrr_renew') . '</a>';
 		}
 		
 		$subscription['status'] = $status;
@@ -860,6 +886,11 @@ class Membrr_mcp {
 		$vars['change_expiry'] = $change_expiry;
 	
 		return $this->EE->load->view('subscription',$vars,TRUE);	
+	}
+	
+	function renew_subscription () {
+		$this->EE->functions->redirect(htmlspecialchars_decode($this->cp_url('add_subscription', array('renew' => $this->EE->input->get('id')))));
+		die();
 	}
 	
 	function end_now () {
@@ -1165,6 +1196,18 @@ class Membrr_mcp {
 		$vars['selected_plan'] = ($this->EE->input->post('plan_id')) ? $this->EE->input->post('plan_id') : FALSE;
 		$vars['form_action'] = $this->form_url('add_subscription');
 		
+		if ($this->EE->input->get('renew')) {
+			$renew = $this->EE->input->get('renew');
+		}
+		elseif ($this->EE->input->post('renew')) {
+			$renew = $this->EE->input->post('renew');
+		}
+		else {
+			$renew = '';
+		}
+		
+		$vars['renew'] = $renew;
+		
 		return $this->EE->load->view('add_subscription',$vars, TRUE);
 	}
 	
@@ -1275,7 +1318,10 @@ class Membrr_mcp {
 
 				$gateway_id = $this->EE->input->post('gateway');										
 										
-				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, $end_date, $first_charge_rate, $recurring_rate, FALSE, FALSE, $gateway_id, FALSE, $coupon);
+				// are we renewing?
+				$renew = ($this->EE->input->post('renew')) ? $this->EE->input->post('renew') : FALSE;						
+										
+				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, $end_date, $first_charge_rate, $recurring_rate, FALSE, FALSE, $gateway_id, $renew, $coupon);
 				
 				if (!is_array($response) or isset($response['error'])) {
 					$failed_transaction = $this->EE->lang->line('membrr_order_form_error_processing') . ': ' . $response['error_text'] . ' (#' . $response['error'] . ')';
@@ -1392,6 +1438,7 @@ class Membrr_mcp {
 		$vars['address'] = $address;
 		$vars['failed_transaction'] = (isset($failed_transaction)) ? $failed_transaction : FALSE;
 		$vars['gateways'] = $gateway_options;
+		$vars['renew'] = ($this->EE->input->post('renew')) ? $this->EE->input->post('renew') : '';
 		
 		return $this->EE->load->view('add_subscription_2',$vars, TRUE);
 	}

@@ -115,7 +115,7 @@ $lang = array(
 	'membrr_active' => 'Active',
 	'membrr_expired' => 'Expired',
 	'membrr_cancelled' => 'Cancelled',
-	'membrr_view' => 'view',
+	'membrr_view' => 'view record',
 	'membrr_cancel' => 'cancel',
 	'membrr_no_subscription' => 'Invalid subscription ID.  No such subscription exists.',
 	'membrr_received_on' => 'received on',
@@ -168,13 +168,14 @@ $lang = array(
 	'membrr_default_gateway' => 'Gateway for New Charges',
 	'membrr_sync_plan_next_charge' => 'All next charge dates synchronized with server.',
 	'membrr_plan_gateway' => 'Payment Gateway',
-	'membrr_update_cc' => 'card',
-	'membrr_change_expiration' => 'expiration',
+	'membrr_update_cc' => 'update credit card',
+	'membrr_change_expiration' => 'modify expiration date',
 	'membrr_change_expiry_title' => 'Modify Subscription Expiration Date',
 	'membrr_update_subscription' => 'Update Subscription',
 	'membrr_update_cc_title' => 'Update Credit Card for Subscription',
 	'membrr_update_cc_button' => 'Update Credit Card',
 	'membrr_renewed' => 'Renewed',
+	'membrr_renew' => 'renew subscription',
 	'membrr_search_for_member' => 'Search for Member',
 	'membrr_search_by' => 'Search by screen name, username, or email.',
 	'membrr_no_members' => 'No members in the database matched your search query.',
@@ -195,5 +196,6 @@ $lang = array(
 	'membrr_gateway' => 'Gateway',
 	'membrr_options' => 'Options',
 	'membrr_update_email' => 'Update email in billing records when user updates profile (requires Solspace\'s User module, Zoospace Visitor, or EE 2.5)',
-	'membrr_use_captcha' => 'Require a CAPTCHA (<a href="http://en.wikipedia.org/wiki/CAPTCHA" target="_blank">?</a>) to be completed when subscribing'
+	'membrr_use_captcha' => 'Require a CAPTCHA (<a href="http://en.wikipedia.org/wiki/CAPTCHA" target="_blank">?</a>) to be completed when subscribing',
+	'membrr_credit_card' => 'Credit Card'
 );

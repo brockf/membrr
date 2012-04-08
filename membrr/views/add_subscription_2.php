@@ -144,6 +144,8 @@ $this->table->add_row(
 		'',
 		form_submit('submit_form', $this->lang->line('membrr_process'))
 	);
+	
+echo form_hidden('renew', $renew);	
 		
 ?>
 <?=$this->table->generate();?>

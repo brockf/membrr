@@ -45,13 +45,24 @@ else {
 			$status = '';
 		}
 		
+		// prep options dropdown
+		$options = '<select class="sub_options">';
+		
+		$options .= '<option value="" selected="selected">options (' . count($subscription['options']) . ')</option>';
+		
+		foreach ($subscription['options'] as $option => $link) {
+			$options .= '<option value="' . $link . '">' . $option . '</option>';
+		}
+		
+		$options .= '</optgroup></select>';
+		
 		$this->table->add_row($subscription['id'],
 						'<a href="' . $subscription['member_link'] . '">' . $subscription['user_screenname'] . '</a>',
 						$subscription['plan_name'],
 						$config['currency_symbol'] . $subscription['amount'],
 						$subscription['next_charge_date'],
 						$status,
-						$subscription['options']
+						$options
 					);
 	}
 }

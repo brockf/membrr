@@ -370,7 +370,7 @@ if (!class_exists('Membrr_EE')) {
 					$next_charge_date = date('Y-m-d',$next_charge_date);
 				}
 				 
-				$this->RecordSubscription($response['recurring_id'], $member_id, $plan_id, $next_charge_date, $end_date, $recur_payment, $coupon); 
+				$this->RecordSubscription($response['recurring_id'], $member_id, $plan_id, $next_charge_date, $end_date, $recur_payment, $coupon, $credit_card); 
 				
 				if (empty($free_trial) and isset($response['charge_id'])) {
 					// create payment record               						  
@@ -489,6 +489,21 @@ if (!class_exists('Membrr_EE')) {
 					$this->EE->db->update('exp_membrr_subscriptions',array('plan_id' => $new_plan['id']),array('recurring_id' => $response['recurring_id']));
 				}
 				
+				// update credit card
+				if (is_array($credit_card) and isset($credit_card['number']) and !empty($credit_card['number'])) {
+					$credit_card['number'] = trim(preg_replace('/[^0-9]/i','',$credit_card['number']));
+					$card_last_four = substr($credit_card['number'], -4, 4);
+				}
+				else {
+					$card_last_four = '';
+				}
+				
+				if (strlen($card_last_four) != 4) {
+					$card_last_four = '';
+				}
+				
+				$this->EE->db->update('exp_membrr_subscriptions',array('card_last_four' => $card_last_four),array('recurring_id' => $response['recurring_id']));
+				
 				$member_id = $subscription['member_id'];
 				$new_recurring_id = $response['recurring_id'];
 				$old_recurring_id = $subscription_id;
@@ -547,10 +562,24 @@ if (!class_exists('Membrr_EE')) {
 		* @param date $end_date
 		* @param float $payment
 		* @param string|boolean $coupon
+		* @param array $credit_card
 		*
 		* @return boolean
 		*/
-		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment, $coupon) {
+		function RecordSubscription ($recurring_id, $member_id, $plan_id, $next_charge_date, $end_date, $payment, $coupon, $credit_card) {
+			// get last 4 CC numbers
+			if (is_array($credit_card) and isset($credit_card['number']) and !empty($credit_card['number'])) {
+				$credit_card['number'] = trim(preg_replace('/[^0-9]/i','',$credit_card['number']));
+				$card_last_four = substr($credit_card['number'], -4, 4);
+			}
+			else {
+				$card_last_four = '';
+			}
+			
+			if (strlen($card_last_four) != 4) {
+				$card_last_four = '';
+			}
+		
 			// create subscription record
 			$insert_array = array(
 								'recurring_id' => $recurring_id,
@@ -560,6 +589,7 @@ if (!class_exists('Membrr_EE')) {
 								'date_created' => date('Y-m-d H:i:s'),
 								'date_cancelled' => '0000-00-00 00:00:00',
 								'next_charge_date' => $next_charge_date,
+								'card_last_four' => $card_last_four,
 								'end_date' => $end_date,
 								'expired' => '0',
 								'cancelled' => '0',
@@ -1148,6 +1178,7 @@ if (!class_exists('Membrr_EE')) {
 								'user_username' => $row['username'],
 								'user_groupid' => $row['group_id'],
 								'amount' => money_format("%!^i",$row['subscription_price']),
+								'card_last_four' => $row['card_last_four'],
 								'plan_name' => $row['plan_name'],
 								'plan_id' => $row['plan_id'],
 								'plan_description' => $row['plan_description'],
