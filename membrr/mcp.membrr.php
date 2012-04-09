@@ -733,7 +733,7 @@ class Membrr_mcp {
 		// add JavaScript for options dropdown
 		$this->EE->cp->add_to_head("<script type=\"text/javascript\">
         								$(document).ready(function() {
-        									$('select.sub_options').click(function () {
+        									$('select.sub_options').change(function () {
         										if ($(this).val() != '') {
         											window.location.href = $(this).val();
         										}
@@ -889,7 +889,9 @@ class Membrr_mcp {
 	}
 	
 	function renew_subscription () {
-		$this->EE->functions->redirect(htmlspecialchars_decode($this->cp_url('add_subscription', array('renew' => $this->EE->input->get('id')))));
+		$sub = $this->membrr->GetSubscription($this->EE->input->get('id'));
+	
+		$this->EE->functions->redirect(htmlspecialchars_decode($this->cp_url('add_subscription_2', array('renew' => $sub['id'], 'plan_id' => $sub['plan_id'], 'member_id' => $sub['member_id']))));
 		die();
 	}
 	
@@ -1196,28 +1198,21 @@ class Membrr_mcp {
 		$vars['selected_plan'] = ($this->EE->input->post('plan_id')) ? $this->EE->input->post('plan_id') : FALSE;
 		$vars['form_action'] = $this->form_url('add_subscription');
 		
-		if ($this->EE->input->get('renew')) {
-			$renew = $this->EE->input->get('renew');
-		}
-		elseif ($this->EE->input->post('renew')) {
-			$renew = $this->EE->input->post('renew');
-		}
-		else {
-			$renew = '';
-		}
-		
-		$vars['renew'] = $renew;
-		
 		return $this->EE->load->view('add_subscription',$vars, TRUE);
 	}
 	
 	function add_subscription_2 () {		
 		// do we have the required info to be here?
-		if ($this->EE->input->post('member_id') == '' or $this->EE->input->post('plan_id') == '0' or $this->EE->input->post('plan_id') == '') {
+		if ($this->EE->input->get_post('member_id') == '' or $this->EE->input->get_post('plan_id') == '0' or $this->EE->input->get_post('plan_id') == '') {
 			return $this->add_subscription();
 		}
 		
-		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_create_subscription'));
+		if ($this->EE->input->get_post('renew')) {
+			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_renew_title'));
+		}
+		else {
+			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_create_subscription'));
+		}
 		
 		$this->EE->load->helper('form');
 		$this->EE->load->library('form_validation');
@@ -1342,11 +1337,11 @@ class Membrr_mcp {
 		}
 		
 		// get selected plan
-		$plan = $this->membrr->GetPlan($this->EE->input->post('plan_id'));
+		$plan = $this->membrr->GetPlan($this->EE->input->get_post('plan_id'));
 		
 		// get select user
 		$this->EE->load->model('member_model');
-	    $member = $this->EE->member_model->get_member_data($this->EE->input->post('member_id'));
+	    $member = $this->EE->member_model->get_member_data($this->EE->input->get_post('member_id'));
 	    $member = $member->row_array();
 	    
 	    // end date
@@ -1438,7 +1433,7 @@ class Membrr_mcp {
 		$vars['address'] = $address;
 		$vars['failed_transaction'] = (isset($failed_transaction)) ? $failed_transaction : FALSE;
 		$vars['gateways'] = $gateway_options;
-		$vars['renew'] = ($this->EE->input->post('renew')) ? $this->EE->input->post('renew') : '';
+		$vars['renew'] = ($this->EE->input->get_post('renew')) ? $this->EE->input->get_post('renew') : '';
 		
 		return $this->EE->load->view('add_subscription_2',$vars, TRUE);
 	}

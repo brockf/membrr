@@ -176,6 +176,7 @@ $lang = array(
 	'membrr_update_cc_button' => 'Update Credit Card',
 	'membrr_renewed' => 'Renewed',
 	'membrr_renew' => 'renew subscription',
+	'membrr_renew_title' => 'Renew a Subscription',
 	'membrr_search_for_member' => 'Search for Member',
 	'membrr_search_by' => 'Search by screen name, username, or email.',
 	'membrr_no_members' => 'No members in the database matched your search query.',
