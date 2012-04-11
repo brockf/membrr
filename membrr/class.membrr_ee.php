@@ -482,6 +482,7 @@ if (!class_exists('Membrr_EE')) {
 			if (isset($response['response_code']) and $response['response_code'] == '104') {
 				// we have to update all local subscription ID references
 				$this->EE->db->update('exp_membrr_subscriptions',array('recurring_id' => $response['recurring_id']),array('recurring_id' => $subscription_id));
+				$this->EE->db->update('exp_membrr_subscriptions',array('renewed_recurring_id' => $response['recurring_id']),array('renewed_recurring_id' => $subscription_id));
 				$this->EE->db->update('exp_membrr_payments',array('recurring_id' => $response['recurring_id']),array('recurring_id' => $subscription_id));
 				$this->EE->db->update('exp_membrr_channel_posts',array('recurring_id' => $response['recurring_id']),array('recurring_id' => $subscription_id));
 				
