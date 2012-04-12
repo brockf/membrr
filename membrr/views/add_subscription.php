@@ -47,8 +47,6 @@ if ($searching === TRUE) {
 		);
 	}
 }
-
-echo form_hidden('renew', $renew);
 		
 ?>
 <?=$this->table->generate();?>
