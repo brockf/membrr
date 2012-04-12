@@ -278,6 +278,22 @@ if (!class_exists('Membrr_EE')) {
 				$this->EE->db->where('class','Membrr');
 				$this->EE->db->where('method','post_notify');
 				$result = $this->EE->db->get('exp_actions');
+				
+				if ($result->num_rows() == 0) {
+					// there was a bug in the installer that left this blank for several people
+					// so we will insert it now
+					$insert_array = array(
+										'class' => 'Membrr',
+										'method' => 'post_notify'
+									);
+					$this->EE->db->insert('exp_actions',$insert_array);
+					
+					$this->EE->db->select('action_id');
+					$this->EE->db->where('class','Membrr');
+					$this->EE->db->where('method','post_notify');
+					$result = $this->EE->db->get('exp_actions');
+				}
+				
 				$action_id = $result->row_array();
 				$action_id = $action_id['action_id'];
 			 	$return_url = $this->EE->functions->create_url('?ACT=' . $action_id . '&member=' . $member_id . '&plan_id=' . $plan_id, 0);
