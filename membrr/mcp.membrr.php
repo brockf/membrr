@@ -51,6 +51,24 @@ class Membrr_mcp {
         	// Display an extension error!
         }
         
+        // check the post_notify Action ID is set
+        $this->EE->db->select('action_id');
+		$this->EE->db->where('class','Membrr');
+		$this->EE->db->where('method','post_notify');
+		$result = $this->EE->db->get('exp_actions');
+		
+		if ($result->num_rows() == 0) {
+			// there was a bug in the installer that left this blank for several people
+			// so we will insert it now
+			$insert_array = array(
+								'class' => 'Membrr',
+								'method' => 'post_notify'
+							);
+			$this->EE->db->insert('exp_actions',$insert_array);
+			
+			die(show_error('There was an error in your Membrr configuration concerning the notification URLs between OpenGateway and Membrr.  This has been fixed.  However, you will need to <a href="' . $this->cp_url('sync') . '">run the Sync to Update feature to complete the fix</a>.'));
+		}
+        
         // prep navigation
         $this->EE->cp->set_right_nav(array(
         					'membrr_dashboard' => $this->cp_url(),
