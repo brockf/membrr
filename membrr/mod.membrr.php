@@ -1573,7 +1573,13 @@ class Membrr {
 		    	$temp_data_id = $this->membrr->SaveTempData(serialize($variables));
 		    	
 			    $this->EE->session->set_flashdata('membrr_variables', $temp_data_id);
-			    header('Location: ' . current_url());
+			    
+			    $url = current_url();
+			    if ($this->is_ssl()) {
+			    	$url = str_replace('http://','https://',$url);
+			    }
+			    
+			    header('Location: ' . $url);
 			    die();
 			}
 		}
