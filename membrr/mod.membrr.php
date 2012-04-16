@@ -976,7 +976,7 @@ class Membrr {
 		$variables['country_raw_options'] = $countries;
 		
 		// prep form action
-	    $variables['form_action'] = ($_SERVER["SERVER_PORT"] == "443") ? str_replace('http://','https://',$this->EE->functions->fetch_current_uri()) : $this->EE->functions->fetch_current_uri();
+	    $variables['form_action'] = ($this->is_ssl()) ? str_replace('http://','https://',$this->EE->functions->fetch_current_uri()) : $this->EE->functions->fetch_current_uri();
 	    $variables['form_method'] = 'POST';
 	    
 	    // prep errors
@@ -1629,7 +1629,7 @@ class Membrr {
 	    }
 	    
 	    // prep form action
-	    $variables['form_action'] = ($_SERVER["SERVER_PORT"] == "443") ? str_replace('http://','https://',$this->EE->functions->fetch_current_uri()) : $this->EE->functions->fetch_current_uri();
+	    $variables['form_action'] = ($this->is_ssl()) ? str_replace('http://','https://',$this->EE->functions->fetch_current_uri()) : $this->EE->functions->fetch_current_uri();
 	    $variables['form_method'] = 'POST';
 	    
 	    // parse the tag content with our new variables
@@ -1819,7 +1819,7 @@ class Membrr {
     	// build order form
     	$data = array(
     					'hidden_fields' => array('membrr_order_form' => 'TRUE'),
-						'action'		=> ($_SERVER["SERVER_PORT"] == "443") ? str_replace('http://','https://',$this->EE->functions->fetch_current_uri()) : $this->EE->functions->fetch_current_uri(),
+						'action'		=> ($this->is_ssl()) ? str_replace('http://','https://',$this->EE->functions->fetch_current_uri()) : $this->EE->functions->fetch_current_uri(),
 						'id'			=> ($this->EE->TMPL->fetch_param('form_id')) ? $this->EE->TMPL->fetch_param('form_id') : '',
 						'method' 		=> 'POST'
 					);
@@ -2182,6 +2182,26 @@ class Membrr {
 					</form>';
 		
 		return $return;
+    }
+    
+    function is_ssl () {
+    	if ($_SERVER['SERVER_PORT'] == 443) {
+    		return TRUE;
+    	}
+    	
+    	if (isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on') {
+    		return TRUE;
+    	}
+    	
+    	if (isset($_SERVER['HTTP_X_FORWARDED_PORT']) and $_SERVER['HTTP_X_FORWARDED_PORT'] == 443) {
+    		return TRUE;
+    	}
+    	
+    	if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) and $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+    		return TRUE;
+    	}
+    	
+    	return FALSE;
     }
     
     /*
