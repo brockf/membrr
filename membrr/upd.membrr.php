@@ -772,6 +772,8 @@ class Membrr_upd {
         $sql[] = "DROP TABLE `exp_membrr_payments`";
         $sql[] = "DROP TABLE `exp_membrr_channels`";
         $sql[] = "DROP TABLE `exp_membrr_channel_posts`";
+        $sql[] = "DROP TABLE `exp_membrr_countries`";
+        $sql[] = "DROP TABLE `exp_membrr_temp`";
         $sql[] = 'DELETE FROM `exp_actions` WHERE `class` = \'Membrr\'';
     
         foreach ($sql as $query)
