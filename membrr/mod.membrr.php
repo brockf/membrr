@@ -692,6 +692,7 @@ class Membrr {
 							'end_date' => $subscription['end_date'],
 							'plan_name' => $subscription['plan_name'],
 							'plan_description' => $subscription['plan_description'],
+							'card_last_four' => $subscription['card_last_four'],
 							'plan_id' => $subscription['plan_id'],
 							'channel' => $subscription['channel'],
 							'entry_id' => $subscription['entry_id']
