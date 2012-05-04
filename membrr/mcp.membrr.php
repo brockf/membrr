@@ -896,9 +896,13 @@ class Membrr_mcp {
 			$change_expiry = FALSE;
 		}
 		
+		// get billing address
+		$address = $this->membrr->GetAddress($subscription['member_id']);
+		
 		$vars = array();
 		$vars['subscription'] = $subscription;
 		$vars['payments'] = $payments;
+		$vars['address'] = $address;
 		$vars['config'] = $this->config;
 		$vars['end_now'] = $end_now;
 		$vars['change_expiry'] = $change_expiry;

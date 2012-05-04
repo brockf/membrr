@@ -86,32 +86,32 @@ if ($subscription['entry_id'] != FALSE) {
            );
 }
 
-if (!empty($payment['first_name'])) {
-	$address = '';
+if (!empty($address['first_name'])) {
+	$address_prepped = '';
 	
-	$address .= $payment['first_name'] . ' ' . $payment['last_name'] . '<br />';
+	$address_prepped .= $address['first_name'] . ' ' . $address['last_name'] . '<br />';
 	
-	if (!empty($payment['company'])) {
-		$address .= $payment['company'] . '<br />';
+	if (!empty($address['company'])) {
+		$address_prepped .= $address['company'] . '<br />';
 	}
 	
-	$address .= $payment['city'] . ', ';
+	$address_prepped .= $address['city'] . ', ';
 	
-	if (!empty($payment['region_other'])) {
-		$address .= $payment['region_other'] . '<br />';
+	if (!empty($address['region_other'])) {
+		$address_prepped .= $address['region_other'] . '<br />';
 	}
 	else {
-		$address .= $payment['region'] . '<br />';
+		$address_prepped .= $address['region'] . '<br />';
 	}
 	
-	$address .= $payment['country'] . ' &nbsp;' . $payment['postal_code'];
+	$address_prepped .= $address['country'] . ' &nbsp;' . $address['postal_code'];
 	
-	if (!empty($payment['phone'])) {
-		$address .= '<br />' . $payment['phone'];
+	if (!empty($address['phone'])) {
+		$address_prepped .= '<br />' . $address['phone'];
 	}
 
 	$this->table->add_row(
-			array('Billing Address',$address)
+			array('Billing Address',$address_prepped)
 		);
 }
 	
