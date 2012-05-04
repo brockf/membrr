@@ -85,6 +85,35 @@ if ($subscription['entry_id'] != FALSE) {
                    '<a href="' . BASE.AMP. 'C=content_publish' . AMP . 'M=entry_form' . AMP . 'entry_id=' . $subscription['entry_id'] . '">' . $subscription['channel'] . ': #' . $subscription['entry_id'] . '</a>'
            );
 }
+
+if (!empty($payment['first_name'])) {
+	$address = '';
+	
+	$address .= $payment['first_name'] . ' ' . $payment['last_name'] . '<br />';
+	
+	if (!empty($payment['company'])) {
+		$address .= $payment['company'] . '<br />';
+	}
+	
+	$address .= $payment['city'] . ', ';
+	
+	if (!empty($payment['region_other'])) {
+		$address .= $payment['region_other'] . '<br />';
+	}
+	else {
+		$address .= $payment['region'] . '<br />';
+	}
+	
+	$address .= $payment['country'] . ' &nbsp;' . $payment['postal_code'];
+	
+	if (!empty($payment['phone'])) {
+		$address .= '<br />' . $payment['phone'];
+	}
+
+	$this->table->add_row(
+			array('Billing Address',$address)
+		);
+}
 	
 $this->table->add_row(
 		array('data' => '<b>' . lang('membrr_payments') . '</b>', 'colspan' => '2', 'style' => 'width:30%')
