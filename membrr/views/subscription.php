@@ -86,35 +86,55 @@ if ($subscription['entry_id'] != FALSE) {
            );
 }
 
-if (!empty($address['first_name'])) {
-	$address_prepped = '';
-	
-	$address_prepped .= $address['first_name'] . ' ' . $address['last_name'] . '<br />';
-	
-	if (!empty($address['company'])) {
-		$address_prepped .= $address['company'] . '<br />';
-	}
-	
-	$address_prepped .= $address['city'] . ', ';
-	
-	if (!empty($address['region_other'])) {
-		$address_prepped .= $address['region_other'] . '<br />';
-	}
-	else {
-		$address_prepped .= $address['region'] . '<br />';
-	}
-	
-	$address_prepped .= $address['country'] . ' &nbsp;' . $address['postal_code'];
-	
-	if (!empty($address['phone'])) {
-		$address_prepped .= '<br />' . $address['phone'];
-	}
-
+if (!empty($address['first_name']) and !empty($address['last_name'])) {
 	$this->table->add_row(
-			array('Billing Address',$address_prepped)
+			array('Billing Name',$address['first_name'] . ' ' . $address['last_name'])
 		);
 }
+
+if (!empty($address['company'])) {
+	$this->table->add_row(
+			array('Billing Company',$address['company'])
+		);
+}
+
+if (!empty($address['city'])) {
+	$this->table->add_row(
+			array('Billing City',$address['city'])
+		);
+}
+
+if (!empty($address['region'])) {
+	if (!empty($address['region_other'])) {
+		$region = $address['region_other'] . '<br />';
+	}
+	else {
+		$region = $address['region'] . '<br />';
+	}
 	
+	$this->table->add_row(
+			array('Billing Region',$region)
+		);
+}
+
+if (!empty($address['country'])) {
+	$this->table->add_row(
+			array('Billing Country',$address['country'])
+		);
+}
+
+if (!empty($address['postal_code'])) {
+	$this->table->add_row(
+			array('Billing Postal Code',$address['postal_code'])
+		);
+}
+
+if (!empty($address['phone'])) {
+	$this->table->add_row(
+			array('Billing Phone',$address['phone'])
+		);
+}
+
 $this->table->add_row(
 		array('data' => '<b>' . lang('membrr_payments') . '</b>', 'colspan' => '2', 'style' => 'width:30%')
 	);
