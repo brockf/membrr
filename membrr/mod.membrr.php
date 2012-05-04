@@ -21,6 +21,7 @@
 * Enables frontend template tags:
 *   - {exp:membrr:update_form redirect_url="/test"}
 *	- {exp:membrr:order_form redirect_url="/test"}
+*	- {exp:membrr:billing_address}{/exp:membrr:billing_address}
 *	- {exp:membrr:quick_order_form} e.g., {exp:membrr:quick_order_form button="Subscribe Now!" plan_id="X"}
 *	- {exp:membrr:subscriptions}{/exp:membrr:subscriptions} e.g. {exp:membrr:subscriptions id="X" date_format="Y-m-d"}
 *	- {exp:membrr:subscribed plan="X"}{/exp:membrr:subscribed}
@@ -498,7 +499,29 @@ class Membrr {
 		
 		$this->return_data = $return;
 		
-		return $return;
+		return $this->return_data;
+	}
+	
+	/**
+	* Billing Address
+	*
+	* Returns the latest billing address for the logged-in user
+	*
+	* @return billing address fields
+	*/
+	function billing_address () {
+		$tagdata = $this->EE->TMPL->tagdata;
+	
+		$address = $this->membrr->GetAddress($this->EE->session->userdata('member_id'));
+		
+		$variables = array();
+		$variables[0] = $address;
+		
+		$tagdata = $this->EE->TMPL->parse_variables($tagdata, $variables);
+		
+		$this->return_data = $tagdata;
+		
+		return $this->return_data;
 	}
 	
 	/**
