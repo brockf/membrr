@@ -1417,7 +1417,18 @@ class Membrr {
 		}
 		
 		$variables = array();
-				
+		
+		// Make our plan_id available for repopulating
+		// a select_value
+		if (!empty($plan))
+		{
+			$variables['membrr_plan_id'] = $plan['id'];
+		}
+		else 
+		{
+			$variables['membrr_plan_id'] = '';
+		}
+		
 		// get content of templates
     	$sub_return = $this->EE->TMPL->tagdata;
 		
@@ -1497,6 +1508,7 @@ class Membrr {
 							'username' => ($this->EE->input->post('username')) ? $this->EE->input->post('username') : '',
 							'screen_name' => ($this->EE->input->post('screen_name')) ? $this->EE->input->post('screen_name') : ''
 						));
+						
 						
 			// pre-populate member custom fields
 			$result = $this->EE->db->get('exp_member_fields');
@@ -1667,7 +1679,7 @@ class Membrr {
 	    $var_data[0] = $variables;
 			
 		$sub_return = $this->EE->TMPL->parse_variables($sub_return, $var_data);
-    	
+
     	$this->return_data = $sub_return;
     	
     	return $sub_return;
