@@ -1418,17 +1418,6 @@ class Membrr {
 		
 		$variables = array();
 		
-		// Make our plan_id available for repopulating
-		// a select_value
-		if (!empty($plan))
-		{
-			$variables['membrr_plan_id'] = $plan['id'];
-		}
-		else 
-		{
-			$variables['membrr_plan_id'] = '';
-		}
-		
 		// get content of templates
     	$sub_return = $this->EE->TMPL->tagdata;
 		
@@ -1453,7 +1442,7 @@ class Membrr {
 					$errors[] = strip_tags($form_error);
 				}
 			}
-			
+
 			// prep errors
 		    $variables['errors_array'] = $errors;
 		    
@@ -1508,6 +1497,17 @@ class Membrr {
 							'username' => ($this->EE->input->post('username')) ? $this->EE->input->post('username') : '',
 							'screen_name' => ($this->EE->input->post('screen_name')) ? $this->EE->input->post('screen_name') : ''
 						));
+//		die('<pre>'. print_r($address, true));		
+			// Make our plan_id available for repopulating
+			// a select_value
+			if (!empty($plan))
+			{
+				$variables['membrr_plan_id'] = $plan['id'];
+			}
+			else 
+			{
+				$variables['membrr_plan_id'] = '';
+			}
 						
 						
 			// pre-populate member custom fields
