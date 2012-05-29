@@ -1610,7 +1610,18 @@ class Membrr {
 		    	
 			    $this->EE->session->set_flashdata('membrr_variables', $temp_data_id);
 			    
-			    $url = current_url();
+			    // Check for 'error_redirect' variable. This will allow
+			    // the user better control over redirects for AJAX submittals.
+			    $rurl = $this->EE->TMPL->fetch_param('error_redirect_url');
+			    
+			    if (!empty($rurl))
+			    {
+				    $url = $rurl;
+			    } else
+			    {
+				    $url = current_url();
+			    }
+
 			    if ($this->is_ssl()) {
 			    	$url = str_replace('http://','https://',$url);
 			    }
