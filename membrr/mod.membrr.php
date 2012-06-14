@@ -1495,8 +1495,13 @@ class Membrr {
 							'company' => ($this->EE->input->post('company')) ? $this->EE->input->post('company') : $address['company'],
 							'phone' => ($this->EE->input->post('phone')) ? $this->EE->input->post('phone') : $address['phone'],
 							'username' => ($this->EE->input->post('username')) ? $this->EE->input->post('username') : '',
-							'screen_name' => ($this->EE->input->post('screen_name')) ? $this->EE->input->post('screen_name') : ''
+							'screen_name' => ($this->EE->input->post('screen_name')) ? $this->EE->input->post('screen_name') : '',
+//							'cc_number'	=> ($this->EE->input->post('cc_number')) ? $this->EE->input->post('cc_number') : '',
+//							'cc_name'	=> ($this->EE->input->post('cc_name')) ? $this->EE->input->post('cc_name') : '',
+//							'cc_cvv2'	=> ($this->EE->input->post('cc_cvv2')) ? $this->EE->input->post('cc_cvv2') : '',
 						));
+			
+						
 //		die('<pre>'. print_r($address, true));		
 			// Make our plan_id available for repopulating
 			// a select_value
