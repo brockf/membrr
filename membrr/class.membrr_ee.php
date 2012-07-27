@@ -307,7 +307,7 @@ if (!class_exists('Membrr_EE')) {
 			}
 			
 			$response = $recur->Charge();
-			
+//	die(var_dump($response));
 			if (isset($response['response_code']) and $response['response_code'] == '100') {
 				// success!
 				
@@ -807,6 +807,12 @@ if (!class_exists('Membrr_EE')) {
 		*/
 		function GetSubscriptionForChannel ($channel_id, $user, $plans, $posts, $sub_id = FALSE) {
 			$plans_query = '\'';
+			
+			if (is_null($plans))
+			{
+				return false;
+			}
+			
 			foreach ($plans as $plan) {
 				$plans_query .= $plan . '\', \'';
 			}
