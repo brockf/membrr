@@ -98,6 +98,18 @@ if (!empty($address['company'])) {
 		);
 }
 
+if (!empty($address['address'])) {
+	$this->table->add_row(
+			array('Address',$address['address'])
+		);
+}
+
+if (!empty($address['address_2'])) {
+	$this->table->add_row(
+			array('Address 2',$address['address_2'])
+		);
+}
+
 if (!empty($address['city'])) {
 	$this->table->add_row(
 			array('Billing City',$address['city'])
