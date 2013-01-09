@@ -265,7 +265,14 @@ class Membrr {
 
     	$filters = array();
 
-    	$member_id = $this->EE->session->userdata('member_id');
+    	// Was a 'member_id' param passed in?
+    	$member_id = $this->EE->TMPL->fetch_param('member_id');
+
+    	// If no param existed, grab the current user's id.
+    	if (empty($member_id))
+    	{
+    		$member_id = $this->EE->session->userdata('member_id');
+    	}
 
 		if (empty($member_id)) {
 			return 'User is not logged in.';
