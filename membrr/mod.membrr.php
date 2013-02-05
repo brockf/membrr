@@ -1171,7 +1171,6 @@ class Membrr {
 				// set screen_name, username, and email from email
 				$email = $this->EE->input->post('email');
 				$username = $this->EE->input->post('email');
-				$screen_name = $this->EE->input->post('email');
 
 				// set random unique_id
 				$unique_id = md5(time() + rand(10,1000));
@@ -1180,6 +1179,10 @@ class Membrr {
 				if ($this->EE->input->post('username')) {
 					$username = $this->EE->input->post('username');
 				}
+
+				// Set the screen name here so that if they provided a username
+				// we can use that, otherwise, it's equal to the email address.
+				$screen_name = $username;
 
 				// override username?
 				if ($this->EE->input->post('screen_name')) {
@@ -1200,6 +1203,15 @@ class Membrr {
 
 					if ($result->num_rows() > 0) {
 						$errors[] = 'Your username is already being used and must be unique.  Please select another.';
+					}
+				}
+
+				if ($screen_name != $email) {
+					$result = $this->EE->db->where('screen_name',$username)
+										   ->get('exp_members');
+
+					if ($result->num_rows() > 0) {
+						$errors[] = 'Your screen name is already being used and must be unique.  Please select another.';
 					}
 				}
 
