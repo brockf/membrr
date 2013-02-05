@@ -1106,8 +1106,12 @@ if (!class_exists('Membrr_EE')) {
 		*/
 		function GetSubscriptions ($offset = FALSE, $limit = 50, $filters = array()) {
 			if ($filters != false and !empty($filters) and is_array($filters)) {
-				if (isset($filters['member_id'])) {
+				if (isset($filters['member_id']) && !empty($filters['member_id'])) {
 					$this->EE->db->where('exp_membrr_subscriptions.member_id',$filters['member_id']);
+				}
+				else if (isset($filters['member_id']) && empty($filters['member_id']))
+				{
+					return array();
 				}
 				if (isset($filters['active'])) {
 					if ($filters['active'] == '1')  {
