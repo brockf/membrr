@@ -1206,7 +1206,12 @@ class Membrr {
 					}
 				}
 
-				if ($screen_name != $email) {
+				if (strlen($username) <= 4 && $username !== $email)
+				{
+					$errors[] = 'Your username must be at longer than 4 characters. Please select another.';
+				}
+
+				if ($screen_name != $email && $screen_name != $username) {
 					$result = $this->EE->db->where('screen_name',$username)
 										   ->get('exp_members');
 
