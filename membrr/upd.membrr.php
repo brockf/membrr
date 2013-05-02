@@ -10,72 +10,72 @@
  Use this software at your own risk.  Electric
  Function, Inc. assumes no responsibility for
  loss or damages as a result of using this software.
- 
+
  This software is copyrighted.
 =====================================================
 */
 
 class Membrr_upd {
-	var $version = '1.76';
+	var $version = '1.77';
 	var $EE;
-	
+
 	function Membrr_upd () {
 		$this->EE =& get_instance();
-		
+
 		return TRUE;
 	}
-	
+
 	function update ($current = '') {
 		if ($current < '1.0.2') {
 			$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` ADD COLUMN `expiry_processed` TINYINT NOT NULL AFTER `active`');
 			$this->EE->db->query('ALTER TABLE `exp_membrr_config` DROP COLUMN `notification_url`');
-			
+
 			$insert_array = array(
 								'class' => 'Membrr',
 								'method' => 'post_notify'
 							);
-							
+
 			$this->EE->db->insert('exp_actions',$insert_array);
 		}
-		
+
 		if ($current < '1.0.3') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` MODIFY COLUMN `end_date` DATETIME');
         }
-        
+
         if ($current < '1.0.5') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_payments` ADD COLUMN `refunded` TINYINT NOT NULL AFTER `date`');
         }
-        
+
         if ($current < '1.0.6') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_plans` ADD COLUMN `plan_initial_charge` FLOAT AFTER `plan_price`');
         }
-        
+
         if ($current < '1.0.8') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_plans` ADD COLUMN `plan_gateway` INT(11) AFTER `plan_initial_charge`');
         }
-        
+
         if ($current < '1.0.91') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_channel_posts` ADD COLUMN `channel_post_date` DATETIME NOT NULL');
         }
-        
+
         if ($current < '1.2') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` ADD COLUMN `renewed_recurring_id` INT(11) AFTER `active`');
         }
-        
+
         if ($current < '1.41') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_address_book` ADD COLUMN `company` VARCHAR(250) AFTER `postal_code`');
         	$this->EE->db->query('ALTER TABLE `exp_membrr_address_book` ADD COLUMN `phone` VARCHAR(250) AFTER `company`');
         }
-        
+
         if ($current < '1.42') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_channels` CHANGE `one_post` `posts` INT(11)');
         }
-        
+
         if ($current < '1.51') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_plans` ADD COLUMN `plan_renewal_extend_from_end` TINYINT(1) AFTER `plan_redirect_url`');
         	$this->EE->db->query('UPDATE `exp_membrr_plans` SET `plan_renewal_extend_from_end` = \'1\'');
         }
-        
+
         if ($current < '1.65') {
         	$this->EE->db->query('CREATE TABLE `exp_membrr_countries` (
 								  `country_id` int(11) NOT NULL,
@@ -85,7 +85,7 @@ class Membrr_upd {
 								  `available` tinyint(1) NOT NULL,
 								  PRIMARY KEY  (`country_id`)
 								) ENGINE=MyISAM DEFAULT CHARSET=utf8;');
-								
+
 			$this->EE->db->query("INSERT INTO `exp_membrr_countries` (`country_id`, `iso2`, `iso3`, `name`, `available`)
 									VALUES
 								(4,'AF','AFG','Afghanistan','1'),
@@ -333,20 +333,20 @@ class Membrr_upd {
 								(732,'EH','ESH','Western Sahara','1'),
 								(887,'YE','YEM','Yemen','1'),
 								(894,'ZM','ZMB','Zambia','1'),
-								(716,'ZW','ZWE','Zimbabwe','1');");	
+								(716,'ZW','ZWE','Zimbabwe','1');");
         }
-        
+
         if ($current < '1.66') {
         	$this->EE->db->query('INSERT INTO `exp_membrr_countries` (`country_id`, `iso2`, `iso3`, `name`, `available`)
 				VALUES
 					(895, \'CW\', \'CW\', \'Curaçao\', \'1\'),
 					(896, \'SX\', \'SX\', \'Sint Maarten\', \'1\');');
         }
-        
-        if ($current < '1.67') { 
+
+        if ($current < '1.67') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` ADD COLUMN `coupon` VARCHAR(250)');
         }
-        
+
         if ($current < '1.68') {
         	$this->EE->db->query('CREATE TABLE `exp_membrr_temp` (
 									  `temp_id` int(11) unsigned NOT NULL auto_increment,
@@ -354,35 +354,35 @@ class Membrr_upd {
 									  PRIMARY KEY  (`temp_id`)
 									) ENGINE=MyISAM DEFAULT CHARSET=utf8;');
         }
-        
+
         if ($current < '1.69') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_config` ADD COLUMN `update_email` TINYINT(1) NOT NULL');
         }
-        
+
         if ($current < '1.71') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_config` ADD COLUMN `use_captcha` TINYINT(1) NOT NULL');
         }
-        
+
         if ($current < '1.72') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` ADD COLUMN `card_last_four` INT(11) NOT NULL AFTER `next_charge_date`');
         }
-		
+
 		return TRUE;
 	}
-	
+
 	function install () {
-		$sql = array();       
-        
-        $sql[] = "INSERT INTO `exp_modules` (module_id, 
-                                           module_name, 
-                                           module_version, 
-                                           has_cp_backend) 
-                                           VALUES 
-                                           ('', 
-                                           'Membrr', 
-                                           '" . $this->version . "', 
+		$sql = array();
+
+        $sql[] = "INSERT INTO `exp_modules` (module_id,
+                                           module_name,
+                                           module_version,
+                                           has_cp_backend)
+                                           VALUES
+                                           ('',
+                                           'Membrr',
+                                           '" . $this->version . "',
                                            'y')";
-                                           
+
         $sql[] = "CREATE TABLE IF NOT EXISTS `exp_membrr_config` (
 				  `api_url` varchar(250) NOT NULL,
 				  `api_id` varchar(80) NOT NULL,
@@ -393,7 +393,7 @@ class Membrr_upd {
 				  `use_captcha` TINYINT(1) NOT NULL,
 				  PRIMARY KEY  (`api_url`)
 				  ) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
-				  
+
 		$sql[] = "CREATE TABLE IF NOT EXISTS `exp_membrr_plans` (
 				  `plan_id` int(11) auto_increment ,
 				  `api_plan_id` int(11) NOT NULL,
@@ -414,7 +414,7 @@ class Membrr_upd {
 				  `plan_deleted` tinyint(4) NOT NULL,
 				  PRIMARY KEY  (`plan_id`)
 				) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1000 ;";
-				
+
 		$sql[] = "CREATE TABLE IF NOT EXISTS `exp_membrr_subscriptions` (
 				 `recurring_id` int(11) PRIMARY KEY ,
 				 `member_id` INT NOT NULL ,
@@ -432,7 +432,7 @@ class Membrr_upd {
 				 `expiry_processed` TINYINT NOT NULL,
 				 `coupon` VARCHAR(250) NOT NULL
 				 ) ENGINE = MYISAM DEFAULT CHARSET=latin1 ;";
-				 
+
 		$sql[] = "CREATE TABLE IF NOT EXISTS `exp_membrr_payments` (
 				 `payment_id` INT AUTO_INCREMENT PRIMARY KEY ,
 				 `charge_id` INT NOT NULL ,
@@ -441,7 +441,7 @@ class Membrr_upd {
 				 `date` DATETIME NOT NULL,
 				 `refunded` TINYINT NOT NULL
 				 ) ENGINE = MYISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1000 ;";
-				 
+
 		$sql[] = "CREATE TABLE IF NOT EXISTS `exp_membrr_address_book` (
 				 `address_id` INT AUTO_INCREMENT PRIMARY KEY ,
 				 `member_id` INT NOT NULL,
@@ -457,16 +457,16 @@ class Membrr_upd {
 				 `company` varchar(250),
 				 `phone` varchar(250)
 				 ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ;";
-				 
+
 		$sql[] = "CREATE TABLE IF NOT EXISTS `exp_membrr_channels` (
 				 `protect_channel_id` INT AUTO_INCREMENT PRIMARY KEY ,
 				 `channel_id` int(11) NOT NULL,
 				 `plans` varchar(250) NOT NULL,
 				 `posts` INT NOT NULL,
 				 `expiration_status` INT NOT NULL,
-				 `order_form` text NOT NULL 
+				 `order_form` text NOT NULL
 				 ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ;";
-				 
+
 		$sql[] = "CREATE TABLE IF NOT EXISTS `exp_membrr_channel_posts` (
 				 `post_id` INT AUTO_INCREMENT PRIMARY KEY,
 				 `channel_id` int(11) NOT NULL,
@@ -475,7 +475,7 @@ class Membrr_upd {
 				 `active` TINYINT NOT NULL,
 				 `channel_post_date` DATETIME NOT NULL
 				 ) ENGINE = MYISAM DEFAULT CHARSET=utf8 ;";
-				 
+
 		$sql[] = 'CREATE TABLE `exp_membrr_countries` (
 								  `country_id` int(11) NOT NULL,
 								  `iso2` varchar(2) NOT NULL,
@@ -484,15 +484,15 @@ class Membrr_upd {
 								  `available` tinyint(1) NOT NULL,
 								  PRIMARY KEY  (`country_id`)
 								) ENGINE=MyISAM DEFAULT CHARSET=utf8;';
-								
-		$sql[] = "INSERT INTO `exp_actions` (action_id, 
-                                           class, 
-                                           method) 
-                                           VALUES 
-                                           ('', 
+
+		$sql[] = "INSERT INTO `exp_actions` (action_id,
+                                           class,
+                                           method)
+                                           VALUES
+                                           ('',
                                            'Membrr',
-                                           'post_notify');";								
-								
+                                           'post_notify');";
+
 		$sql[] = "INSERT INTO `exp_membrr_countries` (`country_id`, `iso2`, `iso3`, `name`, `available`)
 									VALUES
 								(4,'AF','AFG','Afghanistan','1'),
@@ -740,30 +740,30 @@ class Membrr_upd {
 								(732,'EH','ESH','Western Sahara','1'),
 								(887,'YE','YEM','Yemen','1'),
 								(894,'ZM','ZMB','Zambia','1'),
-								(716,'ZW','ZWE','Zimbabwe','1');";					 
-    
+								(716,'ZW','ZWE','Zimbabwe','1');";
+
     	$sql[] = 'INSERT INTO `exp_membrr_countries` (`country_id`, `iso2`, `iso3`, `name`, `available`)
 				VALUES
 					(895, \'CW\', \'CW\', \'Curaçao\', \'1\'),
 					(896, \'SX\', \'SX\', \'Sint Maarten\', \'1\');';
-					
+
 		$sql[] = 'CREATE TABLE `exp_membrr_temp` (
 					  `temp_id` int(11) unsigned NOT NULL auto_increment,
 					  `temp_data` text,
 					  PRIMARY KEY  (`temp_id`)
 					) ENGINE=MyISAM DEFAULT CHARSET=utf8;';
-					                                           
+
         foreach ($sql as $query)
         {
             $this->EE->db->query($query);
         }
-        
+
         return TRUE;
 	}
-	
+
 	function uninstall () {
-		$sql = array();       
-        
+		$sql = array();
+
         $sql[] = "DELETE FROM `exp_modules` WHERE `module_name`='Membrr'";
         $sql[] = "DROP TABLE `exp_membrr_plans`";
         $sql[] = "DROP TABLE `exp_membrr_config`";
@@ -775,12 +775,12 @@ class Membrr_upd {
         $sql[] = "DROP TABLE `exp_membrr_countries`";
         $sql[] = "DROP TABLE `exp_membrr_temp`";
         $sql[] = 'DELETE FROM `exp_actions` WHERE `class` = \'Membrr\'';
-    
+
         foreach ($sql as $query)
         {
             $this->EE->db->query($query);
         }
-        
+
         return TRUE;
 	}
 }
