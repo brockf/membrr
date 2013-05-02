@@ -1356,6 +1356,13 @@ if (!class_exists('Membrr_EE')) {
 
 		 	$this->EE->db->update('exp_membrr_subscriptions',$update_array,array('recurring_id' => $subscription['id']));
 
+		 	// call "membrr_cancel" hook with: member_id, subscription_id, plan_id, end_date
+			if ($this->EE->extensions->active_hook('membrr_before_cancel') == TRUE)
+			{
+			    $this->EE->extensions->call('membrr_before_cancel', $subscription['member_id'], $subscription['id'], $subscription['plan_id'], $subscription['end_date']);
+			    if ($this->EE->extensions->end_script === TRUE) return;
+			}
+
 			if ($make_api_call == true) {
 				$config = $this->GetConfig();
 
