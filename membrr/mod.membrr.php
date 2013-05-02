@@ -41,6 +41,7 @@ class Membrr {
 	var $return_data	= '';
 	var $membrr; // holds the Membrr_EE class
 	var $EE; // holds the EE superobject
+    private $cache = array();
 
     // -------------------------------------
     //  Constructor
@@ -692,62 +693,76 @@ class Membrr {
 
 		$limit = ($this->EE->TMPL->fetch_param('limit')) ? $this->EE->TMPL->fetch_param('limit') : 100;
 
-		$subscriptions = $this->membrr->GetSubscriptions(0,$limit,$filters);
+        $cache_name = md5(__CLASS__ . __METHOD__ . serialize($filters) . $limit);
 
-		if (empty($subscriptions)) {
-			// no subscriptions matching parameters
-			return $this->EE->TMPL->no_results();
-		}
+        // Has this call been cached?
+        if (!isset($this->cache[$cache_name]))
+        {
+    		$subscriptions = $this->membrr->GetSubscriptions(0,$limit,$filters);
 
-		$return = '';
+    		if (empty($subscriptions)) {
+    			// no subscriptions matching parameters
+    			return $this->EE->TMPL->no_results();
+    		}
 
-		foreach ($subscriptions as $subscription) {
-			// get the return format
-			$sub_return = $this->EE->TMPL->tagdata;
+    		$return = '';
 
-			if ($this->EE->TMPL->fetch_param('date_format')) {
-				$subscription['date_created'] = date($this->EE->TMPL->fetch_param('date_format'),strtotime($subscription['date_created']));
-				$subscription['date_cancelled'] = ($subscription['date_cancelled'] != FALSE) ? date($this->EE->TMPL->fetch_param('date_format'),strtotime($subscription['date_cancelled'])) : FALSE;
-				$subscription['next_charge_date'] = ($subscription['next_charge_date'] != FALSE) ? date($this->EE->TMPL->fetch_param('date_format'),strtotime($subscription['next_charge_date'])) : FALSE;
-				$subscription['end_date'] = ($subscription['end_date'] != FALSE) ? date($this->EE->TMPL->fetch_param('date_format'),strtotime($subscription['end_date'])) : FALSE;
-			}
+    		foreach ($subscriptions as $subscription) {
+    			// get the return format
+    			$sub_return = $this->EE->TMPL->tagdata;
 
-			$variables = array();
-			$variables[0] = array(
-							'subscription_id' => $subscription['id'],
-							'recurring_fee' => $subscription['amount'],
-							'date_created' => $subscription['date_created'],
-							'date_cancelled' => $subscription['date_cancelled'],
-							'next_charge_date' => $subscription['next_charge_date'],
-							'end_date' => $subscription['end_date'],
-							'plan_name' => $subscription['plan_name'],
-							'plan_description' => $subscription['plan_description'],
-							'card_last_four' => $subscription['card_last_four'],
-							'plan_id' => $subscription['plan_id'],
-							'channel' => $subscription['channel'],
-							'entry_id' => $subscription['entry_id']
-						);
+    			if ($this->EE->TMPL->fetch_param('date_format')) {
+    				$subscription['date_created'] = date($this->EE->TMPL->fetch_param('date_format'),strtotime($subscription['date_created']));
+    				$subscription['date_cancelled'] = ($subscription['date_cancelled'] != FALSE) ? date($this->EE->TMPL->fetch_param('date_format'),strtotime($subscription['date_cancelled'])) : FALSE;
+    				$subscription['next_charge_date'] = ($subscription['next_charge_date'] != FALSE) ? date($this->EE->TMPL->fetch_param('date_format'),strtotime($subscription['next_charge_date'])) : FALSE;
+    				$subscription['end_date'] = ($subscription['end_date'] != FALSE) ? date($this->EE->TMPL->fetch_param('date_format'),strtotime($subscription['end_date'])) : FALSE;
+    			}
 
-			$sub_return = $this->EE->TMPL->parse_variables($sub_return, $variables);
+    			$variables = array();
+    			$variables[0] = array(
+    							'subscription_id' => $subscription['id'],
+    							'recurring_fee' => $subscription['amount'],
+    							'date_created' => $subscription['date_created'],
+    							'date_cancelled' => $subscription['date_cancelled'],
+    							'next_charge_date' => $subscription['next_charge_date'],
+    							'end_date' => $subscription['end_date'],
+    							'plan_name' => $subscription['plan_name'],
+    							'plan_description' => $subscription['plan_description'],
+    							'card_last_four' => $subscription['card_last_four'],
+    							'plan_id' => $subscription['plan_id'],
+    							'channel' => $subscription['channel'],
+    							'entry_id' => $subscription['entry_id']
+    						);
 
-			// prep conditionals
-			$conditionals = array();
+    			$sub_return = $this->EE->TMPL->parse_variables($sub_return, $variables);
 
-			// put all data in conditionals so they can use {if subscription_id == "4343"} etc.
-			$conditionals['active'] = ($subscription['active'] == '1') ? TRUE : FALSE;
-			// user_cancelled is deprecated
-			$conditionals['user_cancelled'] = ($subscription['cancelled'] == '1') ? TRUE : FALSE;
-			$conditionals['cancelled'] = ($subscription['cancelled'] == '1') ? TRUE : FALSE;
-			$conditionals['renewed'] = ($subscription['renewed'] == TRUE) ? TRUE : FALSE;
-			$conditionals['expired'] = ($subscription['expired'] == '1') ? TRUE : FALSE;
+    			// prep conditionals
+    			$conditionals = array();
 
-			$sub_return = $this->EE->functions->prep_conditionals($sub_return, $conditionals);
+    			// put all data in conditionals so they can use {if subscription_id == "4343"} etc.
+    			$conditionals['active'] = ($subscription['active'] == '1') ? TRUE : FALSE;
+    			// user_cancelled is deprecated
+    			$conditionals['user_cancelled'] = ($subscription['cancelled'] == '1') ? TRUE : FALSE;
+    			$conditionals['cancelled'] = ($subscription['cancelled'] == '1') ? TRUE : FALSE;
+    			$conditionals['renewed'] = ($subscription['renewed'] == TRUE) ? TRUE : FALSE;
+    			$conditionals['expired'] = ($subscription['expired'] == '1') ? TRUE : FALSE;
 
-			// add to return HTML
-			$return .= $sub_return;
+    			$sub_return = $this->EE->functions->prep_conditionals($sub_return, $conditionals);
 
-			unset($sub_return);
-		}
+    			// add to return HTML
+    			$return .= $sub_return;
+
+    			unset($sub_return);
+
+
+    		}
+
+            $this->cache[$cache_name] = $return;
+        }
+        else
+        {
+            $return = $this->cache[$cache_name];
+        }
 
 		$this->return_data = $return;
 
