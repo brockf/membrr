@@ -1242,7 +1242,7 @@ class Membrr {
 										'language' => $this->EE->config->item('language'),
 										'timezone' => $this->EE->config->item('server_timezone'),
 										'time_format' => $this->EE->config->item('time_format'),
-										'daylight_savings' => $this->EE->config->item('daylight_savings'),
+										//'daylight_savings' => $this->EE->config->item('daylight_savings'),
 										'ip_address' => $this->EE->input->ip_address(),
 										'join_date' => $this->EE->localize->now,
 										'email' => $email,
@@ -1251,6 +1251,12 @@ class Membrr {
 										'screen_name' => $screen_name,
 										'password' => sha1($password)
 									);
+
+                    // EE versions prior to 2.6 required the daylight_savings link
+                    if (version_compare(APP_VER, '2.6.0', '<'))
+                    {
+                        $member_data['daylight_savings'] = $this->EE->config->item('time_format');
+                    }
 
 					// Handle other, less used, fields
 					if ($this->EE->input->post('url')) $member_data['url'] = $this->EE->input->post('url');
