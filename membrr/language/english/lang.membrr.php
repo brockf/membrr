@@ -1,6 +1,7 @@
 <?php
 
 $lang = array(
+	'membrr_reports' => 'Reports',
 	'membrr_order_form_select_plan' => 'Select your subscription plan',
 	'membrr_order_form_plan' => 'Subscription Plan',
 	'membrr_order_form_credit_card' => 'Credit Card (not required for free or off-site checkout subscriptions)',

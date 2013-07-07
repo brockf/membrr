@@ -366,6 +366,22 @@ class Membrr_upd {
         if ($current < '1.72') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` ADD COLUMN `card_last_four` INT(11) NOT NULL AFTER `next_charge_date`');
         }
+        
+        if ($current < '1.77') {
+	        $this->EE->db->query('ALTER TABLE  `exp_membrr_address_book` ADD INDEX (`member_id`)');
+        }
+        
+        if ($current < '1.78') {
+        	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` ADD COLUMN `renewal` INT(11) NOT NULL');
+        
+	        $renewals = $this->EE->db->select('renewed_recurring_id')
+	        						 ->where('renewed_recurring_id !=','0')
+	        						 ->get('exp_membrr_subscriptions');
+	        						 
+			foreach ($renewals->result_array() as $renewal) {
+				$this->EE->db->update('exp_membrr_subscriptions', array('renewal' => '1'), array('recurring_id' => $renewal['renewed_recurring_id']));
+			}	        						 
+        }
 
 		return TRUE;
 	}

@@ -3,6 +3,7 @@
 //French Translation by DavidRousseau.com . Comments always welcome!
 
 $lang = array(
+	'membrr_reports' => 'Rapports',
 	'membrr_order_form_select_plan' => 'Veuillez choisir votre abonnement',
 	'membrr_order_form_plan' => 'Abonnement',
 	'membrr_order_form_credit_card' => 'Carte de crédit (facultatif pour les abonemments gratuits ou les paiements hors-lignes)',

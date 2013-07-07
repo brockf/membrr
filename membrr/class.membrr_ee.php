@@ -540,6 +540,9 @@ if (!class_exists('Membrr_EE')) {
 			// mark as renewed
 			$this->EE->db->update('exp_membrr_subscriptions', array('renewed_recurring_id' => $new_subscription), array('recurring_id' => $old_subscription));
 
+			// mark new sub as renewal
+			$this->EE->db->update('exp_membrr_subscriptions', array('renewal' => '1'), array('recurring_id' => $new_subscription));
+			
 			// if this subscription is linked to weblog posts and we're renewing, let's update those
 			$result = $this->EE->db->where('recurring_id',$old_subscription)
 								   ->get('exp_membrr_channel_posts');

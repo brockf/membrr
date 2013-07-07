@@ -6,37 +6,102 @@
 	<? } ?>
 </div>
 <br />
-<h4><?=$this->lang->line('membrr_latest_payments');?></h4>
+
+<h4><?=$this->lang->line('membrr_reports');?></h4>
 <br />
+
+<?=form_open($reports_action);?>
+
 <?php
 
 $this->table->set_template($cp_pad_table_template); // $cp_table_template ?
 
 $this->table->set_heading(
-    array('data' => lang('membrr_id'), 'style' => 'width: 10%;'),
-    array('data' => lang('membrr_user'), 'style' => 'width: 20%;'),
-    array('data' => lang('membrr_subscription'), 'style' => 'width: 10%;'),
-    array('data' => lang('membrr_plan_name'), 'style' => 'width: 15%;'),
-    array('data' => lang('membrr_date'), 'style' => 'width: 20%;'),
-    array('data' => lang('membrr_amount'), 'style' => 'width: 15%;'),
-    array('data' => '', 'style' => 'width: 10%;')
+    array('data' => 'Configure Report', 'colspan' => '4')
 );
 
-if (!$payments) {
+
+$this->table->add_row(
+				array('style' => 'width: 25%', 'data' => 'Start Date: ' . form_dropdown('start_month', $months, $start_month) . ' ' . form_dropdown('start_day', $days, $start_day) . ' ' . form_dropdown('start_year', $years, $start_year)),
+				array('style' => 'width: 15%', 'data' => 'End Date: ' . form_dropdown('end_month', $months, $end_month) . ' ' . form_dropdown('end_day', $days, $end_day) . ' ' . form_dropdown('end_year', $years, $end_year)),
+				array('colspan' => '2', 'data' => '')
+			);
+			
+$this->table->add_row(
+				array('style' => 'width: 25%', 'data' => form_radio('show','subscriptions',($show == 'subscriptions') ? TRUE : FALSE) . ' Subscriptions (' . $count_subscriptions . ')'),
+				array('style' => 'width: 25%', 'data' => form_radio('show','renewals',($show == 'renewals') ? TRUE : FALSE) . ' Renewals (' . $count_renewals . ')'),
+				array('style' => 'width: 25%', 'data' => form_radio('show','expirations',($show == 'expirations') ? TRUE : FALSE) . ' Expirations (' . $count_expirations . ')'),
+				array('style' => 'width: 25%', 'data' => form_radio('show','cancellations',($show == 'cancellations') ? TRUE : FALSE) . ' Cancellations (' . $count_cancellations . ')')
+			);			
+			
+$this->table->add_row(
+				array('colspan' => '4', 'style' => 'width: 100%', 'data' => form_submit('report', 'Refresh Report'))
+			);			
+
+?>
+
+<?=$this->table->generate();?>
+<?=$this->table->clear();?>
+
+<?=form_close();?>
+
+<?
+
+$this->table->set_template($cp_pad_table_template); // $cp_table_template ?
+
+$this->table->set_heading(
+    array('data' => lang('membrr_id'), 'style' => 'width: 7%;'),
+    array('data' => lang('membrr_user'), 'style' => 'width: 20%;'),
+    array('data' => lang('membrr_plan_name'), 'style' => 'width: 15%;'),
+    array('data' => lang('membrr_amount'), 'style' => 'width: 10%;'),
+    array('data' => lang('membrr_next_charge_date'), 'style' => 'width: 17%;'),
+    array('data' => lang('membrr_status'), 'style' => 'width: 10%;'),
+    array('data' => '', 'style' => 'width:26%')
+);
+
+if (!$subscriptions) {
 	$this->table->add_row(array(
-							'data' => lang('membrr_no_payments_dataset'),
+							'data' => lang('membrr_no_subscriptions_dataset'),
 							'colspan' => '7'
 						));
 }
 else {
-	foreach ($payments as $payment) {
-		$this->table->add_row($payment['id'],
-						'<a href="' . $payment['member_link'] . '">' . $payment['user_screenname'] . '</a>',
-						$payment['sub_link'],
-						$payment['plan_name'],
-						$payment['date'],
-						$config['currency_symbol'] . $payment['amount'],
-						$payment['refund_text']
+	foreach ($subscriptions as $subscription) {
+		if ($subscription['active'] == '1') {
+			$status = $this->lang->line('membrr_active');
+		}	
+		elseif ($subscription['expired'] == '1') {
+			$status = $this->lang->line('membrr_expired');
+		}
+		elseif ($subscription['renewed_recurring_id'] != 0) {
+			$status = $this->lang->line('membrr_renewed');
+		}
+		elseif ($subscription['cancelled'] == '1') {
+			$status = $this->lang->line('membrr_cancelled');
+		}
+		else {
+			$status = '';
+		}
+		
+		// prep options dropdown
+		$options = '<select class="sub_options">';
+		
+		$options .= '<option value="" selected="selected">options (' . count($subscription['options']) . ')</option>';
+		
+		foreach ($subscription['options'] as $option => $link) {
+			$options .= '<option value="' . $link . '">' . $option . '</option>';
+		}
+		
+		$options .= '</optgroup></select>';
+		
+		$this->table->add_row(
+						$subscription['recurring_id'],
+						'<a href="' . $subscription['member_link'] . '">' . $subscription['screen_name'] . '</a>',
+						$subscription['plan_name'],
+						$config['currency_symbol'] . $subscription['subscription_price'],
+						($subscription['next_charge_date'] == '0000-00-00') ? '' : date('F j, Y', strtotime($subscription['next_charge_date'])),
+						$status,
+						$options
 					);
 	}
 }
@@ -45,44 +110,4 @@ else {
 
 <?=$this->table->generate();?>
 <?=$this->table->clear();?>
-
-<? if (!empty($months)) { ?>
-
-<br />
-<h4><?=$this->lang->line('membrr_month_by_month');?></h4>
-<br />
-
-<select name="month" style="margin-bottom: 15px">
-	<? foreach ($months as $month) { ?>
-		<option value="<?=$month['url'];?>" <? if ($current['code'] == $month['code']) { ?>selected="selected"<? } ?>><?=$month['month'];?>, <?=$month['year'];?> (<?=$month['difference'];?> subscribers)</option>
-	<? } ?>
-</select>
-
-<?php
-
-$this->table->set_template($cp_pad_table_template); // $cp_table_template ?
-
-$this->table->set_heading(
-    array('data' => lang('membrr_current_month'), 'style' => 'width: 20%;'),
-    array('data' => lang('membrr_current_revenue'), 'style' => 'width: 20%;'),
-    array('data' => lang('membrr_current_subscriptions'), 'style' => 'width: 15%;'),
-    array('data' => lang('membrr_current_expirations'), 'style' => 'width: 15%;'),
-    array('data' => lang('membrr_current_cancellations'), 'style' => 'width: 15%;'),
-    array('data' => lang('membrr_current_payments'), 'style' => 'width: 15%;')
-);
-
-$this->table->add_row(
-				$current['month'],
-				$config['currency_symbol'] . money_format("%!i", $current['revenue']),
-				$current['new_subscribers'],
-				$current['expirations'],
-				$current['cancellations'],
-				$current['payments']
-			);
-
-?>
-
-<?=$this->table->generate();?>
-<?=$this->table->clear();?>
-
-<? } ?>
+<?=$pagination;?> 

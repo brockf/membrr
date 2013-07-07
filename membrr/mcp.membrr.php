@@ -138,148 +138,256 @@ class Membrr_mcp {
 		}
 
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_dashboard');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_dashboard'));
-		}
-
-		// get latest payments
-		$payments = $this->membrr->GetPayments(0,10);
-
-		if (is_array($payments)) {
-			foreach ($payments as $key => $payment) {
-				$payments[$key]['sub_link'] = '<a href="' . $this->cp_url('subscription',array('id' => $payment['recurring_id'])) . '">' . $payment['recurring_id'] . '</a>';
-				if ($payment['amount'] != '0.00') {
-					$payments[$key]['refund_text'] = ($payment['refunded'] == '0') ? '<a href="' . $this->cp_url('refund',array('id' => $payment['id'], 'return' => urlencode(base64_encode(htmlspecialchars_decode($this->cp_url('index')))))) . '">' . $this->EE->lang->line('membrr_refund') . '</a>' : 'refunded';
-				}
-				else {
-					$payments[$key]['refund_text'] = '';
-				}
-
-				$payments[$key]['member_link'] = $this->member_link($payment['member_id']);
-			}
-			reset($payments);
-		}
-
-		// get plans
+		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_dashboard'));
+		
 		$plans = $this->membrr->GetPlans();
-
-		// get monthly reports
-		$result = $this->EE->db->query('SELECT COUNT(recurring_id) AS `new_subscriptions`, MONTH(date_created) AS `date_month`, YEAR(date_created) AS `date_year`
-									    FROM `exp_membrr_subscriptions`
-									    WHERE YEAR(date_created) > 0
-									    GROUP BY YEAR(date_created), MONTH(date_created)
-									    ORDER BY `date_created` DESC');
-
+		
+		/**
+		* NEW REPORTS CODE
+		**/
+		
+		$plan_options = array();
+		$plan_options[0] = 'All Subscription Plans';
+		foreach ($plans as $plan) {
+			$occurrences = ($plan['occurrences'] == 0) ? 'infinite' : $plan['occurrences'] . ' charges';
+			$plan_options[$plan['id']] = $plan['name'] . ' (' . $plan['interval'] . ' days | ' . $occurrences . ')';
+		}
+		
+		$current_plan = ($this->EE->input->get_post('plan_id')) ? $this->EE->input->get_post('plan_id') : 0;
+		
+		// build date components
+		$days = array();
+		for ($i = 1; $i <= 31; $i++) {
+			$days[$i] = $i;
+		}
+		
 		$months = array();
-		if ($result->num_rows() > 0) {
-			foreach ($result->result_array() as $month) {
-				$month['date_month'] = str_pad($month['date_month'], 2, '0', STR_PAD_LEFT);
-
-				$months[$month['date_month'] . $month['date_year']] = array(
-								'code' => $month['date_month'] . $month['date_year'],
-								'year' => $month['date_year'],
-								'month' => date('F', strtotime('2011-' . $month['date_month'] . '-01 12:12:12')),
-								'new_subscribers' => $month['new_subscriptions'],
-								'expirations' => '0',
-								'difference' => '0',
-								'url' => $this->cp_url('index', array('month' => $month['date_month'] . $month['date_year']))
-							);
-			}
+		for ($i = 1; $i <= 12; $i++) {
+			$months[date('m', strtotime('2013-' . $i . '-01 12:12:12'))] = date('F', strtotime('2013-' . $i . '-01 12:12:12'));
 		}
-
-		$result = $this->EE->db->query('SELECT COUNT(recurring_id) AS `expirations`, MONTH(end_date) AS `date_month`, YEAR(end_date) AS `date_year`
-									    FROM `exp_membrr_subscriptions`
-									    WHERE YEAR(end_date) > 0
-									    GROUP BY YEAR(end_date), MONTH(end_date)
-									    ORDER BY `end_date` DESC');
-
-		if ($result->num_rows() > 0) {
-			foreach ($result->result_array() as $month) {
-				$month['date_month'] = str_pad($month['date_month'], 2, '0', STR_PAD_LEFT);
-
-				if (isset($months[$month['date_month'] . $month['date_year']])) {
-					// we have a report for this, so we'll add this to it
-					$months[$month['date_month'] . $month['date_year']]['expirations'] = $month['expirations'];
-				}
-			}
+		
+		$years = array();
+		for ($i = date('Y') - 5; $i <= date('Y'); $i++) {
+			$years[$i] = $i;
 		}
-
-		// calculate difference
-		reset($months);
-
-		foreach ($months as $key => $month) {
-			$difference = $month['new_subscribers'] - $month['expirations'];
-			if ($difference > 0) {
-				$difference = '+' . $difference;
-			}
-
-			$months[$key]['difference'] = $difference;
+		
+		$current_day = date('d');
+		$current_month = date('m');
+		$current_year = date('Y');
+		
+		// count subscriptions, renewals, etc.
+		
+		$start_year = ($this->EE->input->get_post('start_year')) ? $this->EE->input->get_post('start_year') : (($current_month > 1) ? $current_year : $current_year - 1);
+		$start_month = ($this->EE->input->get_post('start_month')) ? $this->EE->input->get_post('start_month') : (($current_month > 1) ? $current_month - 1 : 12);
+		$start_day = ($this->EE->input->get_post('start_day')) ? $this->EE->input->get_post('start_day') : $current_day;
+		
+		$end_year = ($this->EE->input->get_post('end_year')) ? $this->EE->input->get_post('end_year') : $current_year;
+		$end_month = ($this->EE->input->get_post('end_month')) ? $this->EE->input->get_post('end_month') : $current_month;
+		$end_day = ($this->EE->input->get_post('end_day')) ? $this->EE->input->get_post('end_day') : $current_day;
+		
+		$start_full = $start_year . '-' . $start_month . '-' . $start_day;
+		$end_full = $end_year . '-' . $end_month . '-' . $end_day;
+		
+		if (strtotime($start_full) > strtotime($end_full)) {
+			die(show_error('Invalid dates selected for reports. Start date must precede end date'));
 		}
+		
+		// get the total number of subscriptions at end date
+		$total_subs = $this->EE->db->select('COUNT(recurring_id) AS `counted`',FALSE)
+											->select('plan_id')
+											->where('DATE(date_created) <= "' . $end_full . '" AND (DATE(end_date) > "' . $end_full . '" OR end_date = "0000-00-00 00:00:00")')
+											->group_by('plan_id')
+											->get('exp_membrr_subscriptions');
+		
+		$plan_totals = array();									
+		foreach ($total_subs->result_array() as $plan_total) {
+			$plan_totals[$plan_total['plan_id']] = $plan_total['counted'];
+		}									
+		
+		// for some reason, since we added the DB cache, we get these harmless error notices
+		$prev_error_setting = error_reporting();
+		error_reporting(0);
+		
+		// are we limiting to a particular subscription?
+		if ($current_plan != 0) {
+			$this->EE->db->start_cache();
+			$this->EE->db->where('exp_membrr_subscriptions.plan_id', $current_plan);
+			$this->EE->db->stop_cache();
+		}
+		
+		// count total subscriptions
+		$count_subscriptions = $this->EE->db->select('COUNT(recurring_id) AS `counted`',FALSE)
+											->where('DATE(date_created) >=', $start_full)
+											->where('DATE(date_created) <=', $end_full)
+											->where('renewal','0')
+											->get('exp_membrr_subscriptions')
+											->row()
+											->counted;										
+											
+		$count_renewals = 	   $this->EE->db->select('COUNT(recurring_id) AS `counted`',FALSE)
+											->where('DATE(date_created) >=', $start_full)
+											->where('DATE(date_created) <=', $end_full)
+											->where('renewal','1')
+											->get('exp_membrr_subscriptions')
+											->row()
+											->counted;			
+		
+		// count expirations and cancellations
+		$count_cancellations = $this->EE->db->select('COUNT(recurring_id) AS `counted`',FALSE)
+											->where('DATE(date_cancelled) >=', $start_full)
+											->where('DATE(date_cancelled) <=', $end_full)
+											->where('cancelled','1')
+											->get('exp_membrr_subscriptions')
+											->row()
+											->counted;
+											
+		$count_expirations =   $this->EE->db->select('COUNT(recurring_id) AS `counted`',FALSE)
+											->where('DATE(end_date) >=', $start_full)
+											->where('DATE(end_date) <=', $end_full)
+											->where('expired','1')
+											->get('exp_membrr_subscriptions')
+											->row()
+											->counted;
+											
+		// get subscriptions
+		
+		// pass startdate, enddate, and reporttype in GET or POST
+		// get subscriptions directly from database
+		
+		// get pagination
+		$offset = ($this->EE->input->get('rownum')) ? $this->EE->input->get('rownum') : 0;
 
-		// get specific monthly report
-		reset($months);
-
-		$first_month = current($months);
-		$current = ($this->EE->input->get('month')) ? $this->EE->input->get('month') : $first_month['code'];
-
-		$current_month = substr($current,0,2);
-		$current_year = substr($current,2,4);
-
-		$current = array();
-		$current['month'] = date('F, Y', strtotime($current_year . '-' . $current_month . '-01 12:12:12'));
-		$current['code'] = $current_month . $current_year;
-
-		$result = $this->EE->db->query('SELECT COUNT(recurring_id) AS `new_subscriptions`
-									    FROM `exp_membrr_subscriptions`
-									    WHERE YEAR(date_created) = \'' . $current_year . '\' and MONTH(date_created) = \'' . $current_month . '\'');
-
-		$current['new_subscribers'] = $result->row()->new_subscriptions;
-
-		$result = $this->EE->db->query('SELECT COUNT(recurring_id) AS `expirations`
-									    FROM `exp_membrr_subscriptions`
-									    WHERE YEAR(end_date) = \'' . $current_year . '\' and MONTH(end_date) = \'' . $current_month . '\'');
-
-		$current['expirations'] = $result->row()->expirations;
-
-		$result = $this->EE->db->query('SELECT COUNT(recurring_id) AS `cancellations`
-									    FROM `exp_membrr_subscriptions`
-									    WHERE YEAR(date_cancelled) = \'' . $current_year . '\' and MONTH(date_cancelled) = \'' . $current_month . '\'');
-
-		$current['cancellations'] = $result->row()->cancellations;
-
-		$result = $this->EE->db->query('SELECT COUNT(payment_id) AS `payments`
-									    FROM `exp_membrr_payments`
-									    WHERE YEAR(date) = \'' . $current_year . '\' and MONTH(date) = \'' . $current_month . '\'');
-
-		$current['payments'] = $result->row()->payments;
-
-		$result = $this->EE->db->query('SELECT SUM(amount) AS `revenue`
-									    FROM `exp_membrr_payments`
-									    WHERE YEAR(date) = \'' . $current_year . '\' and MONTH(date) = \'' . $current_month . '\'');
-
-		$current['revenue'] = $result->row()->revenue;
-
-		// add javascript for month switcher
-
+		// add JavaScript for options dropdown
 		$this->EE->cp->add_to_head("<script type=\"text/javascript\">
         								$(document).ready(function() {
-        									$('select[name=\"month\"]').change(function () {
-        										window.location.href = $(this).val();
+        									$('select.sub_options').change(function () {
+        										if ($(this).val() != '') {
+        											window.location.href = $(this).val();
+        										}
         									});
         								});
         							</script>");
 
+		// get latest subscriptions
+		$this->EE->db->select('*');
+		$this->EE->db->limit($this->per_page, $offset);								
+		
+		if ($this->EE->input->get_post('show') == 'expirations') {
+			$this->EE->db->where('DATE(end_date) >=', $start_full);
+			$this->EE->db->where('DATE(end_date) <=', $end_full);
+			$this->EE->db->where('expired','1');
+			
+			$total = $count_expirations;
+			
+			$show = 'expirations';
+		}
+		elseif ($this->EE->input->get_post('show') == 'renewals') {
+			$this->EE->db->where('DATE(date_created) >=', $start_full);
+			$this->EE->db->where('DATE(date_created) <=', $end_full);
+			$this->EE->db->where('renewal','1');
+			
+			$total = $count_renewals;
+			
+			$show = 'renewals';
+		}
+		elseif ($this->EE->input->get_post('show') == 'cancellations') {
+			$this->EE->db->where('DATE(date_cancelled) >=', $start_full);
+			$this->EE->db->where('DATE(date_cancelled) <=', $end_full);
+			$this->EE->db->where('cancelled','1');
+			
+			$total = $count_cancellations;
+			
+			$show = 'cancellations';
+		}
+		else {
+			$this->EE->db->where('DATE(date_created) >=', $start_full);
+			$this->EE->db->where('DATE(date_created) <=', $end_full);
+			$this->EE->db->where('renewal','0');
+			
+			$total = $count_subscriptions;
+			
+			$show = 'subscriptions';
+		}
+							
+		$this->EE->db->join('exp_members','exp_membrr_subscriptions.member_id = exp_members.member_id','left');
+		$this->EE->db->join('exp_membrr_plans','exp_membrr_subscriptions.plan_id = exp_membrr_plans.plan_id','left');
+		$subscriptions_q = $this->EE->db->get('exp_membrr_subscriptions');
+		
+		// flush cache with subscription plan ID
+		$this->EE->db->flush_cache();
+		error_reporting($prev_error_setting);
+		
+		$subscriptions = array();
+		foreach ($subscriptions_q->result_array() as $subscription) {
+			$subscriptions[] = $subscription;
+		}
+
+		if (is_array($subscriptions)) {
+			// append $options links
+			foreach ($subscriptions as $key => $subscription) {
+				$options = array();
+				$options[$this->EE->lang->line('membrr_view')] = $this->cp_url('subscription', array('id' => $subscription['recurring_id']));
+
+				if (empty($subscription['renewed'])) {
+					$options[$this->EE->lang->line('membrr_renew')] = $this->cp_url('renew_subscription',array('id' => $subscription['recurring_id']));
+				}
+
+				if ($subscription['active'] == '1') {
+					if (!empty($subscription['card_last_four'])) {
+						$options[$this->EE->lang->line('membrr_update_cc')] = $this->cp_url('update_cc', array('id' => $subscription['recurring_id']));
+					}
+
+					if ($subscription['end_date'] != FALSE) {
+						$options[$this->EE->lang->line('membrr_change_expiration')] = $this->cp_url('expiry', array('id' => $subscription['recurring_id']));
+					}
+
+					$options[$this->EE->lang->line('membrr_cancel')] = $this->cp_url('cancel_subscription',array('id' => $subscription['recurring_id']));
+				}
+
+				$subscriptions[$key]['options'] = $options;
+				$subscriptions[$key]['member_link'] = $this->member_link($subscription['member_id']);
+			}
+
+			reset($subscriptions);
+		}
+
+		// pass the relevant data to the paginate class so it can display the "next page" links
+		$this->EE->load->library('pagination');
+		$p_config = $this->pagination_config('index', $total, array('start_month' => $start_month, 'start_day' => $start_day, 'start_year' => $start_year, 'end_month' => $end_month, 'end_day' => $end_day, 'end_year' => $end_year, 'show' => $this->EE->input->get_post('show')));
+
+		$this->EE->pagination->initialize($p_config);
+
+		/*
+		* SEND TO TEMPLATE
+		*/
+		
 		$vars = array();
-		$vars['payments'] = $payments;
+		$vars['reports_action'] = $this->form_url();
 		$vars['config'] = $this->config;
 		$vars['plans'] = $plans;
+		$vars['plan_options'] = $plan_options;
+		$vars['current_plan'] = $current_plan;
 		$vars['months'] = $months;
-		$vars['current'] = $current;
+		$vars['days'] = $days;
+		$vars['years'] = $years;
+		$vars['current_month'] = $current_month;
+		$vars['current_day'] = $current_day;
+		$vars['current_year'] = $current_year;
+		$vars['start_month'] = $start_month;
+		$vars['start_day'] = $start_day;
+		$vars['start_year'] = $start_year;
+		$vars['end_month'] = $end_month;
+		$vars['end_day'] = $end_day;
+		$vars['end_year'] = $end_year;
+		$vars['count_subscriptions'] = $count_subscriptions;
+		$vars['count_renewals'] = $count_renewals;
+		$vars['count_cancellations'] = $count_cancellations;
+		$vars['count_expirations'] = $count_expirations;
+		$vars['subscriptions'] = $subscriptions;
+		$vars['plan_totals'] = $plan_totals;
+		$vars['pagination'] = $this->EE->pagination->create_links();
+		$vars['cp_url'] = $this->cp_url();																						
+		$vars['show'] = $show;
 
 		return $this->EE->load->view('dashboard',$vars, TRUE);
 	}
