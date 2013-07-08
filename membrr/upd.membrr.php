@@ -446,7 +446,8 @@ class Membrr_upd {
 				 `active` TINYINT NOT NULL ,
 				 `renewed_recurring_id` INT(11) NOT NULL,
 				 `expiry_processed` TINYINT NOT NULL,
-				 `coupon` VARCHAR(250) NOT NULL
+				 `coupon` VARCHAR(250) NOT NULL,
+				 `renewal` INT(11) NOT NULL
 				 ) ENGINE = MYISAM DEFAULT CHARSET=latin1 ;";
 
 		$sql[] = "CREATE TABLE IF NOT EXISTS `exp_membrr_payments` (
@@ -768,6 +769,8 @@ class Membrr_upd {
 					  `temp_data` text,
 					  PRIMARY KEY  (`temp_id`)
 					) ENGINE=MyISAM DEFAULT CHARSET=utf8;';
+					
+		$sql[] = 'ALTER TABLE  `exp_membrr_address_book` ADD INDEX (`member_id`)';			
 
         foreach ($sql as $query)
         {
