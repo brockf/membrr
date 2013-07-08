@@ -49,17 +49,19 @@ $this->table->set_heading(
     array('data' => 'Total Subscriptions at End of Date Range (' . date('F d, Y', strtotime($end_year . '-' . $end_month . '-' . $end_day)) . ')', 'colspan' => '4')
 );
 
-foreach ($plans as $plan) {
-	if ($current_plan == $plan['id'] or $current_plan == 0) {
-		$total = isset($plan_totals[$plan['id']]) ? $plan_totals[$plan['id']] : 0;
-		
-		$occurrences = ($plan['occurrences'] == 0) ? 'infinite' : $plan['occurrences'] . ' charges';
-		$plan_name = $plan['name'] . ' (' . $plan['interval'] . ' days | ' . $occurrences . ')';
-					
-		$this->table->add_row(
-						array('width' => '50%', 'data' => $plan_name),
-						array('width' => '50%', 'data' => $total)
-					);			
+if (!empty($plans)) {
+	foreach ($plans as $plan) {
+		if ($current_plan == $plan['id'] or $current_plan == 0) {
+			$total = isset($plan_totals[$plan['id']]) ? $plan_totals[$plan['id']] : 0;
+			
+			$occurrences = ($plan['occurrences'] == 0) ? 'infinite' : $plan['occurrences'] . ' charges';
+			$plan_name = $plan['name'] . ' (' . $plan['interval'] . ' days | ' . $occurrences . ')';
+						
+			$this->table->add_row(
+							array('width' => '50%', 'data' => $plan_name),
+							array('width' => '50%', 'data' => $total)
+						);			
+		}
 	}
 }
 

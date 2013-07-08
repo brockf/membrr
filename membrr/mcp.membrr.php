@@ -148,9 +148,11 @@ class Membrr_mcp {
 		
 		$plan_options = array();
 		$plan_options[0] = 'All Subscription Plans';
-		foreach ($plans as $plan) {
-			$occurrences = ($plan['occurrences'] == 0) ? 'infinite' : $plan['occurrences'] . ' charges';
-			$plan_options[$plan['id']] = $plan['name'] . ' (' . $plan['interval'] . ' days | ' . $occurrences . ')';
+		if (!empty($plans)) {
+			foreach ($plans as $plan) {
+				$occurrences = ($plan['occurrences'] == 0) ? 'infinite' : $plan['occurrences'] . ' charges';
+				$plan_options[$plan['id']] = $plan['name'] . ' (' . $plan['interval'] . ' days | ' . $occurrences . ')';
+			}
 		}
 		
 		$current_plan = ($this->EE->input->get_post('plan_id')) ? $this->EE->input->get_post('plan_id') : 0;
