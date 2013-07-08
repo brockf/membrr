@@ -16,7 +16,7 @@
 */
 
 class Membrr_upd {
-	var $version = '1.78';
+	var $version = '1.79';
 	var $EE;
 
 	function Membrr_upd () {
@@ -371,7 +371,7 @@ class Membrr_upd {
 	        $this->EE->db->query('ALTER TABLE  `exp_membrr_address_book` ADD INDEX (`member_id`)');
         }
         
-        if ($current < '1.78') {
+        if ($current < '1.79') {
         	$this->EE->db->query('ALTER TABLE `exp_membrr_subscriptions` ADD COLUMN `renewal` INT(11) NOT NULL');
         
 	        $renewals = $this->EE->db->select('renewed_recurring_id')
