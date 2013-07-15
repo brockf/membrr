@@ -307,15 +307,10 @@ if (!class_exists('Membrr_EE')) {
 			}
 
 			$response = $recur->Charge();
-//	die(var_dump($response));
+
 			if (isset($response['response_code']) and $response['response_code'] == '100') {
 				// success!
-
-				// perform renewing subscription maintenance
-				if (!empty($renew_subscription)) {
-					$this->RenewalMaintenance($renew_subscription, $response['recurring_id']);
-				}
-
+				
 				// calculate payment amount
 				$recur_payment = $response['recur_amount'];
 				$payment = $response['amount'];
@@ -376,6 +371,11 @@ if (!class_exists('Membrr_EE')) {
 				if (empty($free_trial) and isset($response['charge_id'])) {
 					// create payment record
 					$this->RecordPayment($response['recurring_id'], $response['charge_id'], $payment);
+				}
+				
+				// perform renewing subscription maintenance
+				if (!empty($renew_subscription)) {
+					$this->RenewalMaintenance($renew_subscription, $response['recurring_id']);
 				}
 			}
 
@@ -535,7 +535,7 @@ if (!class_exists('Membrr_EE')) {
 		function RenewalMaintenance ($old_subscription, $new_subscription) {
 			// we should also cancel the old subscription
 			// cancel the existing subscription
-			$this->CancelSubscription($old_subscription, FALSE, FALSE);
+			$this->CancelSubscription($old_subscription, FALSE, FALSE, TRUE);
 
 			// mark as renewed
 			$this->EE->db->update('exp_membrr_subscriptions', array('renewed_recurring_id' => $new_subscription), array('recurring_id' => $old_subscription));
@@ -1331,7 +1331,7 @@ if (!class_exists('Membrr_EE')) {
 		*
 		* @return boolean
 		*/
-		function CancelSubscription ($sub_id, $make_api_call = TRUE, $expired = FALSE) {
+		function CancelSubscription ($sub_id, $make_api_call = TRUE, $expired = FALSE, $renewed = FALSE) {
 			if (!$subscription = $this->GetSubscription($sub_id)) {
 				return FALSE;
 			}
@@ -1353,7 +1353,7 @@ if (!class_exists('Membrr_EE')) {
 		 	if ($expired == TRUE) {
 		 		$update_array['expired'] = '1';
 		 	}
-		 	else {
+		 	elseif ($expired == FALSE and $renewed == FALSE) {
 		 		$update_array['cancelled'] = '1';
 		 	}
 
