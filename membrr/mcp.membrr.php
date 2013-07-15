@@ -129,6 +129,14 @@ class Membrr_mcp {
         								});
         							</script>');
 	}
+	
+	function set_page_title ($title) {
+		if (version_compare(APP_VER, '2.6', '>=')) {
+			$this->EE->view->cp_page_title = $title;
+		} else {
+			$this->EE->cp->set_variable('cp_page_title', $title);
+		}
+	}
 
 	function index () {
 		// if not configured, send to settings
@@ -138,7 +146,7 @@ class Membrr_mcp {
 		}
 
 		// page title
-		$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_dashboard'));
+		$this->set_page_title($this->EE->lang->line('membrr_dashboard'));
 		
 		$plans = $this->membrr->GetPlans();
 		
@@ -432,14 +440,7 @@ class Membrr_mcp {
 		// perform sync update and checks
 
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_sync');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_sync'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_sync'));
 
 		// store each check in array with keys [ok = true|false], [message = text]
 		$checks = array();
@@ -574,14 +575,7 @@ class Membrr_mcp {
 
 	function channels () {
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_channel_protector');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_channel_protector'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_channel_protector'));
 
 		$channels = $this->membrr->GetChannels();
 		$plans = $this->membrr->GetPlans();
@@ -626,14 +620,7 @@ class Membrr_mcp {
 
 	function new_channel () {
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_protect_a_channel');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_protect_a_channel'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_protect_a_channel'));
 
 		$this->EE->load->model('channel_model');
 		$channels = $this->EE->channel_model->get_channels();
@@ -664,14 +651,7 @@ class Membrr_mcp {
 
 	function new_channel_2 () {
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_protect_a_channel');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_protect_a_channel'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_protect_a_channel'));
 
 		$this->EE->load->library('form_validation');
 
@@ -748,14 +728,7 @@ class Membrr_mcp {
 
 	function edit_channel () {
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_protect_a_channel');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_protect_a_channel'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_protect_a_channel'));
 
 		$this->EE->load->library('form_validation');
 
@@ -832,14 +805,7 @@ class Membrr_mcp {
 
 	function payments () {
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_payments');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_payments'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_payments'));
 
 		// get pagination
 		$offset = ($this->EE->input->get('rownum')) ? $this->EE->input->get('rownum') : 0;
@@ -894,14 +860,7 @@ class Membrr_mcp {
 
 	function subscriptions () {
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_subscriptions');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_subscriptions'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_subscriptions'));
 
 		// get pagination
 		$offset = ($this->EE->input->get('rownum')) ? $this->EE->input->get('rownum') : 0;
@@ -991,14 +950,7 @@ class Membrr_mcp {
 
 	function subscription () {
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_subscription');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_subscription'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_subscription'));
 
 		$subscription = $this->membrr->GetSubscription($this->EE->input->get('id'));
 
@@ -1098,14 +1050,8 @@ class Membrr_mcp {
 	}
 
 	function expiry () {
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_change_expiry_title');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_change_expiry_title'));
-		}
+		// page title
+		$this->set_page_title($this->EE->lang->line('membrr_change_expiry_title'));
 
 		$recurring_id = $this->EE->input->get('id');
 		$subscription = $this->membrr->GetSubscription($recurring_id);
@@ -1194,14 +1140,8 @@ class Membrr_mcp {
 	}
 
 	function update_cc () {
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_update_cc_title');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_update_cc_title'));
-		}
+		// page title
+		$this->set_page_title($this->EE->lang->line('membrr_update_cc_title'));
 
 		$recurring_id = $this->EE->input->get('id');
 		$subscription = $this->membrr->GetSubscription($recurring_id);
@@ -1362,14 +1302,7 @@ class Membrr_mcp {
 	}
 
 	function add_subscription () {
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_create_subscription');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_create_subscription'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_create_subscription'));
 
 		// shall we pass this off?
 		if (!$this->EE->input->post('member_search') and $this->EE->input->post('member_id') and $this->EE->input->post('plan_id')) {
@@ -1424,24 +1357,10 @@ class Membrr_mcp {
 		}
 
 		if ($this->EE->input->get_post('renew')) {
-			if (version_compare(APP_VER, "2.6.0", '>='))
-			{
-				$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_renew_title');
-			}
-			else
-			{
-				$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_renew_title'));
-			}
+			$this->set_page_title($this->EE->lang->line('membrr_renew_title'));
 		}
 		else {
-			if (version_compare(APP_VER, "2.6.0", '>='))
-			{
-				$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_create_subscription');
-			}
-			else
-			{
-				$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_create_subscription'));
-			}
+			$this->set_page_title($this->EE->lang->line('membrr_create_subscription'));
 		}
 
 		$this->EE->load->helper('form');
@@ -1669,14 +1588,7 @@ class Membrr_mcp {
 	}
 
 	function settings () {
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_settings');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_settings'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_settings'));
 
 		$this->EE->load->helper('form');
 		$this->EE->load->library('form_validation');
@@ -1814,14 +1726,7 @@ class Membrr_mcp {
 	}
 
 	function countries () {
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_available_countries');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_available_countries'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_available_countries'));
 
 		 $this->EE->cp->add_to_head('<script type="text/javascript">
         								function uncheck_countries () {
@@ -1885,14 +1790,7 @@ class Membrr_mcp {
 
 	function plans () {
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_plans');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_plans'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_plans'));
 
 		$plans = $this->membrr->GetPlans();
 
@@ -1915,14 +1813,7 @@ class Membrr_mcp {
 
 	function edit_plan () {
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_edit_plan');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_edit_plan'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_edit_plan'));
 
 		$this->EE->load->library('form_validation');
 
@@ -2031,14 +1922,7 @@ class Membrr_mcp {
 
 	function import_plan ($no_plan_id = FALSE) {
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_import_plan');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_import_plan'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_import_plan'));
 
 		$this->server->SetMethod('GetPlans');
 		$response = $this->server->Process();
@@ -2075,14 +1959,7 @@ class Membrr_mcp {
 
 	function import_plan_2 () {
 		// page title
-		if (version_compare(APP_VER, "2.6.0", '>='))
-		{
-			$this->EE->view->cp_page_title = $this->EE->lang->line('membrr_import_plan');
-		}
-		else
-		{
-			$this->EE->cp->set_variable('cp_page_title', $this->EE->lang->line('membrr_import_plan'));
-		}
+		$this->set_page_title($this->EE->lang->line('membrr_import_plan'));
 
 		$this->EE->load->library('form_validation');
 
