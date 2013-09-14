@@ -1039,6 +1039,9 @@ class Membrr {
 	    $var_data[0] = $variables;
 
 		$sub_return = $this->EE->TMPL->parse_variables($sub_return, $var_data);
+		
+		// EE 2.7 has made XID's mandatory in all requests... so let's hack it in there
+		$sub_return = str_replace('</form>', '<input type="hidden" name="XID" value="' . XID_SECURE_HASH . '" /></form>', $sub_return);
 
     	$this->return_data = $sub_return;
 
@@ -1547,7 +1550,6 @@ class Membrr {
 						));
 
 
-//		die('<pre>'. print_r($address, true));
 			// Make our plan_id available for repopulating
 			// a select_value
 			if (!empty($plan))
@@ -1740,9 +1742,12 @@ class Membrr {
 	    $var_data[0] = $variables;
 
 		$sub_return = $this->EE->TMPL->parse_variables($sub_return, $var_data);
+		
+		// EE 2.7 has made XID's mandatory in all requests... so let's hack it in there
+		$sub_return = str_replace('</form>', '<input type="hidden" name="XID" value="' . XID_SECURE_HASH . '" /></form>', $sub_return);
 
     	$this->return_data = $sub_return;
-
+    	
     	return $sub_return;
     }
 
@@ -2282,7 +2287,11 @@ class Membrr {
 						<legend>Subscribe</legend>
 						<input type="submit" name="process_subscription" value="' . $button_value . '" />
 					</fieldset>
+					
+					<input type="hidden" name="XID" value="' . XID_SECURE_HASH . '" />
 					</form>';
+					
+					
 
 		return $return;
     }
