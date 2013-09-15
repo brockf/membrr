@@ -1040,6 +1040,10 @@ class Membrr {
 
 		$sub_return = $this->EE->TMPL->parse_variables($sub_return, $var_data);
 		
+		if (!defined('XID_SECURE_HASH')) {
+			define('XID_SECURE_HASH',$this->EE->security->generate_xid());
+		}
+		
 		// EE 2.7 has made XID's mandatory in all requests... so let's hack it in there
 		$sub_return = str_replace('</form>', '<input type="hidden" name="XID" value="' . XID_SECURE_HASH . '" /></form>', $sub_return);
 
@@ -1744,6 +1748,9 @@ class Membrr {
 		$sub_return = $this->EE->TMPL->parse_variables($sub_return, $var_data);
 		
 		// EE 2.7 has made XID's mandatory in all requests... so let's hack it in there
+		if (!defined('XID_SECURE_HASH')) {
+			define('XID_SECURE_HASH',$this->EE->security->generate_xid());
+		}
 		$sub_return = str_replace('</form>', '<input type="hidden" name="XID" value="' . XID_SECURE_HASH . '" /></form>', $sub_return);
 
     	$this->return_data = $sub_return;
@@ -2282,6 +2289,10 @@ class Membrr {
 		$return .= '</ul></fieldset>';
 
 		$button_value = ($this->EE->TMPL->fetch_param('button')) ? $this->EE->TMPL->fetch_param('button') : 'Subscribe Now';
+		
+		if (!defined('XID_SECURE_HASH')) {
+			define('XID_SECURE_HASH',$this->EE->security->generate_xid());
+		}
 
 		$return .=	'<fieldset class="subscribe">
 						<legend>Subscribe</legend>
