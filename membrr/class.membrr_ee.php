@@ -336,6 +336,11 @@ if (!class_exists('Membrr_EE')) {
 							$old_end_date = $this->_calculate_end_date($subscription['end_date'], $subscription['next_charge_date'], $subscription['date_created']);
 
 							$time_to_calculate_end = strtotime($old_end_date);
+							
+							// we don't want to take on the end dates from previously expired subscriptions
+							if ($time_to_calculate_end < time()) {
+								$time_to_calculate_end = time();
+							}
 						}
 
 						$end_date = date('Y-m-d H:i:s',$time_to_calculate_end + ($free_trial * 86400) + ($plan['occurrences'] * $plan['interval'] * 86400));
@@ -1415,7 +1420,7 @@ if (!class_exists('Membrr_EE')) {
 				$time_created = date('H:i:s',strtotime($start_date));
 				$end_date = $next_charge_date . ' ' . $time_created;
 			}
-			elseif ($end_date != '0000-00-00 00:00:00') {
+			elseif ($end_date != '0000-00-00 00:00:00' and (strtotime($end_date) + (60*60*24)) > time()) {
 				// there is a set end_date
 				$end_date = $end_date;
 			}
