@@ -2425,17 +2425,17 @@ class Membrr {
     	}
 
     	// is the secret key OK?  ie. is this a legitimate call?
-		if ($this->EE->input->post('secret_key') != $config['secret_key']) {
+		if ($this->EE->input->get_post('secret_key') != $config['secret_key']) {
 			die('Invalid secret key.');
 		}
 
-		if (!$this->EE->input->post('customer_id') or !$this->EE->input->post('recurring_id')) {
+		if (!$this->EE->input->get_post('customer_id') or !$this->EE->input->get_post('recurring_id')) {
 			die('Insufficient data.');
 		}
 
 		// get customer data from server
 		$server->SetMethod('GetCustomer');
-		$server->Param('customer_id',$this->EE->input->post('customer_id'));
+		$server->Param('customer_id',$this->EE->input->get_post('customer_id'));
 		$response = $server->Process();
 
 		if (!is_array($response) or !isset($response['customer'])) {
@@ -2446,29 +2446,29 @@ class Membrr {
 		}
 
 		// get subscription data locally
-		$subscription = $this->membrr->GetSubscription($this->EE->input->post('recurring_id'));
+		$subscription = $this->membrr->GetSubscription($this->EE->input->get_post('recurring_id'));
 
 		if (!$subscription) {
 			die('Error retrieving subscription data locally.');
 		}
 
-		if ($this->EE->input->post('action') == 'recurring_charge') {
-			if (!$this->EE->input->post('charge_id')) {
+		if ($this->EE->input->get_post('action') == 'recurring_charge') {
+			if (!$this->EE->input->get_post('charge_id')) {
 				die('No charge ID.');
 			}
 
-			if (is_array($this->membrr->GetPayments(0,1,array('id' => $this->EE->input->post('charge_id'))))) {
+			if (is_array($this->membrr->GetPayments(0,1,array('id' => $this->EE->input->get_post('charge_id'))))) {
 		 		die('Charge already recorded.');
 		 	}
 
 			$server->SetMethod('GetCharge');
-			$server->Param('charge_id',$this->EE->input->post('charge_id'));
+			$server->Param('charge_id',$this->EE->input->get_post('charge_id'));
 			$charge = $server->Process();
 
 			$charge = $charge['charge'];
 
 		 	// record charge
-			$this->membrr->RecordPayment($this->EE->input->post('recurring_id'), $this->EE->input->post('charge_id'), $charge['amount']);
+			$this->membrr->RecordPayment($this->EE->input->get_post('recurring_id'), $this->EE->input->get_post('charge_id'), $charge['amount']);
 
 			// update next charge date
 			$plan = $this->membrr->GetPlan($subscription['plan_id']);
@@ -2490,12 +2490,12 @@ class Membrr {
 				$next_charge_date = date('Y-m-d',$next_charge_date);
 			}
 
-			$this->membrr->SetNextCharge($this->EE->input->post('recurring_id'),$next_charge_date);
+			$this->membrr->SetNextCharge($this->EE->input->get_post('recurring_id'),$next_charge_date);
 		}
-		elseif ($this->EE->input->post('action') == 'recurring_cancel') {
+		elseif ($this->EE->input->get_post('action') == 'recurring_cancel') {
 			$this->membrr->CancelSubscription($subscription['id'],FALSE);
 		}
-		elseif ($this->EE->input->post('action') == 'recurring_expire' or $this->EE->input->post('action') == 'recurring_fail') {
+		elseif ($this->EE->input->get_post('action') == 'recurring_expire' or $this->EE->input->get_post('action') == 'recurring_fail') {
 			$this->membrr->CancelSubscription($subscription['id'],FALSE,TRUE);
 		}
     }
