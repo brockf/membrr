@@ -411,7 +411,12 @@ class Membrr_mcp {
 	}
 
 	function cp_url ($action = 'index', $variables = array()) {
-		$url = BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp' . AMP . 'module=membrr'.AMP.'method=' . $action;
+		if ($this->EE->config->item('app_version') >= 280) {
+			$url = cp_url('addons_modules/show_module_cp', array_merge(array('module' => 'membrr','method' => $action), $variables));
+		}
+		else {
+			$url = BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp' . AMP . 'module=membrr'.AMP.'method=' . $action;
+		}
 
 		foreach ($variables as $variable => $value) {
 			$url .= AMP . $variable . '=' . $value;
@@ -421,7 +426,12 @@ class Membrr_mcp {
 	}
 
 	function form_url ($action = 'index', $variables = array()) {
-		$url = AMP.'C=addons_modules'.AMP.'M=show_module_cp' . AMP . 'module=membrr'.AMP.'method=' . $action;
+		if ($this->EE->config->item('app_version') >= 280) {
+			$url = 'C=addons_modules'.AMP.'M=show_module_cp' . AMP . 'module=membrr'.AMP.'method=' . $action;
+		}
+		else {
+			$url = AMP.'C=addons_modules'.AMP.'M=show_module_cp' . AMP . 'module=membrr'.AMP.'method=' . $action;
+		}
 
 		foreach ($variables as $variable => $value) {
 			$url .= AMP . $variable . '=' . $value;
