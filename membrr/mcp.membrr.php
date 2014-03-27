@@ -441,7 +441,17 @@ class Membrr_mcp {
 	}
 
 	function member_link ($member_id) {
-		$url = BASE.AMP.'D=cp'.AMP.'C=myaccount'.AMP.'id='. $member_id;
+		// if they are anonymous, they don't have a member link
+		if (strpos($member_id,'anon') !== FALSE) {
+			return FALSE;
+		}
+
+		if ($this->EE->config->item('app_version') >= 280) {
+			$url = cp_url('myaccount', array('id' => $member_id));
+		}
+		else {
+			$url = BASE.AMP.'D=cp'.AMP.'C=myaccount'.AMP.'id='. $member_id;
+		}
 
 		return $url;
 	}
