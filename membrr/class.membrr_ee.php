@@ -859,15 +859,15 @@ if (!class_exists('Membrr_EE')) {
 								 ->where('active','1')
 								 ->join('exp_channel_data','exp_channel_data.entry_id = exp_membrr_channel_posts.channel_entry_id','inner');
 
-					$result = $this->EE->db->get('exp_membrr_channel_posts');
+					$posts_linked_to_sub = $this->EE->db->get('exp_membrr_channel_posts')->num_rows();
 
-					if ($result->num_rows() < $posts) {
+					if ($posts_linked_to_sub < $posts) {
 						return $subscription['recurring_id'];
 					}
-
-					// we must not have found a good subscription
-					return FALSE;
 				}
+				
+				// we must not have found a good subscription
+				return FALSE;
 			}
 		}
 
