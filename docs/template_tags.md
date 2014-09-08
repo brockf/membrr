@@ -141,7 +141,7 @@ order form.
 This tag can also register a new user in the ExpressionEngine member database, providing certain conditions are met.  This allows you
 to condense the subscription and registration process into one form.
 
-#### `&lt;form&gt;` Configuration
+#### `<form>` Configuration
 
 *   `method="POST"` (use tag `{form_method}`)
 *   `action=""` - The form will submit to the same page it resides on (use tag `{form_action}`)
@@ -250,7 +250,7 @@ If the form returns errors when submitted, the following fields will contain the
 
 Each member custom field (created in your EE control panel at Members > Member Custom Fields) should be passed with the field's "name"
 as the name of the member custom field.  For example, if you have a custom field named "favourite_colour", you would have the
-following in your form: `&lt;input type="text" name="favourite_colour" value="{favourite_colour}" /&gt;`.
+following in your form: `<input type="text" name="favourite_colour" value="{favourite_colour}" />`.
 
 The `{favourite_colour}` tag in the code above will pre-populate the field if the form is submitted and has
 errors that need correcting.
@@ -538,8 +538,7 @@ Returns:
     
 *   Conditionals:
 
-        *   `active` - Subscription is still actively recurring.
-*   `active` - Subscription is still actively recurring.
+	*   `active` - Subscription is still actively recurring.
     
     ```
     {if active}Your next charge will be {next_charge_date}{/if} 
@@ -706,14 +705,12 @@ Returns:
 
 Example:
 
-    <pre class="example"><div class="codeblock">`<span style="color: #000000">
-<span style="color: #0000BB">{exp</span><span style="color: #007700">:</span><span style="color: #0000BB">membrr</span><span style="color: #007700">:</span><span style="color: #0000BB">cancel id</span><span style="color: #007700">=</span><span style="color: #DD0000">"{segment_3}"</span><span style="color: #0000BB">}
-{if cancelled}Your subscription was cancelled</span><span style="color: #007700">!</span><span style="color: #0000BB">{</span><span style="color: #007700">/</span><span style="color: #0000BB">if}
-{if failure}Subscription could not be cancelled</span><span style="color: #007700">.</span><span style="color: #0000BB">{</span><span style="color: #007700">/</span><span style="color: #0000BB">if}
-{</span><span style="color: #007700">/</span><span style="color: #0000BB">exp</span><span style="color: #007700">:</span><span style="color: #0000BB">membrr</span><span style="color: #007700">:</span><span style="color: #0000BB">cancel} </span>
-
-    </span>
-`</div></pre>
+```
+{exp:membrr:cancel id="{segment_3}"}
+{if cancelled}Your subscription was cancelled!{/if}
+{if failure}Subscription could not be cancelled.{/if}
+{/exp:membrr:cancel} 
+```
 
 ### &#123;exp:membrr:has_subscription_for_channel&#125;
 
