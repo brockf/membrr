@@ -183,7 +183,7 @@ if (!class_exists('Membrr_EE')) {
 			// coupon?
 			if ($coupon != FALSE) {
 				// may be using PayPal, so we should store this
-				$this->EE->functions->set_cookie('membrr_coupon', $coupon, 86400);
+				$this->EE->input->set_cookie('membrr_coupon', $coupon, 86400);
 
 				$recur->Coupon($coupon);
 			}
@@ -659,7 +659,7 @@ if (!class_exists('Membrr_EE')) {
 			}
 
 			// set receipt cookie
-			$this->EE->functions->set_cookie('membrr_charge_id', $charge_id, 86400);
+			$this->EE->input->set_cookie('membrr_charge_id', $charge_id, 86400);
 
 			return TRUE;
 		}

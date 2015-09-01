@@ -88,7 +88,7 @@ class Membrr_mcp {
         $this->EE->load->library('table');
 
         // load CSS
-        $this->EE->cp->add_to_head('<style type="text/css" media="screen">
+        $this->EE->cp->add_to_foot('<style type="text/css" media="screen">
         								div.membrr_box {
         									border: 1px solid #ccc;
         									background-color: #fff;
@@ -119,7 +119,7 @@ class Membrr_mcp {
         							</style>');
 
         // add JavaScript
-        $this->EE->cp->add_to_head('<script type="text/javascript">
+        $this->EE->cp->add_to_foot('<script type="text/javascript">
         								$(document).ready(function() {
         									$(\'a.confirm\').click(function () {
         										if (!confirm(\'Are you sure you want to delete this?\')) {
@@ -268,7 +268,7 @@ class Membrr_mcp {
 		$offset = ($this->EE->input->get('rownum')) ? $this->EE->input->get('rownum') : 0;
 
 		// add JavaScript for options dropdown
-		$this->EE->cp->add_to_head("<script type=\"text/javascript\">
+		$this->EE->cp->add_to_foot("<script type=\"text/javascript\">
         								$(document).ready(function() {
         									$('select.sub_options').change(function () {
         										if ($(this).val() != '') {
@@ -894,7 +894,7 @@ class Membrr_mcp {
 		}
 
 		// add JavaScript for options dropdown
-		$this->EE->cp->add_to_head("<script type=\"text/javascript\">
+		$this->EE->cp->add_to_foot("<script type=\"text/javascript\">
         								$(document).ready(function() {
         									$('select.sub_options').change(function () {
         										if ($(this).val() != '') {
@@ -1580,7 +1580,7 @@ class Membrr_mcp {
 		}
 
 		// add a little JavaScript
-	    $this->EE->cp->add_to_head("<script type=\"text/javascript\">
+	    $this->EE->cp->add_to_foot("<script type=\"text/javascript\">
         								$(document).ready(function() {
         									$('select[name=\"end_date_day\"], select[name=\"end_date_month\"], select[name=\"end_date_year\"]').focus(function () {
         										$('input[name=\"never_ends\"]').attr('checked',false);
@@ -1748,7 +1748,7 @@ class Membrr_mcp {
 	function countries () {
 		$this->set_page_title($this->EE->lang->line('membrr_available_countries'));
 
-		 $this->EE->cp->add_to_head('<script type="text/javascript">
+		 $this->EE->cp->add_to_foot('<script type="text/javascript">
         								function uncheck_countries () {
         									$(\'input.countries\').attr(\'checked\',false);
         								}

@@ -1399,14 +1399,14 @@ class Membrr {
 
 					$expire = (60*60*24); // 1 day expire
 
-					$this->EE->functions->set_cookie($this->EE->session->c_expire , time()+$expire, $expire);
+					$this->EE->input->set_cookie($this->EE->session->c_expire , time()+$expire, $expire);
 
 					// we have to check for these variables because EE2.2 removed them
 					if (isset($this->EE->session->c_uniqueid)) {
-				        $this->EE->functions->set_cookie($this->EE->session->c_uniqueid , $unique_id, $expire);
+				        $this->EE->input->set_cookie($this->EE->session->c_uniqueid , $unique_id, $expire);
 				    }
 				    if (isset($this->EE->session->c_password)) {
-				    	$this->EE->functions->set_cookie($this->EE->session->c_password , sha1($password),  $expire);
+				    	$this->EE->input->set_cookie($this->EE->session->c_password , sha1($password),  $expire);
 				    }
 
 					$this->EE->session->create_new_session($member_id);
@@ -1414,7 +1414,7 @@ class Membrr {
 				}
 
 				// they may be getting passed to external checkout... so let's save the redirect_url
-				$this->EE->functions->set_cookie('membrr_redirect_url', $this->EE->TMPL->fetch_param('redirect_url'), 86400);
+				$this->EE->input->set_cookie('membrr_redirect_url', $this->EE->TMPL->fetch_param('redirect_url'), 86400);
 
 				// subscribe!
 				$response = $this->membrr->Subscribe($plan_id, $member_id, $credit_card, $customer, FALSE, FALSE, FALSE, '', '', $gateway_id, $renew_subscription, $coupon);
