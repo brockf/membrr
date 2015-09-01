@@ -131,11 +131,7 @@ class Membrr_mcp {
 	}
 	
 	function set_page_title ($title) {
-		if ($this->EE->config->item('app_version') >= 260) {
-			$this->EE->view->cp_page_title = $title;
-		} else {
-			$this->EE->cp->set_variable('cp_page_title', $title);
-		}
+		$this->EE->view->cp_page_title = $title;
 	}
 
 	function index () {
