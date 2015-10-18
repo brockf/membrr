@@ -422,13 +422,8 @@ class Membrr_mcp {
 	}
 
 	function form_url ($action = 'index', $variables = array()) {
-		if ($this->EE->config->item('app_version') >= 280) {
-			$url = 'C=addons_modules'.AMP.'M=show_module_cp' . AMP . 'module=membrr'.AMP.'method=' . $action;
-		}
-		else {
-			$url = AMP.'C=addons_modules'.AMP.'M=show_module_cp' . AMP . 'module=membrr'.AMP.'method=' . $action;
-		}
-
+		$url = 'C=addons_modules'.AMP.'M=show_module_cp' . AMP . 'module=membrr'.AMP.'method=' . $action;	
+		
 		foreach ($variables as $variable => $value) {
 			$url .= AMP . $variable . '=' . $value;
 		}
