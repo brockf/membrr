@@ -1234,7 +1234,7 @@ class Membrr {
 				}
 
 				if ($screen_name != $email && $screen_name != $username) {
-					$result = $this->EE->db->where('screen_name',$username)
+					$result = $this->EE->db->where('screen_name',$screen_name)
 										   ->get('exp_members');
 
 					if ($result->num_rows() > 0) {
