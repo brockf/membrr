@@ -1244,6 +1244,13 @@ class Membrr {
 
 				if (empty($errors)) {
 					// attempt to create an account, put an error if $errors[] if failed
+					$this->EE->load->library('auth');
+					$hashed_password = $this->EE->auth->hash_password($password);
+					
+					// generate unique ID and crpy key
+					$unique_id = random_string('encrypt');
+					$crypt_key = $this->EE->functions->random('encrypt', 16);
+		
 					$member_data = array(
 										'group_id' => $this->EE->config->item('default_member_group'),
 										'language' => $this->EE->config->item('language'),
@@ -1254,9 +1261,11 @@ class Membrr {
 										'join_date' => $this->EE->localize->now,
 										'email' => $email,
 										'unique_id' => $unique_id,
+										'crypt_key' => $crypt_key,
 										'username' => $username,
 										'screen_name' => $screen_name,
-										'password' => sha1($password)
+										'password' => $hashed_password['password'],
+										'salt' => $hashed_password['salt']
 									);
 
                     // EE versions prior to 2.6 required the daylight_savings link
