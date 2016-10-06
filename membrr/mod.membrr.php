@@ -1030,7 +1030,9 @@ class Membrr {
 
 	    $error_string = '';
 	    foreach ($errors as $error) {
-	    	$error_string .= '<div>' . $error . '</div>';
+		    if (!empty(trim($error))) {
+		    	$error_string .= '<div>' . $error . '</div>';
+		    }
 	    }
 	    $variables['errors'] = $error_string;
 
