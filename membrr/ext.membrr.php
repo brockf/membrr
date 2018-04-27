@@ -34,7 +34,7 @@ class Membrr_ext
     //	Constructor
     //	----------------------------------
     
-    function Membrr_ext ($settings = '')
+    function __construct ($settings = '')
     {
     	// load Membrr_EE class
     	if (!class_exists('Membrr_EE')) {
